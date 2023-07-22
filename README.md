@@ -25,7 +25,7 @@ Para utilizar, basta realizar sua injeção como um workflow reutilizável no pr
     jobs:
       ci-cd:
         name: CI/CD
-        uses: felipemenezesdm/laravel-deploy-actions/.github/workflows/gcp-app-dev.yml@v1
+        uses: precursora/general-deploy-actions/.github/workflows/gcp-laravel-app-dev.yml@v1
         secrets: inherit
         with:
           service: ${{ github.event.repository.name }}
