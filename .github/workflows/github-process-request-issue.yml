@@ -86,6 +86,8 @@ jobs:
           done
         env:
           GH_TOKEN: ${{github.token}}
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Execute script
         id: execute
         run: bash ${GITHUB_WORKSPACE}/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
