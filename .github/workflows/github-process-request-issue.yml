@@ -1,0 +1,70 @@
+# .github/workflows/setup-repository-issue.yml
+name: Process Request by Issue
+on:
+  workflow_call:
+env:
+  API: https://api.github.com
+  ORG: ${{github.repository_owner}}
+  SETUP: ${{github.event.repository.name}}
+  NUMBER: ${{github.event.issue.number}}
+jobs:
+  prepare:
+    name: Prepare
+    permissions: read-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get issue labels
+        id: labels
+        run: |
+          # Obter labels da issue
+          issueLabels=$(gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}}/labels --template '{{. | pluck "name" | join ","}}')
+          requestType="none"
+          catalogType="none"
+          
+          if [[ $issueLabels == *"setup"* ]];
+          then
+            requestType="setup"
+          elif [[ $issueLabels == *"purge"* ]];
+          then
+            requestType="purge"
+          elif [[ $issueLabels == *"archive"* ]];
+          then
+            requestType="archive"
+          fi
+          
+          if [[ $issueLabels == *"application"* ]];
+          then
+            catalogType="application"
+          elif [[ $issueLabels == *"dependency"* ]];
+          then
+            catalogType="dependency"
+          fi
+          
+          echo "requestType=${requestType}" >> $GITHUB_OUTPUT
+          echo "catalogType=${requestType}" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{github.token}}
+      - name: Get issue form as JSON
+        id: form
+        run: |
+          # Recuperar formulário da issue
+          issueContent=$(gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}} --jq ".body")
+
+          # Organizar chave e valor baseado no conteúdo do formulário da issue
+          previousItem=
+          issueJson=
+          index=0
+          IFS=$'\n'
+          for item in $issueContent; do
+              if (( $index % 2 == 0 )); then
+                  previousItem="${item:4}"
+              else
+                  issueJson+="\"${previousItem}\":\"${item}\","
+              fi
+
+              index=$index+1
+          done
+          
+          echo "form={${issueJson%,}}" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{github.token}}
