@@ -93,7 +93,7 @@ jobs:
           ref: develop
       - name: Execute script
         id: execute
-        run: bash ./general-deploy-actions/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
+        run: bash ${GITHUB_WORKSPACE}/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
   finish:
     needs: [process]
     name: Finish
