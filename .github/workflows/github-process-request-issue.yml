@@ -33,6 +33,9 @@ jobs:
           elif [[ "$issueLabels" == *"archive"* ]];
           then
             requestType="archive"
+          elif [[ "$issueLabels" == *"change-visibility"* ]];
+          then
+              requestType="change-visibility"
           fi
           
           if [[ "$issueLabels" == *"application"* ]];
@@ -41,6 +44,9 @@ jobs:
           elif [[ "$issueLabels" == *"dependency"* ]];
           then
             catalogType="dependency"
+          elif [[ "$issueLabels" == *"module"* ]];
+          then
+              catalogType="module"
           fi
           
           echo "requestType=${requestType}" >> $GITHUB_OUTPUT
