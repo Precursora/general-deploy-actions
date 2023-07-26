@@ -89,10 +89,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
+          repository: precursora/general-deploy-actions
           ref: develop
       - name: Execute script
         id: execute
-        run: bash ${GITHUB_WORKSPACE}/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
+        run: bash ./general-deploy-actions/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
   finish:
     needs: [process]
     name: Finish
