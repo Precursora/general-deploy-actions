@@ -12,6 +12,9 @@ jobs:
     name: Prepare
     permissions: read-all
     runs-on: ubuntu-latest
+    outputs:
+      requestType: "${{steps.labels.outputs.requestType}}"
+      catalogType: "${{steps.labels.outputs.catalogType}}"
     steps:
       - name: Get issue labels
         id: labels
@@ -21,21 +24,21 @@ jobs:
           requestType="none"
           catalogType="none"
           
-          if [[ $issueLabels == *"setup"* ]];
+          if [[ "$issueLabels" == *"setup"* ]];
           then
             requestType="setup"
-          elif [[ $issueLabels == *"purge"* ]];
+          elif [[ "$issueLabels" == *"purge"* ]];
           then
             requestType="purge"
-          elif [[ $issueLabels == *"archive"* ]];
+          elif [[ "$issueLabels" == *"archive"* ]];
           then
             requestType="archive"
           fi
           
-          if [[ $issueLabels == *"application"* ]];
+          if [[ "$issueLabels" == *"application"* ]];
           then
             catalogType="application"
-          elif [[ $issueLabels == *"dependency"* ]];
+          elif [[ "$issueLabels" == *"dependency"* ]];
           then
             catalogType="dependency"
           fi
@@ -44,27 +47,53 @@ jobs:
           echo "catalogType=${requestType}" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{github.token}}
+  process:
+    needs: prepare
+    name: Process
+    permissions: write-all
+    runs-on: ubuntu-latest
+    outputs:
+      label: "${{steps.execute.outputs.label}}"
+      message: "${{steps.execute.outputs.message}}"
+    steps:
       - name: Get issue form as JSON
         id: form
         run: |
+          declare -A issueArray 
+
           # Recuperar formulário da issue
           issueContent=$(gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}} --jq ".body")
+          issueContent="$issueContent"
 
           # Organizar chave e valor baseado no conteúdo do formulário da issue
           previousItem=
-          issueJson=
           index=0
           IFS=$'\n'
           for item in $issueContent; do
               if (( $index % 2 == 0 )); then
                   previousItem="${item:4}"
               else
-                  issueJson+="\"${previousItem}\":\"${item}\","
+                issueArray["$previousItem"]="$item"
               fi
 
               index=$index+1
           done
-          
-          echo "form={${issueJson%,}}" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{github.token}}
+      - name: Execute script
+        id: execute
+        run: bash ${GITHUB_WORKSPACE}/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
+  finish:
+    needs: [process]
+    name: Finish
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add label to issue
+        run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}}/labels -X POST -f labels[]="${{needs.process.outputs.label}}"
+      - name: Add comment to issue
+        run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}}/comments -X POST -f body="${{needs.process.outputs.message}}"
+      - name: Close issue
+        run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}} -X POST -f state="closed"
         env:
           GH_TOKEN: ${{github.token}}
