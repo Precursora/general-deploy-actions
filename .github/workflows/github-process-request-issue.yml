@@ -102,9 +102,9 @@ jobs:
     steps:
       - name: Add label to issue
         run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}}/labels -X POST -f labels[]="${{needs.process.outputs.label}}"
+        env:
+          GH_TOKEN: ${{github.token}}
       - name: Add comment to issue
         run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}}/comments -X POST -f body="${{needs.process.outputs.message}}"
       - name: Close issue
         run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}} -X POST -f state="closed"
-        env:
-          GH_TOKEN: ${{github.token}}
