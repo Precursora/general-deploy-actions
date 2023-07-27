@@ -84,7 +84,7 @@ jobs:
               index=$index+1
           done
       - name: Checkout code
-        run: ls
+        run: ls -la ${GITHUB_WORKSPACE}
       # - name: Execute script
       #   id: execute
       #   run: bash ${GITHUB_WORKSPACE}/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
