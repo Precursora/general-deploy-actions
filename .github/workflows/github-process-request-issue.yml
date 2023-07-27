@@ -7,6 +7,7 @@ env:
   ORG: ${{github.repository_owner}}
   SETUP: ${{github.event.repository.name}}
   NUMBER: ${{github.event.issue.number}}
+  GH_TOKEN: ${{github.token}}
 jobs:
   prepare:
     name: Prepare
@@ -51,16 +52,14 @@ jobs:
           
           echo "requestType=${requestType}" >> $GITHUB_OUTPUT
           echo "catalogType=${requestType}" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{github.token}}
   process:
     needs: prepare
     name: Process
     permissions: write-all
     runs-on: ubuntu-latest
-    outputs:
-      label: "${{steps.execute.outputs.label}}"
-      message: "${{steps.execute.outputs.message}}"
+    # outputs:
+      # label: "${{steps.execute.outputs.label}}"
+      # message: "${{steps.execute.outputs.message}}"
     steps:
       - name: Get issue form as JSON
         id: form
@@ -84,16 +83,11 @@ jobs:
 
               index=$index+1
           done
-        env:
-          GH_TOKEN: ${{github.token}}
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          repository: precursora/general-deploy-actions
-          ref: develop
-      - name: Execute script
-        id: execute
-        run: bash ${GITHUB_WORKSPACE}/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
+        run: ls
+      # - name: Execute script
+      #   id: execute
+      #   run: bash ${GITHUB_WORKSPACE}/src/process-issue-${{needs.prepare.outputs.requestType}}.sh
   finish:
     needs: [process]
     name: Finish
@@ -102,8 +96,6 @@ jobs:
     steps:
       - name: Add label to issue
         run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}}/labels -X POST -f labels[]="${{needs.process.outputs.label}}"
-        env:
-          GH_TOKEN: ${{github.token}}
       - name: Add comment to issue
         run: gh api ${{env.API}}/repos/${{env.ORG}}/${{env.SETUP}}/issues/${{env.NUMBER}}/comments -X POST -f body="${{needs.process.outputs.message}}"
       - name: Close issue
