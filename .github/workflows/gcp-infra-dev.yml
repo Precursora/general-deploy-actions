@@ -2,18 +2,16 @@ name: Deploy to GCP - DEV
 on:
   workflow_call:
     secrets:
-      GCP_CREDENTIALS_DEV:
-        required: true
       GCP_PROJECT_ID_DEV:
         required: true
-    inputs:
-      service:
-        type: string
+      GCP_PROJECT_NAME_DEV:
+        required: true
+      GCP_SERVICE_NAME:
         required: true
 env:
-  CREDENTIALS: ${{ secrets.GCP_CREDENTIALS_DEV }}
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
-  SERVICE: ${{ inputs.service }}-develop
+  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME_DEV }}
+  SERVICE: ${{ secrets.GCP_SERVICE_NAME }}-develop
   TF_VAR_FILE: ./environments/dev/terraform.tfvars
 jobs:
   validation:
@@ -37,12 +35,17 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+      - name: GCP Auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: 'projects/${{ env.PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+          service_account: 'devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com'
       - name: Setup backend
         run: |
           cat > backend.tf << EOF
           terraform {
             backend "gcs" {
-              bucket  = "${{ env.PROJECT_ID }}-state-files"
+              bucket  = "${{ env.PROJECT_NAME }}-state-files"
               prefix  = "${{ env.SERVICE }}"
             }
           }
@@ -58,22 +61,21 @@ jobs:
           to: json
       - name: Terraform init
         run: terraform init
-        env:
-          GOOGLE_CREDENTIALS: ${{ env.CREDENTIALS }}
       - name: Terraform destroy
         if: fromJSON(steps.destroy.outputs.output).destroy.enabled == true
         run: |
           resources=($(echo '${{ toJSON(fromJSON(steps.destroy.outputs.output).destroy.resources) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
-          if [ ${#resources[*]} -ne 0 ]; then for i in ${resources[@]}; do terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}"; done else terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}"; fi
-        env:
-          GOOGLE_CREDENTIALS: ${{ env.CREDENTIALS }}
+
+          if [ ${#resources[*]} -ne 0 ]; then
+            for i in ${resources[@]}; do
+              terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+            done
+          else
+            terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+          fi
       - name: Terraform plan
         if: fromJSON(steps.destroy.outputs.output).destroy.enabled != true
         run: terraform plan -var-file="${{ env.TF_VAR_FILE }}"
-        env:
-          GOOGLE_CREDENTIALS: ${{ env.CREDENTIALS }}
       - name: Terraform apply
         if: fromJSON(steps.destroy.outputs.output).destroy.enabled != true
         run: terraform apply -auto-approve -var-file="${{ env.TF_VAR_FILE }}"
-        env:
-          GOOGLE_CREDENTIALS: ${{ env.CREDENTIALS }}
