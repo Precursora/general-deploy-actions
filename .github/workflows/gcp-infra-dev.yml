@@ -10,8 +10,8 @@ on:
         required: true
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
-  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME_DEV }}
-  SERVICE: ${{ secrets.GCP_SERVICE_NAME }}-develop
+  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
+  SERVICE: ${{ secrets.GCP_SERVICE_NAME }}-dev
   TF_VAR_FILE: ./environments/dev/terraform.tfvars
 jobs:
   validation:
