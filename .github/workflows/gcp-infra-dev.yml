@@ -2,14 +2,14 @@ name: Deploy to GCP - DEV
 on:
   workflow_call:
     secrets:
-      GCP_PROJECT_ID_DEV:
+      GCP_PROJECT_NUMBER_DEV:
         required: true
       GCP_PROJECT_NAME_DEV:
         required: true
       GCP_SERVICE_NAME:
         required: true
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
+  PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
   PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
   SERVICE: ${{ secrets.GCP_SERVICE_NAME }}-dev
   TF_VAR_FILE: ./environments/dev/terraform.tfvars
@@ -38,7 +38,7 @@ jobs:
       - name: GCP Auth
         uses: google-github-actions/auth@v1
         with:
-          workload_identity_provider: 'projects/${{ env.PROJECT_ID }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
+          workload_identity_provider: 'projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
           service_account: 'devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com'
       - name: Setup backend
         run: |
