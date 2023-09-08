@@ -41,8 +41,6 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
       - name: Setup backend
         run: |
           cat > backend.tf << EOF
