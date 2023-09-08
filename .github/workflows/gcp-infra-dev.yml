@@ -4,14 +4,14 @@ on:
     secrets:
       GCP_PROJECT_NUMBER_DEV:
         required: true
-      GCP_PROJECT_NAME_DEV:
+      GCP_PROJECT_NAME:
         required: true
       GCP_SERVICE_NAME:
         required: true
 env:
   PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
   PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
-  SERVICE: ${{ secrets.GCP_SERVICE_NAME }}-dev
+  SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-dev
   TF_VAR_FILE: ./environments/dev/terraform.tfvars
 jobs:
   validation:
@@ -46,7 +46,7 @@ jobs:
           terraform {
             backend "gcs" {
               bucket  = "${{ env.PROJECT_NAME }}-state-files"
-              prefix  = "${{ env.SERVICE }}"
+              prefix  = "${{ env.SERVICE_NAME }}"
             }
           }
           EOF
