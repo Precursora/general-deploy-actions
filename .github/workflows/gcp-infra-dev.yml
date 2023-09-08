@@ -13,6 +13,7 @@ env:
   PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
   SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-dev
   TF_VAR_FILE: ./environments/dev/terraform.tfvars
+permissions: write-all
 jobs:
   validation:
     name: Validation
@@ -38,8 +39,8 @@ jobs:
       - name: GCP Auth
         uses: google-github-actions/auth@v1
         with:
-          workload_identity_provider: 'projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider'
-          service_account: 'devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com'
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Setup backend
         run: |
           cat > backend.tf << EOF
