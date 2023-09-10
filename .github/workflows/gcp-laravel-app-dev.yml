@@ -270,7 +270,11 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+      - name: Check if jobs exists
+        id: status
+        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
       - name: Destroy job
-        run: result=$(gcloud run jobs delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet)
+        if: ${{ steps.status.outputs.status != 'True' }}
+        run: gcloud run jobs delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
       - name: Destroy service
-        run: result=$(gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet)
+        run: gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
