@@ -124,10 +124,6 @@ jobs:
         run: |
           cd app
           COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
-      - name: Gerenate keys
-        run: |
-          cd app
-          php artisan passport:keys --force
       - name: Run unit tests
         run:
           cd app 
