@@ -19,6 +19,8 @@ jobs:
   init:
     name: Initialization
     runs-on: ubuntu-latest
+    outputs:
+      destroy: ${{ fromJson(steps.destroy.outputs.output).destroy }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -33,7 +35,7 @@ jobs:
     needs: init
     name: Load application settings
     runs-on: ubuntu-latest
-    if: fromJson(needs.init.outputs.output).destroy == false
+    if: needs.init.outputs.destroy == false
     outputs:
       service_account: "${{ fromJSON(steps.settings.outputs.output).service_account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
@@ -253,7 +255,7 @@ jobs:
     needs: init
     name: Destroy resources
     runs-on: ubuntu-latest
-    if: fromJson(needs.init.outputs.output).destroy == true
+    if: needs.init.outputs.destroy == true
     steps:
       - name: GCP Auth
         uses: google-github-actions/auth@v1
