@@ -143,9 +143,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Install infection
         run: |
-          composer global config --no-plugins allow-plugins.infection/extension-installer true
-          composer global require infection/infection
-          export PATH=~/.config/composer/vendor/bin:$PATH
+          curl -sSL -O https://github.com/infection/infection/releases/download/0.27.0/infection.phar
+          chmod a+x infection.phar
+          mv infection.phar /usr/local/bin/infection
       - name: Installing dependencies
         run: |
           cd app
