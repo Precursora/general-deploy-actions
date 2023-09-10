@@ -12,7 +12,7 @@ env:
   PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
   PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
   SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-dev
-  IMAGE_PATH: ${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_SERVICE_NAME }}-dev:${{ github.sha }}
+  IMAGE_PATH: us-docker.pkg.dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_SERVICE_NAME }}-dev:${{ github.sha }}
   ENVIRONMENT: dev
 permissions: write-all
 jobs:
