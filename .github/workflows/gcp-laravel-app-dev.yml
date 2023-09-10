@@ -143,10 +143,10 @@ jobs:
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Docker Auth
         run: gcloud auth configure-docker us-docker.pkg.dev --quiet
-      #- name: Clean project
-      #  run: ls -d */ | grep -v "app/" | xargs rm -r
+      - name: Clean project
+        run: ls -d */ | grep -v "app/" | xargs rm -r
       - name: Composer Auth File
-        run: composer config github-oauth.github.com ${{ secrets.GH_REPO_ADMIN_TOKEN }} --file="app/"
+        run: composer config github-oauth.github.com ${{ secrets.GH_REPO_ADMIN_TOKEN }} --file="./app/composer.json"
       - name: Build
         run: docker build -t ${{ env.IMAGE_PATH }} . -f app.dockerfile --build-arg APP_ENV=${{ env.ENVIRONMENT }}
       - name: Push
