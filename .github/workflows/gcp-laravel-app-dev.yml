@@ -32,7 +32,7 @@ jobs:
           from: yaml
           to: json
       - name: teste
-        run: echo "${{steps.destroy.outputs.output}}"
+        run: echo "${{fromJson(steps.destroy.outputs.output).destroy}}"
   settings:
     needs: init
     name: Load application settings
