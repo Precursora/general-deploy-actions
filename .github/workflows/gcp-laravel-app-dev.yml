@@ -57,6 +57,8 @@ jobs:
       test-disable-mutation: "${{ fromJSON(steps.settings.outputs.output).test.disable.mutation }}"
       test-disable-integration: "${{ fromJSON(steps.settings.outputs.output).test.disable.integration }}"
     steps:
+      - name: teste
+        run: echo "${{needs.init.outputs.destroy}}"
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Load environment application settings
