@@ -20,7 +20,7 @@ jobs:
     name: Initialization
     runs-on: ubuntu-latest
     outputs:
-      destroy: ${{ fromJson(steps.destroy.outputs.output).destroy }}
+      destroy: "${{ fromJson(steps.destroy.outputs.output).destroy }}"
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -31,8 +31,6 @@ jobs:
           input: destroy.yml
           from: yaml
           to: json
-      - name: teste
-        run: echo "${{fromJson(steps.destroy.outputs.output).destroy}}"
   settings:
     needs: init
     name: Load application settings
