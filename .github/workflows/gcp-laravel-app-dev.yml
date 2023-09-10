@@ -91,7 +91,7 @@ jobs:
       - name: Validating dependencies
         run: |
           cd app 
-          GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
+          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
   validate-phpmd:
     needs: settings
     name: Validate / PHPMD
@@ -123,7 +123,7 @@ jobs:
       - name: Installing dependencies
         run: |
           cd app
-          GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
+          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
       - name: Gerenate keys
         run: |
           cd app
