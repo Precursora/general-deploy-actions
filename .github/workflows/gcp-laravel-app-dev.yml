@@ -67,7 +67,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          path: ./app
+          path: app
       - name: Validating composer.json and composer-lock.json
         run: composer validate --strict
   validate-composer-cache:
@@ -78,7 +78,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          path: ./app
+          path: app
       - name: Validating composer cache
         uses: actions/cache@v3
         with:
