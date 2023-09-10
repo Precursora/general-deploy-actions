@@ -127,10 +127,32 @@ jobs:
       - name: Run unit tests
         run: |
           cd app
-          XDEBUG_MODE="coverage,debug" composer run test-unit
+          XDEBUG_MODE="coverage" composer run test-unit
+  test-mutation:
+    needs:
+      - settings
+      - validate-composer
+      - validate-composer-cache
+      - validate-install-dependencies
+      - validate-phpmd
+    name: Test / Mutation
+    runs-on: ubuntu-latest
+    if: ${{ needs.settings.outputs.test-disable-mutation != 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Installing dependencies
+        run: |
+          cd app
+          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
+      - name: Run unit tests
+        run: |
+          cd app
+          composer run test-mutation
   deploy:
     needs:
       - test-unit
+      - test-mutation
       - settings
     name: Deploy to DEV
     environment:
