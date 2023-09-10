@@ -127,7 +127,7 @@ jobs:
       - name: Run unit tests
         run: |
           cd app
-          composer run test-unit
+          XDEBUG_MODE="coverage,debug" composer run test-unit
   deploy:
     needs:
       - test-unit
