@@ -242,7 +242,7 @@ jobs:
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Check if job exists
         id: status
-        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
+        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
       - name: Create job if not exists
         if: ${{ steps.status.outputs.status != 'True' }}
         run: gcloud run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ needs.settings.outputs.region }}
@@ -272,13 +272,13 @@ jobs:
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Check if job exists
         id: job-status
-        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
+        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
       - name: Destroy job
         if: ${{ steps.job-status.outputs.status == 'True' }}
         run: gcloud run jobs delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
       - name: Check if service exists
         id: service-status
-        run: echo "status="$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
+        run: echo "status="$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
       - name: Destroy service
         if: ${{ steps.service-status.outputs.status == 'True' }}
         run: gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
