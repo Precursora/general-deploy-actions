@@ -59,74 +59,74 @@ jobs:
         run: |
           entrypoint=($(echo '${{ toJSON(fromJSON(steps.settings.outputs.output).command.entrypoint) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
           echo "entrypoint="$(IFS=,; echo "${entrypoint[*]}") >> $GITHUB_OUTPUT
-  # validate-composer:
-  #   needs: settings
-  #   name: Validate / Composer
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v3
-  #     - name: Validating composer.json and composer-lock.json
-  #       run: composer validate --strict
-  # validate-composer-cache:
-  #   needs: settings
-  #   name: Validate / Composer Cache
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v3
-  #     - name: Validating composer cache
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: vendor
-  #         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-  #         restore-keys: ${{ runner.os }}-php-
-  # validate-install-dependencies:
-  #   needs: settings
-  #   name: Validate / Install Dependencies
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v3
-  #     - name: Validating dependencies
-  #       run: composer install --prefer-dist --no-progress
-  # validate-phpmd:
-  #   needs: settings
-  #   name: Validate / PHPMD
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v3
-  #     - name: Executing PHPMD
-  #       uses: GeneaLabs/action-reviewdog-phpmd@1.0.0
-  #       with:
-  #         github_token: ${{ github.token }}
-  #         level: warning
-  #         reporter: github-check
-  #         standard: cleancode,codesize,controversial,design,naming,unusedcode
-  #         target_directory: app
-  # test-unit:
-  #   needs:
-  #     - settings
-  #     - validate-composer
-  #     - validate-composer-cache
-  #     - validate-install-dependencies
-  #     - validate-phpmd
-  #   name: Test / Unit
-  #   runs-on: ubuntu-latest
-  #   if: ${{ needs.settings.outputs.test-disable-unit != 'true' }}
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-  #     - name: Installing dependencies
-  #       run: composer install --no-progress
-  #     - name: Gerenate keys
-  #       run: php artisan passport:keys --force
-  #     - name: Run unit tests
-  #       run: composer run test-unit
+  validate-composer:
+    needs: settings
+    name: Validate / Composer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Validating composer.json and composer-lock.json
+        run: composer validate --strict
+  validate-composer-cache:
+    needs: settings
+    name: Validate / Composer Cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Validating composer cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-php-
+  validate-install-dependencies:
+    needs: settings
+    name: Validate / Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Validating dependencies
+        run: GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --prefer-dist --no-progress
+  validate-phpmd:
+    needs: settings
+    name: Validate / PHPMD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Executing PHPMD
+        uses: GeneaLabs/action-reviewdog-phpmd@1.0.0
+        with:
+          github_token: ${{ github.token }}
+          level: warning
+          reporter: github-check
+          standard: cleancode,codesize,controversial,design,naming,unusedcode
+          target_directory: app/app
+  test-unit:
+    needs:
+      - settings
+      - validate-composer
+      - validate-composer-cache
+      - validate-install-dependencies
+      - validate-phpmd
+    name: Test / Unit
+    runs-on: ubuntu-latest
+    if: ${{ needs.settings.outputs.test-disable-unit != 'true' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Installing dependencies
+        run: GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
+      - name: Gerenate keys
+        run: php artisan passport:keys --force
+      - name: Run unit tests
+        run: composer run test-unit
   deploy:
     needs:
-  #    - test-unit
+      - test-unit
       - settings
     name: Deploy to DEV
     environment:
