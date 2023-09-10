@@ -141,6 +141,8 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+      - name: Clean project
+        run: ls -d */ | grep -v "app/\|infra/" | xargs rm -r
       - name: Docker Auth
         run: gcloud auth configure-docker us-docker.pkg.dev --quiet
       - name: Build
