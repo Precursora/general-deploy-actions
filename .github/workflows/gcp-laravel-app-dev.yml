@@ -20,7 +20,8 @@ jobs:
     name: Initialization
     runs-on: ubuntu-latest
     outputs:
-      output: ${{ steps.destroy.outputs.output }}
+      destroy: ${{ steps.destroy.outputs.output }}
+      region: ${{ fromJSON(steps.settings.outputs.output).settings.region }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -31,11 +32,18 @@ jobs:
           input: destroy.yml
           from: yaml
           to: json
+      - name: Load environment application settings
+        id: settings
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: ./infra/properties/${{ env.ENVIRONMENT }}.yml
+          from: yaml
+          to: json
   settings:
     needs: init
     name: Load application settings
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.output).destroy != true }}
+    if: ${{ fromJson(needs.init.outputs.destroy).destroy != true }}
     outputs:
       service_account: "${{ fromJSON(steps.settings.outputs.output).service_account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
@@ -57,8 +65,6 @@ jobs:
       test-disable-mutation: "${{ fromJSON(steps.settings.outputs.output).test.disable.mutation }}"
       test-disable-integration: "${{ fromJSON(steps.settings.outputs.output).test.disable.integration }}"
     steps:
-      - name: teste
-        run: echo "${{needs.init.outputs.destroy}}"
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Load environment application settings
@@ -257,7 +263,7 @@ jobs:
     needs: init
     name: Destroy resources
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.output).destroy == true }}
+    if: ${{ fromJson(needs.init.outputs.destroy).destroy == true }}
     steps:
       - name: GCP Auth
         uses: google-github-actions/auth@v1
@@ -265,4 +271,4 @@ jobs:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Destroy
-        run: gcloud run services delete ${{ env.SERVICE_NAME }}
+        run: gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }}
