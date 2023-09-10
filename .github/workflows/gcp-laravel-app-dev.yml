@@ -66,10 +66,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-        with:
-          path: app
       - name: Validating composer.json and composer-lock.json
-        run: composer validate --strict
+        run: cd app && composer validate --strict
   validate-composer-cache:
     needs: settings
     name: Validate / Composer Cache
@@ -77,8 +75,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-        with:
-          path: app
       - name: Validating composer cache
         uses: actions/cache@v3
         with:
@@ -92,10 +88,10 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-        with:
-          path: ./app
       - name: Validating dependencies
-        run: GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --prefer-dist --no-progress
+        run: |
+          cd app 
+          GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --prefer-dist --no-progress
   validate-phpmd:
     needs: settings
     name: Validate / PHPMD
@@ -103,8 +99,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-        with:
-          path: ./app
       - name: Executing PHPMD
         uses: GeneaLabs/action-reviewdog-phpmd@1.0.0
         with:
@@ -112,7 +106,7 @@ jobs:
           level: warning
           reporter: github-check
           standard: cleancode,codesize,controversial,design,naming,unusedcode
-          target_directory: app/
+          target_directory: app/app/
   test-unit:
     needs:
       - settings
@@ -126,14 +120,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          path: ./app
       - name: Installing dependencies
-        run: GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
+        run: |
+          cd app
+          GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
       - name: Gerenate keys
-        run: php artisan passport:keys --force
+        run: |
+          cd app
+          php artisan passport:keys --force
       - name: Run unit tests
-        run: composer run test-unit
+        run:
+          cd app 
+          composer run test-unit
   deploy:
     needs:
       - test-unit
