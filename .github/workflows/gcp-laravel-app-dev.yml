@@ -242,13 +242,13 @@ jobs:
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Check if jobs exists
         id: status
-        run: echo "status="$(gcloud beta run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
+        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
       - name: Create job if not exists
         if: ${{ steps.status.outputs.status != 'True' }}
-        run: gcloud beta run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ needs.settings.outputs.region }}
+        run: gcloud run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ needs.settings.outputs.region }}
       - name: Update job
         run: |
-          gcloud beta run jobs update ${{ env.SERVICE_NAME }} \
+          gcloud run jobs update ${{ env.SERVICE_NAME }} \
             --image ${{ env.IMAGE_PATH }} \
             --region ${{ needs.settings.outputs.region }} \
             --command="${{ needs.settings.outputs.command-entrypoint }}" \
@@ -258,7 +258,7 @@ jobs:
             --add-cloudsql-instances=${{ needs.settings.outputs.instances }} \
             --service-account ${{ needs.settings.outputs.service_account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Execute job
-        run: gcloud beta run jobs execute ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --wait
+        run: gcloud run jobs execute ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --wait
   destroy:
     needs: init
     name: Destroy resources
@@ -270,5 +270,7 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Destroy
+      - name: Destroy job
+        run: gcloud run jobs delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
+      - name: Destroy service
         run: gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
