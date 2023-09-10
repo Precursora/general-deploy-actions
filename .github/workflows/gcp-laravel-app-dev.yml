@@ -139,7 +139,7 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-application@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Docker Auth
         run: gcloud auth configure-docker ${{ env.PROJECT_NAME }} --quiet
       - name: Build
@@ -180,7 +180,7 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-application@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Check if jobs exists
         id: status
         run: echo "status="$(gcloud beta run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
