@@ -282,3 +282,16 @@ jobs:
       - name: Destroy service
         if: ${{ steps.service-status.outputs.status == 'True' }}
         run: gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
+  create-pr:
+    needs:
+      - custom-command-execution
+      - destroy
+    name: Create Pull Request to Main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Create PR to Main
+        run: gh pr create -B main -H develop --title 'PR Develop > Main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_REPO_ADMIN_TOKEN }}
