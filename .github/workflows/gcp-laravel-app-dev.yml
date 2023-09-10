@@ -286,6 +286,7 @@ jobs:
     needs:
       - custom-command-execution
       - destroy
+    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure')
     name: Create Pull Request to Main
     runs-on: ubuntu-latest
     steps:
