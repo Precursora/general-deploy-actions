@@ -66,6 +66,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          path: ./app
       - name: Validating composer.json and composer-lock.json
         run: composer validate --strict
   validate-composer-cache:
@@ -75,6 +77,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          path: ./app
       - name: Validating composer cache
         uses: actions/cache@v3
         with:
@@ -88,6 +92,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          path: ./app
       - name: Validating dependencies
         run: GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --prefer-dist --no-progress
   validate-phpmd:
@@ -97,6 +103,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
+        with:
+          path: ./app
       - name: Executing PHPMD
         uses: GeneaLabs/action-reviewdog-phpmd@1.0.0
         with:
@@ -104,7 +112,7 @@ jobs:
           level: warning
           reporter: github-check
           standard: cleancode,codesize,controversial,design,naming,unusedcode
-          target_directory: app/app
+          target_directory: app/
   test-unit:
     needs:
       - settings
@@ -118,6 +126,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          path: ./app
       - name: Installing dependencies
         run: GITHUB_TOKEN="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
       - name: Gerenate keys
