@@ -16,9 +16,24 @@ env:
   ENVIRONMENT: dev
 permissions: write-all
 jobs:
+  init:
+    name: Initialization
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Load destruction settings
+        id: destroy
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: destroy.yml
+          from: yaml
+          to: json
   settings:
+    needs: init
     name: Load application settings
     runs-on: ubuntu-latest
+    if: fromJson(needs.init.outputs.output).destroy == true
     outputs:
       service_account: "${{ fromJSON(steps.settings.outputs.output).service_account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
