@@ -31,11 +31,13 @@ jobs:
           input: destroy.yml
           from: yaml
           to: json
+      - name: teste
+        run: echo "${{steps.destroy.outputs.output}}"
   settings:
     needs: init
     name: Load application settings
     runs-on: ubuntu-latest
-    if: needs.init.outputs.destroy == false
+    if: needs.init.outputs.destroy != true
     outputs:
       service_account: "${{ fromJSON(steps.settings.outputs.output).service_account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
