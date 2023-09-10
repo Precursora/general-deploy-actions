@@ -293,6 +293,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Create PR to Main
-        run: gh pr create -B main -H develop --title 'PR Develop > Main'
+        run: gh pr create -B main -H develop --title 'PR Develop > Main' --body ''
         env:
           GITHUB_TOKEN: ${{ secrets.GH_REPO_ADMIN_TOKEN }}
