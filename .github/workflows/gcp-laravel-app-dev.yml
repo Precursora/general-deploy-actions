@@ -142,7 +142,7 @@ jobs:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Docker Auth
-        run: gcloud auth configure-docker ${{ env.PROJECT_NAME }} --quiet
+        run: gcloud auth configure-docker us-docker.pkg.dev --quiet
       - name: Composer Auth File
         run: cd app && composer config github-oauth.github.com ${{ secrets.GH_REPO_ADMIN_TOKEN }}
       - name: Build
