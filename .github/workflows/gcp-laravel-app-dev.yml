@@ -144,7 +144,7 @@ jobs:
       - name: Docker Auth
         run: gcloud auth configure-docker ${{ env.PROJECT_NAME }} --quiet
       - name: Composer Auth File
-        run: composer config github-oauth.github.com ${{ secrets.GH_REPO_ADMIN_TOKEN }}
+        run: cd app && composer config github-oauth.github.com ${{ secrets.GH_REPO_ADMIN_TOKEN }}
       - name: Build
         run: docker build -t ${{ env.IMAGE_PATH }} . -f app.dockerfile --build-arg APP_ENV=${{ env.ENVIRONMENT }}
       - name: Composer Auth File Destroy
