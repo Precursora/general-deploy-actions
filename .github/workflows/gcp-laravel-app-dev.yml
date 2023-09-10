@@ -141,7 +141,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Install infection
+      - name: Installing infection
         run: |
           curl -sSL -O https://github.com/infection/infection/releases/download/0.27.0/infection.phar
           chmod a+x infection.phar
@@ -150,7 +150,7 @@ jobs:
         run: |
           cd app
           COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{ secrets.GH_REPO_ADMIN_TOKEN }}\"}}" composer install --no-progress
-      - name: Run unit tests
+      - name: Run mutation tests
         run: |
           cd app
           composer run test-mutation
