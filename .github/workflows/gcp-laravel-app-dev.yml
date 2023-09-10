@@ -14,6 +14,7 @@ env:
   SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-dev
   IMAGE_PATH: ${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_SERVICE_NAME }}-dev:${{ github.sha }}
   ENVIRONMENT: dev
+permissions: write-all
 jobs:
   settings:
     name: Load application settings
