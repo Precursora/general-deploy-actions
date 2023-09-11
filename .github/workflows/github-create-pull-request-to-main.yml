@@ -8,6 +8,8 @@ jobs:
   create-pr:
     name: Create Pull Request to Main
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_REPO_ADMIN_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -20,5 +22,3 @@ jobs:
       - name: Create PR to Main
         if: steps.pr-number.outputs.number == ''
         run: gh api repos/${{github.repository_owner}}/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="main" -f head="develop"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_REPO_ADMIN_TOKEN }}
