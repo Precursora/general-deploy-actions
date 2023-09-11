@@ -1,0 +1,24 @@
+name: Create PR Develop to Main
+on:
+  workflow_call:
+permissions: write-all
+env:
+  DEFAULT_PR_TITLE: "PR automático develop > main"
+jobs:
+  create-pr:
+    name: Create Pull Request to Main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Check if PR exists
+        id: pr-number
+        run: echo "number=$(gh api "repos/${{github.repository_owner}}/${{github.repository}}/pulls?base=main&head=${{github.repository_owner}}:develop&state=open" --jq ".[].number")" >> $GITHUB_OUTPUT
+      - name: Edit PR to Main
+        if: steps.pr-number.outputs.number != ''
+        run: gh api repos/precursora/as-app-precursora-teste/pulls/${{steps.pr-number.outputs.number}} -X PATCH -f title="${{env.DEFAULT_PR_TITLE}}"
+      - name: Create PR to Main
+        if: steps.pr-number.outputs.number == ''
+        run: gh api repos/${{github.repository_owner}}/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="main" -f head="develop"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_REPO_ADMIN_TOKEN }}
