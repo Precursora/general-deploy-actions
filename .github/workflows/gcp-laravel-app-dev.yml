@@ -16,9 +16,34 @@ env:
   ENVIRONMENT: dev
 permissions: write-all
 jobs:
+  init:
+    name: Initialization
+    runs-on: ubuntu-latest
+    outputs:
+      destroy: ${{ steps.destroy.outputs.output }}
+      region: ${{ fromJSON(steps.settings.outputs.output).settings.region }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Load destruction settings
+        id: destroy
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: destroy.yml
+          from: yaml
+          to: json
+      - name: Load environment application settings
+        id: settings
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: ./infra/properties/${{ env.ENVIRONMENT }}.yml
+          from: yaml
+          to: json
   settings:
+    needs: init
     name: Load application settings
     runs-on: ubuntu-latest
+    if: ${{ fromJson(needs.init.outputs.destroy).destroy != true }}
     outputs:
       service_account: "${{ fromJSON(steps.settings.outputs.output).service_account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
@@ -215,15 +240,15 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Check if jobs exists
+      - name: Check if job exists
         id: status
-        run: echo "status="$(gcloud beta run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
+        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
       - name: Create job if not exists
         if: ${{ steps.status.outputs.status != 'True' }}
-        run: gcloud beta run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ needs.settings.outputs.region }}
+        run: gcloud run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ needs.settings.outputs.region }}
       - name: Update job
         run: |
-          gcloud beta run jobs update ${{ env.SERVICE_NAME }} \
+          gcloud run jobs update ${{ env.SERVICE_NAME }} \
             --image ${{ env.IMAGE_PATH }} \
             --region ${{ needs.settings.outputs.region }} \
             --command="${{ needs.settings.outputs.command-entrypoint }}" \
@@ -233,4 +258,36 @@ jobs:
             --add-cloudsql-instances=${{ needs.settings.outputs.instances }} \
             --service-account ${{ needs.settings.outputs.service_account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Execute job
-        run: gcloud beta run jobs execute ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --wait
+        run: gcloud run jobs execute ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --wait
+  destroy:
+    needs: init
+    name: Destroy resources
+    runs-on: ubuntu-latest
+    if: ${{ fromJson(needs.init.outputs.destroy).destroy == true }}
+    steps:
+      - name: GCP Auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+      - name: Check if job exists
+        id: job-status
+        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
+      - name: Destroy job
+        if: ${{ steps.job-status.outputs.status == 'True' }}
+        run: gcloud run jobs delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
+      - name: Check if service exists
+        id: service-status
+        run: echo "status="$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
+      - name: Destroy service
+        if: ${{ steps.service-status.outputs.status == 'True' }}
+        run: gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
+  create-pr:
+    needs:
+      - custom-command-execution
+      - destroy
+    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure')
+    name: Create PR to Main
+    uses: ./.github/workflows/github-create-pull-request-to-main.yml
+    secrets: inherit
+
