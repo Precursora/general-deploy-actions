@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Check if PR exists
         id: pr-number
-        run: echo "number=$(gh api "repos/${{github.repository_owner}}/${{github.repository}}/pulls?base=main&head=${{github.repository_owner}}:develop&state=open" --jq ".[].number")" >> $GITHUB_OUTPUT
+        run: echo "number=$(gh api "repos/${{github.repository}}/pulls?base=main&head=${{github.repository_owner}}:develop&state=open" --jq ".[].number")" >> $GITHUB_OUTPUT
       - name: Edit PR to Main
         if: steps.pr-number.outputs.number != ''
-        run: gh api repos/precursora/as-app-precursora-teste/pulls/${{steps.pr-number.outputs.number}} -X PATCH -f title="${{env.DEFAULT_PR_TITLE}}"
+        run: gh api repos/${{github.repository}}/pulls/${{steps.pr-number.outputs.number}} -X PATCH -f title="${{env.DEFAULT_PR_TITLE}}"
       - name: Create PR to Main
         if: steps.pr-number.outputs.number == ''
-        run: gh api repos/${{github.repository_owner}}/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="main" -f head="develop"
+        run: gh api repos/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="main" -f head="develop"
