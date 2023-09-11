@@ -264,6 +264,8 @@ jobs:
     name: Destroy resources
     runs-on: ubuntu-latest
     if: ${{ fromJson(needs.init.outputs.destroy).destroy == true }}
+    environment:
+      name: DEV
     steps:
       - name: GCP Auth
         uses: google-github-actions/auth@v1
