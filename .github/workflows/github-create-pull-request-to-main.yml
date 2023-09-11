@@ -9,7 +9,7 @@ jobs:
     name: Create Pull Request to Main
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GH_REPO_ADMIN_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
