@@ -188,20 +188,23 @@ jobs:
       - deploy
     name: Custom command execution
     runs-on: ubuntu-latest
-    if: ${{ needs.settings.outputs.command-entrypoint != '' && needs.settings.outputs.command-args != '' }}
     steps:
       - name: GCP Auth
         uses: google-github-actions/auth@v1
+        id: auth
+        if: ${{ needs.settings.outputs.command-entrypoint != '' && needs.settings.outputs.command-args != '' }}
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Check if jobs exists
         id: status
+        if: ${{ steps.auth.outcome == 'success' }}
         run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
       - name: Create job if not exists
-        if: ${{ steps.status.outputs.status != 'True' }}
+        if: ${{ steps.status.outcome == 'success' && steps.status.outputs.status != 'True' }}
         run: gcloud run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ needs.settings.outputs.region }}
       - name: Update job
+        if: ${{ steps.auth.outcome == 'success' }}
         run: |
           gcloud run jobs update ${{ env.SERVICE_NAME }} \
           --image ${{ env.IMAGE_PATH }} \
@@ -213,6 +216,7 @@ jobs:
           --add-cloudsql-instances=${{ needs.settings.outputs.instances }} \
           --service-account ${{ needs.settings.outputs.service_account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Execute job
+        if: ${{ steps.auth.outcome == 'success' }}
         run: gcloud run jobs execute ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --wait
   destroy:
     needs: init
