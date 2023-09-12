@@ -88,6 +88,10 @@ jobs:
             }
           }
           EOF
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform init
+        run: terraform init
       - name: Terraform destroy
         run: |
           destroy="$(echo -n "${{needs.init.outputs.destroy}}")"
