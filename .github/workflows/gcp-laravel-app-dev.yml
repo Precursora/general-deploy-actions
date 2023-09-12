@@ -1,6 +1,11 @@
 name: Build and Deploy to GCP - DEV
 on:
   workflow_call:
+    inputs:
+      GCP_REGISTRY:
+        required: false
+        type: string
+        default: us-docker.pkg.dev
     secrets:
       GCP_PROJECT_NUMBER_DEV:
         required: true
@@ -12,7 +17,7 @@ env:
   PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
   PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
   SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-dev
-  IMAGE_PATH: us-docker.pkg.dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_SERVICE_NAME }}-dev:${{ github.sha }}
+  IMAGE_PATH: ${{ inputs.GCP_REGISTRY }}/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_SERVICE_NAME }}-dev:${{ github.sha }}
   ENVIRONMENT: dev
 permissions: write-all
 jobs:
@@ -201,7 +206,7 @@ jobs:
       - name: Clean project
         run: ls -d */ | grep -v "app/\|infra/\|local/" | xargs rm -r
       - name: Docker Auth
-        run: gcloud auth configure-docker us-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ inputs.GCP_REGISTRY }} --quiet
       - name: Build
         run: docker build -t ${{ env.IMAGE_PATH }} . -f app.dockerfile --build-arg APP_ENV=${{ env.ENVIRONMENT }} --build-arg GITHUB_TOKEN=${{ secrets.GH_REPO_ADMIN_TOKEN }}
       - name: Push
@@ -240,11 +245,12 @@ jobs:
       region: ${{ needs.settings.outputs.region }}
       instances: ${{ needs.settings.outputs.instances }}
       service-account: ${{ needs.settings.outputs.service-account }}
+      environment: dev
+      registry: ${{ inputs.GCP_REGISTRY }}
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}-dev
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}-dev
-      image: us-docker.pkg.dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_SERVICE_NAME }}-dev:${{ github.sha }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
   destroy:
     needs: init
     name: Destroy resources

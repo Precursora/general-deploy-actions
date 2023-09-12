@@ -17,6 +17,12 @@ on:
       service-account:
         required: true
         type: string
+      environment:
+        required: true
+        type: string
+      registry:
+        required: true
+        type: string
     secrets:
       project-number:
         required: true
@@ -24,9 +30,12 @@ on:
         required: true
       service-name:
         required: true
-      image:
-        required: true
 permissions: write-all
+env:
+  PROJECT_NUMBER: ${{ secrets.project-number }}
+  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
+  SERVICE_NAME: ${{ secrets.service-name }}-${{ inputs.environment }}
+  IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.service-name }}-${{ inputs.environment }}:${{ github.sha }}
 jobs:
   execute:
     name: Execute
@@ -37,27 +46,27 @@ jobs:
         id: auth
         if: ${{ inputs.command-entrypoint != '' && inputs.command-args != '' }}
         with:
-          workload_identity_provider: projects/${{ secrets.project-number }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-app@${{ secrets.project-name }}.iam.gserviceaccount.com
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Check if jobs exists
         id: status
         if: ${{ steps.auth.outcome == 'success' }}
-        run: echo "status="$(gcloud run jobs describe ${{ secrets.service-name }} --region ${{ inputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
+        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ inputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
       - name: Create job if not exists
         if: ${{ steps.status.outcome == 'success' && steps.status.outputs.status != 'True' }}
-        run: gcloud run jobs create ${{ secrets.service-name }} --image ${{ secrets.image }} --region ${{ inputs.region }}
+        run: gcloud run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ inputs.region }}
       - name: Update job
         if: ${{ steps.auth.outcome == 'success' }}
         run: |
-          gcloud run jobs update ${{ secrets.service-name }} \
-          --image ${{ secrets.image }} \
+          gcloud run jobs update ${{ env.SERVICE_NAME }} \
+          --image ${{ env.IMAGE_PATH }} \
           --region ${{ inputs.region }} \
           --command="${{ inputs.command-entrypoint }}" \
           --args="${{ inputs.command-args }}" \
           --max-retries 0 \
           --task-timeout 180 \
           --add-cloudsql-instances=${{ inputs.instances }} \
-          --service-account ${{ inputs.service-account }}@${{ secrets.project-name }}.iam.gserviceaccount.com
+          --service-account ${{ inputs.service-account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Execute job
         if: ${{ steps.auth.outcome == 'success' }}
-        run: gcloud run jobs execute ${{ secrets.service-name }} --region ${{ inputs.region }} --wait
+        run: gcloud run jobs execute ${{ env.SERVICE_NAME }} --region ${{ inputs.region }} --wait
