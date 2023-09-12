@@ -5,10 +5,7 @@ on:
       environment:
         required: false
         type: string
-      resource-type:
-        required: false
-        default: app
-        type: string
+        default: ''
     outputs:
       destroy:
         value: ${{ jobs.init.outputs.destroy }}
@@ -32,8 +29,10 @@ jobs:
           input: destroy.yml
           from: yaml
           to: json
+      - name: teste
+        run: echo "${{ fromJson(steps.destroy.outputs.output) }}";
       - name: Load environment application settings
-        if: ${{ inputs.resource-type == 'app' }}
+        if: ${{ inputs.environment != '' }}
         id: settings
         uses: fabasoad/data-format-converter-action@main
         with:
