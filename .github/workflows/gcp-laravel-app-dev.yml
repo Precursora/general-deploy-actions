@@ -20,7 +20,7 @@ jobs:
     name: Initialization
     runs-on: ubuntu-latest
     outputs:
-      destroy: ${{ steps.destroy.outputs.output }}
+      destroy: ${{ fromJSON(steps.destroy.outputs.output).destroy }}
       region: ${{ fromJSON(steps.settings.outputs.output).settings.region }}
     steps:
       - name: Check out code
@@ -43,7 +43,7 @@ jobs:
     needs: init
     name: Load application settings
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.destroy).destroy != true }}
+    if: ${{ needs.init.outputs.destroy != 'true' }}
     outputs:
       service_account: "${{ fromJSON(steps.settings.outputs.output).service_account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
@@ -185,7 +185,7 @@ jobs:
       - test-mutation
       - settings
     name: Deploy to DEV
-    if: needs.settings.result == 'success' && needs.test-unit.result != 'failure' && needs.test-mutation.result != 'failure'
+    if: needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true'))
     environment:
       name: DEV
       url: ${{ steps.output.outputs.url }}
@@ -264,7 +264,7 @@ jobs:
     needs: init
     name: Destroy resources
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.destroy).destroy == true }}
+    if: ${{ needs.init.outputs.destroy == 'true' }}
     environment: DEV
     steps:
       - name: GCP Auth
@@ -288,7 +288,7 @@ jobs:
     needs:
       - custom-command-execution
       - destroy
-    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure')
+    if: contains(needs.*.result, 'success')
     name: Create PR to Main
     uses: ./.github/workflows/github-create-pull-request-to-main.yml
     secrets: inherit
