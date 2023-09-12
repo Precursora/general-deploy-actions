@@ -30,7 +30,7 @@ jobs:
           from: yaml
           to: json
       - name: teste
-        run: echo "${{ contains(fromJson(steps.destroy.outputs.output).destroy.*, 'true') && 'sim' || 'não' }}";
+        run: echo "${{ contains(fromJson(steps.destroy.outputs.output).destroy.*, true) && 'sim' || 'não' }}";
       - name: Load environment application settings
         if: ${{ inputs.environment != '' }}
         id: settings
