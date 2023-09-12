@@ -1,4 +1,4 @@
-nome: Execute Custom Command
+name: Execute Custom Command
 on:
   workflow_call:
     inputs:
