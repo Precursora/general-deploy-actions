@@ -80,7 +80,7 @@ jobs:
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Terraform destroy
         run: |
-          resources=($(echo '"${{ join(fromJson(needs.init.outputs.destroy), '" "') }}"' | sed -e "s/,/\\\,/g"));
+          resources=(${{ '"' && join(fromJson(needs.init.outputs.destroy), '" "') && '"' }});
 
           if [ ${#resources[*]} -ne 0 ]; then
             for i in "${resources[@]}"; do
