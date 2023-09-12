@@ -31,7 +31,7 @@ jobs:
       environment: ${{ inputs.ENVIRONMENT }}
   settings:
     needs: init
-    if: ${{ needs.init.outputs.destroy != 'true' }}
+    if: ${{ needs.init.outputs.destroy == 'false' }}
     name: Load application settings
     uses: ./.github/workflows/ext-load-application-settings.yml
     with:
@@ -182,7 +182,7 @@ jobs:
   destroy:
     needs: init
     name: Destroy resources
-    if: ${{ needs.init.outputs.destroy == 'true' }}
+    if: ${{ needs.init.outputs.destroy != 'false' }}
     uses: ./.github/workflows/ext-gcp-destroy-service.yml
     with:
       environment: ${{ inputs.ENVIRONMENT }}

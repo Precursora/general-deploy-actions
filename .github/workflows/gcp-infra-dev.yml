@@ -22,7 +22,7 @@ jobs:
     needs: init
     name: Validation
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.destroy).enabled != true }}
+    if: ${{ needs.init.outputs.destroy == 'false' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -69,7 +69,7 @@ jobs:
     needs: init
     name: Destroy
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.destroy).enabled == true }}
+    if: ${{ needs.init.outputs.destroy == 'true' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -78,18 +78,23 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Terraform destroy
-        run: |
-          resources=($(echo '${{ toJSON(fromJSON(steps.init.outputs.destroy).resources) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
+      - name: teste
+        run: echo "${{ needs.init.outputs.destroy }}";
+      # - name: Terraform destroy
+      #   run: |
+      #     resources=($(echo '${{ toJSON(fromJSON(steps.init.outputs.destroy).resources) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
 
-          if [ ${#resources[*]} -ne 0 ]; then
-            for i in ${resources[@]}; do
-              terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-            done
-          else
-            terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-          fi
+      #     if [ ${#resources[*]} -ne 0 ]; then
+      #       for i in ${resources[@]}; do
+      #         terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+      #       done
+      #     else
+      #       terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+      #     fi
   create-pr:
-    needs: deploy
+    needs:
+      - deploy
+      - destroy
+    if: always() && ((needs.deploy.result == 'success') || needs.destroy.result == 'success')
     name: Create PR to Main
     uses: ./.github/workflows/ext-create-pull-request-to-main.yml
