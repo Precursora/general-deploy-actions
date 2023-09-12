@@ -69,7 +69,7 @@ jobs:
     needs: init
     name: Destroy
     runs-on: ubuntu-latest
-    if: ${{ needs.init.outputs.destroy == 'true' }}
+    if: ${{ needs.init.outputs.destroy != 'false' }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
