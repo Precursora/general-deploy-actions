@@ -138,7 +138,7 @@ jobs:
       - settings
       - test-unit
       - test-mutation
-    if: always() && needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true'))
+    if: always() && needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true') || (needs.test-unit.result == 'success' && needs.test-mutation.result == 'success'))
     name: Deploy to DEV
     environment:
       name: DEV
