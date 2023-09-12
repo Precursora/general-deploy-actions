@@ -78,8 +78,15 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: teste
-        run: echo "\"${{ join(fromJson(needs.init.outputs.destroy), '" "') }}\"";
+      - name: Terraform destroy
+        run: |
+          resources=("${{ join(fromJson(needs.init.outputs.destroy), '" "') }}");
+
+          if [ ${#resources[*]} -ne 0 ]; then
+            for i in ${resources[@]}; do
+              echo "destroy=${i}"
+            done
+          fi
       # - name: Terraform destroy
       #   run: |
       #     resources=($(echo '${{ toJSON(fromJSON(steps.init.outputs.destroy).resources) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
