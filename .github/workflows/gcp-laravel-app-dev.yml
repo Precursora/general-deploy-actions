@@ -138,48 +138,29 @@ jobs:
       - settings
     name: Deploy to DEV
     if: always() && needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true') || (needs.test-unit.result == 'success' && needs.test-mutation.result == 'success'))
-    environment:
-      name: DEV
-      url: ${{ steps.output.outputs.url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: GCP Auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Clean project
-        run: ls -d */ | grep -v "app/\|infra/\|local/" | xargs rm -r
-      - name: Docker Auth
-        run: gcloud auth configure-docker ${{ inputs.GCP_REGISTRY }} --quiet
-      - name: Build
-        run: docker build -t ${{ env.IMAGE_PATH }} . -f app.dockerfile --build-arg APP_ENV=${{ inputs.ENVIRONMENT }} --build-arg GITHUB_TOKEN=${{ secrets.GH_REPO_ADMIN_TOKEN }}
-      - name: Push
-        run: docker push ${{ env.IMAGE_PATH }}
-      - name: Deploy
-        run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image ${{ env.IMAGE_PATH }} \
-            --region ${{ needs.settings.outputs.region }} \
-            --memory ${{ needs.settings.outputs.scaling-memory }} \
-            --min-instances ${{ needs.settings.outputs.scaling-min-instances }} \
-            --max-instances ${{ needs.settings.outputs.scaling-max-instances }} \
-            --platform managed \
-            --port ${{ needs.settings.outputs.port }} \
-            --timeout ${{ needs.settings.outputs.scaling-timeout }} \
-            --set-env-vars "ENABLE_SSL=${{ needs.settings.outputs.enable-ssl }}" \
-            --execution-environment ${{ needs.settings.outputs.execution-environment }} \
-            --ingress ${{ needs.settings.outputs.ingress }} \
-            --cpu ${{ needs.settings.outputs.scaling-cpu }} \
-            --concurrency ${{ needs.settings.outputs.scaling-concurrency }} ${{ (needs.settings.outputs.cpu-throttling && '--cpu-throttling') || '--no-cpu-throttling' }} \
-            --service-account ${{ needs.settings.outputs.service-account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com \
-            --allow-unauthenticated \
-            --add-cloudsql-instances=${{ needs.settings.outputs.instances }}
-      - name: Ouput
-        run: echo "url="$(gcloud run services describe ${{ env.SERVICE_NAME }} --platform managed --region ${{ needs.settings.outputs.region }} --format 'value(status.url)') >> $GITHUB_OUTPUT
-        id: output
+    uses: ./.github/workflows/ext-gcp-deploy-service.yml
+    with:
+      environment: ${{ inputs.ENVIRONMENT }}
+      region: ${{ needs.settings.outputs.region }}
+      scaling-memory: ${{ needs.settings.outputs.scaling-memory }}
+      scaling-min-instances: ${{ needs.settings.outputs.scaling-min-instances }}
+      scaling-max-instances: ${{ needs.settings.outputs.scaling-max-instances }}
+      port: ${{ needs.settings.outputs.port }}
+      scaling-timeout: ${{ needs.settings.outputs.scaling-timeout }}
+      enable-ssl: ${{ needs.settings.outputs.enable-ssl }}
+      execution-environment: ${{ needs.settings.outputs.execution-environment }}
+      ingress: ${{ needs.settings.outputs.ingress }}
+      scaling-cpu: ${{ needs.settings.outputs.scaling-cpu }}
+      scaling-concurrency: ${{ needs.settings.outputs.scaling-concurrency }}
+      cpu-throttling: ${{ needs.settings.outputs.cpu-throttling }}
+      service-account: ${{ needs.settings.outputs.service-account }}
+      instances: ${{ needs.settings.outputs.instances }}
+      registry: ${{ inputs.GCP_REGISTRY }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      token: ${{ secrets.GH_PKG_ADMIN_TOKEN }}
   custom-command-execution:
     needs:
       - settings

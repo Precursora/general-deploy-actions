@@ -1,0 +1,112 @@
+name: Deploy to environment
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      region:
+        required: true
+        type: string
+      registry:
+        required: true
+        type: string
+      scaling-memory:
+        required: true
+        type: string
+      scaling-min-instances:
+        required: true
+        type: string
+      scaling-max-instances:
+        required: true
+        type: string
+      port:
+        required: true
+        type: string
+      scaling-timeout:
+        required: true
+        type: string
+      enable-ssl:
+        required: true
+        type: string
+      execution-environment:
+        required: true
+        type: string
+      ingress:
+        required: true
+        type: string
+      scaling-cpu:
+        required: true
+        type: string
+      scaling-concurrency:
+        required: true
+        type: string
+      cpu-throttling:
+        required: true
+        type: string
+      service-account:
+        required: true
+        type: string
+      instances:
+        required: true
+        type: string
+    secrets:
+      project-number:
+        required: true
+      project-name:
+        required: true
+      service-name:
+        required: true
+      token:
+        required: true
+env:
+  PROJECT_NUMBER: ${{ secrets.project-project-number }}
+  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
+  SERVICE_NAME: ${{ secrets.service-name }}-${{ inputs.environment }}
+  IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.service-name }}-${{ inputs.environment }}:${{ github.sha }}
+permissions: write-all
+jobs:
+  deploy:
+    name: Deploy to environment
+    environment:
+      name: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
+      url: ${{ steps.output.outputs.url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: GCP Auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+      - name: Clean project
+        run: ls -d */ | grep -v "app/\|infra/\|local/" | xargs rm -r
+      - name: Docker Auth
+        run: gcloud auth configure-docker ${{ inputs.registry }} --quiet
+      - name: Build
+        run: docker build -t ${{ env.IMAGE_PATH }} . -f app.dockerfile --build-arg APP_ENV=${{ inputs.ENVIRONMENT }} --build-arg GITHUB_ACTOR=${{ github.actor }} --build-arg GITHUB_TOKEN=${{ secrets.token }}
+      - name: Push
+        run: docker push ${{ env.IMAGE_PATH }}
+      - name: Deploy
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.IMAGE_PATH }} \
+            --region ${{ inputs.region }} \
+            --memory ${{ inputs.scaling-memory }} \
+            --min-instances ${{ inputs.scaling-min-instances }} \
+            --max-instances ${{ inputs.scaling-max-instances }} \
+            --platform managed \
+            --port ${{ inputs.port }} \
+            --timeout ${{ inputs.scaling-timeout }} \
+            --set-env-vars "ENABLE_SSL=${{ inputs.enable-ssl }}" \
+            --execution-environment ${{ inputs.execution-environment }} \
+            --ingress ${{ inputs.ingress }} \
+            --cpu ${{ inputs.scaling-cpu }} \
+            --concurrency ${{ inputs.scaling-concurrency }} ${{ (inputs.cpu-throttling && '--cpu-throttling') || '--no-cpu-throttling' }} \
+            --service-account ${{ inputs.service-account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com \
+            --allow-unauthenticated \
+            --add-cloudsql-instances=${{ inputs.instances }}
+      - name: Ouput
+        run: echo "url="$(gcloud run services describe ${{ env.SERVICE_NAME }} --platform managed --region ${{ inputs.region }} --format 'value(status.url)') >> $GITHUB_OUTPUT
+        id: output
