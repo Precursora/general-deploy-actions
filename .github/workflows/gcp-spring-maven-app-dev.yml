@@ -139,7 +139,7 @@ jobs:
     uses: ./.github/workflows/ext-gcp-destroy-service.yml
     with:
       environment: ${{ inputs.ENVIRONMENT }}
-      region: ${{ needs.init.outputs.region == 'true' }}
+      region: ${{ needs.init.outputs.region }}
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
