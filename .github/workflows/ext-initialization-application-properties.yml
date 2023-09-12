@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       destroy: ${{ fromJSON(steps.destroy.outputs.output).destroy }}
-      region: ${{ fromJSON(steps.settings.outputs.output).settings.region }}
+      region: ${{ inputs.resource-type == 'app' && fromJSON(steps.settings.outputs.output).settings.region }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
