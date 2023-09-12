@@ -185,6 +185,7 @@ jobs:
       - test-mutation
       - settings
     name: Deploy to DEV
+    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure')
     environment:
       name: DEV
       url: ${{ steps.output.outputs.url }}
