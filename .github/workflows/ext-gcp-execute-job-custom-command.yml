@@ -1,4 +1,4 @@
-name: Execute Custom Command
+name: Custom command execution
 on:
   workflow_call:
     inputs:
@@ -38,7 +38,7 @@ env:
   IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.service-name }}-${{ inputs.environment }}:${{ github.sha }}
 jobs:
   execute:
-    name: Execute
+    name: Custom command execution
     runs-on: ubuntu-latest
     steps:
       - name: GCP Auth

@@ -1,4 +1,4 @@
-name: Load
+name: Load application settings
 on:
   workflow_call:
     inputs:
@@ -47,7 +47,7 @@ on:
 permissions: write-all
 jobs:
   load:
-    name: Load
+    name: Load application settings
     runs-on: ubuntu-latest
     outputs:
       service-account: "${{ fromJSON(steps.settings.outputs.output).service-account }}"

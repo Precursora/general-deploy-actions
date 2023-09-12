@@ -6,7 +6,7 @@ env:
   DEFAULT_PR_TITLE: "PR automático develop > main"
 jobs:
   create-pr:
-    name: Create PR
+    name: Create PR to Main
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ github.token }}

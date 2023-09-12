@@ -200,27 +200,15 @@ jobs:
   destroy:
     needs: init
     name: Destroy resources
-    runs-on: ubuntu-latest
     if: ${{ needs.init.outputs.destroy == 'true' }}
-    environment: DEV
-    steps:
-      - name: GCP Auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Check if job exists
-        id: job-status
-        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
-      - name: Destroy job
-        if: ${{ steps.job-status.outputs.status == 'True' }}
-        run: gcloud run jobs delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
-      - name: Check if service exists
-        id: service-status
-        run: echo "status="$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
-      - name: Destroy service
-        if: ${{ steps.service-status.outputs.status == 'True' }}
-        run: gcloud run services delete ${{ env.SERVICE_NAME }} --region ${{ needs.init.outputs.region }} --quiet
+    uses: ./.github/workflows/ext-gcp-destroy-service.yml
+    with:
+      environment: ${{ inputs.ENVIRONMENT }}
+      region: ${{ needs.init.outputs.region == 'true' }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
   create-pr:
     needs:
       - custom-command-execution
