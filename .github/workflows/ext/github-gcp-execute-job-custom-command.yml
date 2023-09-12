@@ -1,0 +1,66 @@
+nome: Execute Custom Command
+on:
+  workflow_call:
+    inputs:
+      command-entrypoint:
+        required: true
+        type: string
+      command-args:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
+      service-name:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      region:
+        required: true
+        type: string
+      instances:
+        required: true
+        type: string
+      service-account:
+        required: true
+        type: string
+    secrets:
+      project-number:
+        required: true
+permissions: write-all
+jobs:
+  execute:
+    name: Execute
+    runs-on: ubuntu-latest
+    steps:
+      - name: GCP Auth
+        uses: google-github-actions/auth@v1
+        id: auth
+        if: ${{ inputs.command-entrypoint != '' && inputs.command-args != '' }}
+        with:
+          workload_identity_provider: projects/${{ secrets.project-number }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: devops-app@${{ inputs.project-name }}.iam.gserviceaccount.com
+      - name: Check if jobs exists
+        id: status
+        if: ${{ steps.auth.outcome == 'success' }}
+        run: echo "status="$(gcloud run jobs describe ${{ inputs.service-name }} --region ${{ inputs.region }} --format 'value(status.conditions.status)') >> $GITHUB_OUTPUT
+      - name: Create job if not exists
+        if: ${{ steps.status.outcome == 'success' && steps.status.outputs.status != 'True' }}
+        run: gcloud run jobs create ${{ inputs.service-name }} --image ${{ inputs.image }} --region ${{ inputs.region }}
+      - name: Update job
+        if: ${{ steps.auth.outcome == 'success' }}
+        run: |
+          gcloud run jobs update ${{ inputs.service-name }} \
+          --image ${{ inputs.image }} \
+          --region ${{ inputs.region }} \
+          --command="${{ inputs.command-entrypoint }}" \
+          --args="${{ inputs.command-args }}" \
+          --max-retries 0 \
+          --task-timeout 180 \
+          --add-cloudsql-instances=${{ inputs.instances }} \
+          --service-account ${{ inputs.service-account }}@${{ inputs.project-name }}.iam.gserviceaccount.com
+      - name: Execute job
+        if: ${{ steps.auth.outcome == 'success' }}
+        run: gcloud run jobs execute ${{ inputs.service-name }} --region ${{ inputs.region }} --wait

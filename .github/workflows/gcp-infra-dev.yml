@@ -84,5 +84,4 @@ jobs:
   create-pr:
     needs: deploy
     name: Create PR to Main
-    uses: ./.github/workflows/github-create-pull-request-to-main.yml
-    secrets: inherit
+    uses: ./.github/workflows/ext/github-create-pull-request-to-main.yml

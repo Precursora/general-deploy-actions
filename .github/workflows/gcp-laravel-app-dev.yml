@@ -45,7 +45,11 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.init.outputs.destroy != 'true' }}
     outputs:
-      service_account: "${{ fromJSON(steps.settings.outputs.output).service_account }}"
+      project-number: ${{ env.PROJECT_NUMBER }}
+      project-name: ${{ env.PROJECT_NAME }}
+      service-name: ${{ env.SERVICE_NAME }}
+      image: ${{ env.IMAGE_PATH }}
+      service-account: "${{ fromJSON(steps.settings.outputs.output).service-account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
       region: "${{ fromJSON(steps.settings.outputs.output).settings.region }}"
       scaling-concurrency: "${{ fromJSON(steps.settings.outputs.output).settings.scaling.concurrency }}"
@@ -185,7 +189,7 @@ jobs:
       - test-mutation
       - settings
     name: Deploy to DEV
-    if: always() && needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true'))
+    if: always() && needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true') || (needs.test-unit.result == 'success' && needs.test-mutation.result == 'success'))
     environment:
       name: DEV
       url: ${{ steps.output.outputs.url }}
@@ -222,7 +226,7 @@ jobs:
             --ingress ${{ needs.settings.outputs.ingress }} \
             --cpu ${{ needs.settings.outputs.scaling-cpu }} \
             --concurrency ${{ needs.settings.outputs.scaling-concurrency }} ${{ (needs.settings.outputs.cpu-throttling && '--cpu-throttling') || '--no-cpu-throttling' }} \
-            --service-account ${{ needs.settings.outputs.service_account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com \
+            --service-account ${{ needs.settings.outputs.service-account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com \
             --allow-unauthenticated \
             --add-cloudsql-instances=${{ needs.settings.outputs.instances }}
       - name: Ouput
@@ -233,33 +237,18 @@ jobs:
       - settings
       - deploy
     name: Custom command execution
-    runs-on: ubuntu-latest
-    if: ${{ needs.settings.outputs.command-entrypoint != '' && needs.settings.outputs.command-args != '' }}
-    steps:
-      - name: GCP Auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Check if job exists
-        id: status
-        run: echo "status="$(gcloud run jobs describe ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --format 'value(status.conditions[0].status)') >> $GITHUB_OUTPUT
-      - name: Create job if not exists
-        if: ${{ steps.status.outputs.status != 'True' }}
-        run: gcloud run jobs create ${{ env.SERVICE_NAME }} --image ${{ env.IMAGE_PATH }} --region ${{ needs.settings.outputs.region }}
-      - name: Update job
-        run: |
-          gcloud run jobs update ${{ env.SERVICE_NAME }} \
-            --image ${{ env.IMAGE_PATH }} \
-            --region ${{ needs.settings.outputs.region }} \
-            --command="${{ needs.settings.outputs.command-entrypoint }}" \
-            --args="${{ needs.settings.outputs.command-args }}" \
-            --max-retries 0 \
-            --task-timeout 180 \
-            --add-cloudsql-instances=${{ needs.settings.outputs.instances }} \
-            --service-account ${{ needs.settings.outputs.service_account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Execute job
-        run: gcloud run jobs execute ${{ env.SERVICE_NAME }} --region ${{ needs.settings.outputs.region }} --wait
+    uses: ./.github/workflows/ext/github-gcp-execute-job-custom-command.yml
+    with:
+      command-entrypoint: ${{ needs.settings.outputs.command-entrypoint }}
+      command-args: ${{ needs.settings.outputs.command-args }}
+      region: ${{ needs.settings.outputs.region }}
+      instances: ${{ needs.settings.outputs.instances }}
+      service-account: ${{ needs.settings.outputs.service-account }}
+      project-name: ${{ needs.settings.outputs.project-name }}
+      service-name: ${{ needs.settings.outputs.service-name }}
+      image: ${{ needs.settings.outputs.image }}
+    secrets:
+      project-number: ${{ needs.settings.outputs.project-number }}
   destroy:
     needs: init
     name: Destroy resources
@@ -288,7 +277,6 @@ jobs:
     needs:
       - custom-command-execution
       - destroy
-    if: always() && (needs.custom-command-execution.result == 'success' || needs.destroy.result == 'success')
+    if: always() && ((needs.custom-command-execution.result == 'success') || needs.destroy.result == 'success')
     name: Create PR to Main
     uses: ./.github/workflows/github-create-pull-request-to-main.yml
-    secrets: inherit
