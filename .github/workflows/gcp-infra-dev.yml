@@ -80,7 +80,9 @@ jobs:
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Terraform destroy
         run: |
-          if [[ "${{needs.init.outputs.destroy}}" == "" || "${{needs.init.outputs.destroy}}" == "true" ]]; then
+          destroy="$(echo -n "${{needs.init.outputs.destroy}}")"
+
+          if [[ $destroy == "" || $destroy == "true" ]]; then
             echo "Destroying all resources...";
             terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
           else
@@ -91,7 +93,7 @@ jobs:
             if [ ${#resources[*]} -ne 0 ]; then
               for i in "${resources[@]}"; do
                 echo "Destroying ${i}...";
-                terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+                terraform destroy -target="${i}" -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
               done
             fi
           fi
