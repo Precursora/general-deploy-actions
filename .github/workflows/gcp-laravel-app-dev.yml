@@ -185,7 +185,7 @@ jobs:
       - test-mutation
       - settings
     name: Deploy to DEV
-    if: needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true'))
+    if: always() && needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true'))
     environment:
       name: DEV
       url: ${{ steps.output.outputs.url }}
