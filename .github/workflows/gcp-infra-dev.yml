@@ -81,7 +81,7 @@ jobs:
       - name: Terraform destroy
         run: |
           if [[ "${{needs.init.outputs.destroy}}" == "" || "${{needs.init.outputs.destroy}}" == "true" ]]; then
-            echo "Destroing all resources...";
+            echo "Destroying all resources...";
             terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
           else
             resources=("${{ join(fromJson(needs.init.outputs.destroy), '" "') }}");
@@ -90,7 +90,7 @@ jobs:
 
             if [ ${#resources[*]} -ne 0 ]; then
               for i in "${resources[@]}"; do
-                echo "Destroing ${i}...";
+                echo "Destroying ${i}...";
                 terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
               done
             fi
