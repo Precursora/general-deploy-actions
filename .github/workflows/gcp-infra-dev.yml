@@ -80,7 +80,7 @@ jobs:
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Terraform destroy
         run: |
-          if [ "${{needs.init.outputs.destroy}}" == "" || "${{needs.init.outputs.destroy}}" == "true" ]; then
+          if [[ "${{needs.init.outputs.destroy}}" == "" || "${{needs.init.outputs.destroy}}" == "true" ]]; then
             echo "Destroing all resources...";
             terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
           else
