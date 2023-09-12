@@ -31,6 +31,7 @@ jobs:
       environment: ${{ inputs.ENVIRONMENT }}
   settings:
     needs: init
+    if: ${{ fromJSON(needs.init.outputs.destroy).destroy != true }}
     name: Load application settings
     uses: ./.github/workflows/ext-load-application-settings.yml
     with:
