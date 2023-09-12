@@ -17,8 +17,8 @@ jobs:
     name: Initialization
     runs-on: ubuntu-latest
     outputs:
-      destroy: ${{ toJson(fromJSON(steps.destroy.outputs.output).destroy) }}
-      region: ${{ inputs.environment != '' && fromJSON(steps.settings.outputs.output).settings.region }}
+      destroy: "${{ toJson(fromJSON(steps.destroy.outputs.output).destroy) }}"
+      region: "${{ inputs.environment != '' && fromJSON(steps.settings.outputs.output).settings.region }}"
     steps:
       - name: Check out code
         uses: actions/checkout@v3

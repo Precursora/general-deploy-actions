@@ -22,7 +22,7 @@ jobs:
     needs: init
     name: Validation
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.destroy).enabled != 'true' }}
+    if: ${{ fromJson(needs.init.outputs.destroy).enabled != true }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
