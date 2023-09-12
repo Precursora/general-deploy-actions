@@ -80,26 +80,19 @@ jobs:
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Terraform destroy
         run: |
-          resources=("${{ join(fromJson(needs.init.outputs.destroy), '" "') }}");
+          if [ "${{needs.init.outputs.destroy}}" == "" || "${{needs.init.outputs.destroy}}" == "true" ]; then
+            terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+          else
+            resources=("${{ join(fromJson(needs.init.outputs.destroy), '" "') }}");
 
-          IFS='%|%'
+            IFS='%|%'
 
-          if [ ${#resources[*]} -ne 0 ]; then
-            for i in "${resources[@]}"; do
-              echo "destroy=${i}"
-            done
+            if [ ${#resources[*]} -ne 0 ]; then
+              for i in "${resources[@]}"; do
+                terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+              done
+            fi
           fi
-      # - name: Terraform destroy
-      #   run: |
-      #     resources=($(echo '${{ toJSON(fromJSON(steps.init.outputs.destroy).resources) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
-
-      #     if [ ${#resources[*]} -ne 0 ]; then
-      #       for i in ${resources[@]}; do
-      #         terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-      #       done
-      #     else
-      #       terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-      #     fi
   create-pr:
     needs:
       - deploy
