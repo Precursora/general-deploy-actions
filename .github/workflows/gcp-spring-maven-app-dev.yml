@@ -138,6 +138,7 @@ jobs:
       - settings
       - test-unit
       - test-mutation
+    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure')
     name: Deploy to DEV
     environment:
       name: DEV
