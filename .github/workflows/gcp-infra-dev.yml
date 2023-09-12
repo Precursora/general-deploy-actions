@@ -24,8 +24,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ fromJson(needs.init.outputs.destroy).enabled != 'true' }}
     steps:
-      - name: teste
-        run: echo "${{fromJson(needs.init.outputs.destroy).enabled}}";
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Terraform
@@ -71,7 +69,7 @@ jobs:
     needs: init
     name: Destroy
     runs-on: ubuntu-latest
-    if: ${{ fromJson(needs.init.outputs.destroy).enabled == 'true' }}
+    if: ${{ fromJson(needs.init.outputs.destroy).enabled == true }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
