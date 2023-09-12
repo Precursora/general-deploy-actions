@@ -3,7 +3,11 @@ on:
   workflow_call:
     inputs:
       environment:
-        required: true
+        required: false
+        type: string
+      resource-type:
+        required: false
+        default: app
         type: string
     outputs:
       destroy:
@@ -29,6 +33,7 @@ jobs:
           from: yaml
           to: json
       - name: Load environment application settings
+        if: ${{ inputs.resource-type == 'app' }}
         id: settings
         uses: fabasoad/data-format-converter-action@main
         with:
