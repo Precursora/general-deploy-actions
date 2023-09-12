@@ -17,8 +17,8 @@ jobs:
     name: Initialization
     runs-on: ubuntu-latest
     outputs:
-      destroy: "${{ toJson(fromJSON(steps.destroy.outputs.output).destroy) }}"
-      region: "${{ inputs.environment != '' && fromJSON(steps.settings.outputs.output).settings.region }}"
+      destroy: ${{ fromJSON(steps.destroy.outputs.output).destroy }}
+      region: ${{ inputs.environment != '' && fromJSON(steps.settings.outputs.output).settings.region }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -29,6 +29,8 @@ jobs:
           input: destroy.yml
           from: yaml
           to: json
+      - name: teste
+        run: echo "${{ contains(fromJson(steps.destroy.outputs.output).destroy.*, 'true') && 'sim' || 'não' }}";
       - name: Load environment application settings
         if: ${{ inputs.environment != '' }}
         id: settings
