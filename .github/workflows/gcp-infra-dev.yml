@@ -25,7 +25,7 @@ jobs:
     if: ${{ fromJson(needs.init.outputs.destroy).enabled != 'true' }}
     steps:
       - name: teste
-        run: echo "${{needs.init.outputs.destroy}}";
+        run: echo "${{fromJson(needs.init.outputs.destroy).enabled}}";
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup Terraform
