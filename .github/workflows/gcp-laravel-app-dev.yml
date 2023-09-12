@@ -264,6 +264,7 @@ jobs:
     name: Destroy resources
     runs-on: ubuntu-latest
     if: ${{ fromJson(needs.init.outputs.destroy).destroy == true }}
+    environment: DEV
     steps:
       - name: GCP Auth
         uses: google-github-actions/auth@v1
@@ -290,4 +291,3 @@ jobs:
     name: Create PR to Main
     uses: ./.github/workflows/github-create-pull-request-to-main.yml
     secrets: inherit
-
