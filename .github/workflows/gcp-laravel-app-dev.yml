@@ -26,27 +26,9 @@ permissions: write-all
 jobs:
   init:
     name: Initialization
-    runs-on: ubuntu-latest
-    outputs:
-      destroy: ${{ fromJSON(steps.destroy.outputs.output).destroy }}
-      region: ${{ fromJSON(steps.settings.outputs.output).settings.region }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-      - name: Load destruction settings
-        id: destroy
-        uses: fabasoad/data-format-converter-action@main
-        with:
-          input: destroy.yml
-          from: yaml
-          to: json
-      - name: Load environment application settings
-        id: settings
-        uses: fabasoad/data-format-converter-action@main
-        with:
-          input: ./infra/properties/${{ inputs.ENVIRONMENT }}.yml
-          from: yaml
-          to: json
+    uses: ./.github/workflows/ext-initialization-application-properties.yml
+    with:
+      environment: ${{ inputs.ENVIRONMENT }}
   settings:
     needs: init
     name: Load application settings

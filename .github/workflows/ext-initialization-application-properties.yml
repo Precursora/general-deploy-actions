@@ -1,0 +1,37 @@
+name: Init
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    outputs:
+      destroy:
+        value: ${{ jobs.init.outputs.destroy }}
+      region:
+        value: ${{ jobs.init.outputs.region }}
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    runs-on: ubuntu-latest
+    outputs:
+      destroy: ${{ fromJSON(steps.destroy.outputs.output).destroy }}
+      region: ${{ fromJSON(steps.settings.outputs.output).settings.region }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Load destruction settings
+        id: destroy
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: destroy.yml
+          from: yaml
+          to: json
+      - name: Load environment application settings
+        id: settings
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: ./infra/properties/${{ inputs.environment }}.yml
+          from: yaml
+          to: json

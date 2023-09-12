@@ -5,6 +5,45 @@ on:
       environment:
         required: true
         type: string
+    outputs:
+      service-account:
+        value: ${{ jobs.load.outputs.service-account }}
+      port:
+        value: ${{ jobs.load.outputs.port }}
+      region:
+        value: ${{ jobs.load.outputs.region }}
+      scaling-concurrency:
+        value: ${{ jobs.load.outputs.scaling-concurrency }}
+      scaling-min-instances:
+        value: ${{ jobs.load.outputs.scaling-min-instances }}
+      scaling-max-instances:
+        value: ${{ jobs.load.outputs.scaling-max-instances }}
+      scaling-timeout:
+        value: ${{ jobs.load.outputs.scaling-timeout }}
+      scaling-memory:
+        value: ${{ jobs.load.outputs.scaling-memory }}
+      scaling-cpu:
+        value: ${{ jobs.load.outputs.scaling-cpu }}
+      enable-ssl:
+        value: ${{ jobs.load.outputs.enable-ssl }}
+      ingress:
+        value: ${{ jobs.load.outputs.ingress }}
+      cpu-throttling:
+        value: ${{ jobs.load.outputs.cpu-throttling }}
+      execution-environment:
+        value: ${{ jobs.load.outputs.execution-environment }}
+      instances:
+        value: ${{ jobs.load.outputs.instances }}
+      command-entrypoint:
+        value: ${{ jobs.load.outputs.command-entrypoint }}
+      command-args:
+        value: ${{ jobs.load.outputs.command-args }}
+      test-disable-unit:
+        value: ${{ jobs.load.outputs.test-disable-unit }}
+      test-disable-mutation:
+        value: ${{ jobs.load.outputs.test-disable-mutation }}
+      test-disable-integration:
+        value: ${{ jobs.load.outputs.test-disable-integration }}
 permissions: write-all
 jobs:
   load:
