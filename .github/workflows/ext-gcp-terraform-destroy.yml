@@ -1,0 +1,68 @@
+name: Destroy
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      destroy:
+        required: true
+        type: string
+    secrets:
+      project-number:
+        required: true
+      project-name:
+        required: true
+      service-name:
+        required: true
+env:
+  PROJECT_NUMBER: ${{ secrets.project-number }}
+  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
+  SERVICE_NAME: ${{ secrets.service-name }}-${{ inputs.environment }}
+  TF_VAR_FILE: ./environments/${{ inputs.environment }}/terraform.tfvars
+permissions: write-all
+jobs:
+  destroy:
+    name: Destroy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: GCP Auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+      - name: Setup backend
+        run: |
+          cat > backend.tf << EOF
+          terraform {
+            backend "gcs" {
+              bucket  = "${{ env.PROJECT_NAME }}-state-files"
+              prefix  = "${{ env.SERVICE_NAME }}"
+            }
+          }
+          EOF
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform init
+        run: terraform init
+      - name: Terraform destroy
+        run: |
+          destroy="$(echo -n "${{ inputs.destroy }}")"
+
+          if [[ $destroy == "" || $destroy == "true" ]]; then
+            echo "Destroying all resources...";
+            terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+          else
+            resources=("${{ join(fromJson(inputs.destroy), '" "') }}");
+
+            IFS='%|%'
+
+            if [ ${#resources[*]} -ne 0 ]; then
+              for i in "${resources[@]}"; do
+                echo "Destroying ${i}...";
+                terraform destroy -target="${i}" -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
+              done
+            fi
+          fi

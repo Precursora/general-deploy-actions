@@ -1,6 +1,11 @@
 name: Deploy to GCP - DEV
 on:
   workflow_call:
+    inputs:
+      environment:
+        required: false
+        type: string
+        default: dev
     secrets:
       GCP_PROJECT_NUMBER_DEV:
         required: true
@@ -8,11 +13,6 @@ on:
         required: true
       GCP_SERVICE_NAME:
         required: true
-env:
-  PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
-  SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-dev
-  TF_VAR_FILE: ./environments/dev/terraform.tfvars
 permissions: write-all
 jobs:
   init:
@@ -21,96 +21,30 @@ jobs:
   validation:
     needs: init
     name: Validation
-    runs-on: ubuntu-latest
     if: ${{ needs.init.outputs.destroy == 'false' }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform format check
-        run: terraform fmt -check
-      - name: Terraform init
-        run: terraform init
-      - name: Terraform Validate
-        run: terraform validate -no-color
+    uses: ./.github/workflows/ext-gcp-terraform-validation.yml
   deploy:
     needs: validation
     name: Deploy
-    runs-on: ubuntu-latest
-    environment: DEV
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-      - name: GCP Auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Setup backend
-        run: |
-          cat > backend.tf << EOF
-          terraform {
-            backend "gcs" {
-              bucket  = "${{ env.PROJECT_NAME }}-state-files"
-              prefix  = "${{ env.SERVICE_NAME }}"
-            }
-          }
-          EOF
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform init
-        run: terraform init
-      - name: Terraform plan
-        run: terraform plan -var-file="${{ env.TF_VAR_FILE }}"
-      - name: Terraform apply
-        run: terraform apply -auto-approve -var-file="${{ env.TF_VAR_FILE }}"
+    uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
   destroy:
     needs: init
     name: Destroy
-    runs-on: ubuntu-latest
     if: ${{ needs.init.outputs.destroy != 'false' }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-      - name: GCP Auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Setup backend
-        run: |
-          cat > backend.tf << EOF
-          terraform {
-            backend "gcs" {
-              bucket  = "${{ env.PROJECT_NAME }}-state-files"
-              prefix  = "${{ env.SERVICE_NAME }}"
-            }
-          }
-          EOF
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform init
-        run: terraform init
-      - name: Terraform destroy
-        run: |
-          destroy="$(echo -n "${{needs.init.outputs.destroy}}")"
-
-          if [[ $destroy == "" || $destroy == "true" ]]; then
-            echo "Destroying all resources...";
-            terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-          else
-            resources=("${{ join(fromJson(needs.init.outputs.destroy), '" "') }}");
-
-            IFS='%|%'
-
-            if [ ${#resources[*]} -ne 0 ]; then
-              for i in "${resources[@]}"; do
-                echo "Destroying ${i}...";
-                terraform destroy -target="${i}" -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-              done
-            fi
-          fi
+    uses: ./.github/workflows/ext-gcp-terraform-detroy.yml
+    with:
+      environment: ${{ inputs.environment }}
+      desstroy: ${{ needs.init.outputs.destroy }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
   create-pr:
     needs:
       - destroy
