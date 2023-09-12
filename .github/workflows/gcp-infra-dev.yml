@@ -84,4 +84,4 @@ jobs:
   create-pr:
     needs: deploy
     name: Create PR to Main
-    uses: ./.github/workflows/ext/github-create-pull-request-to-main.yml
+    uses: ./.github/workflows/ext-create-pull-request-to-main.yml
