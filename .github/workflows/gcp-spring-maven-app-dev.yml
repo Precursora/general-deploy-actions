@@ -242,7 +242,7 @@ jobs:
     needs:
       - custom-command-execution
       - destroy
-    if: contains(needs.*.result, 'success')
+    if: always() && (needs.custom-command-execution.result == 'success' || needs.destroy.result == 'success')
     name: Create PR to Main
     uses: ./.github/workflows/github-create-pull-request-to-main.yml
     secrets: inherit

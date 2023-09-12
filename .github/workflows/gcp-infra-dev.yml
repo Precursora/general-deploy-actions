@@ -83,7 +83,6 @@ jobs:
         run: terraform apply -auto-approve -var-file="${{ env.TF_VAR_FILE }}"
   create-pr:
     needs: deploy
-    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure')
     name: Create PR to Main
     uses: ./.github/workflows/github-create-pull-request-to-main.yml
     secrets: inherit
