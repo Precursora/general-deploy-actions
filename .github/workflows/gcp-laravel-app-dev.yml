@@ -45,10 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.init.outputs.destroy != 'true' }}
     outputs:
-      project-number: ${{ env.PROJECT_NUMBER }}
-      project-name: ${{ env.PROJECT_NAME }}
-      service-name: ${{ env.SERVICE_NAME }}
-      image: ${{ env.IMAGE_PATH }}
       service-account: "${{ fromJSON(steps.settings.outputs.output).service-account }}"
       port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
       region: "${{ fromJSON(steps.settings.outputs.output).settings.region }}"
@@ -244,11 +240,11 @@ jobs:
       region: ${{ needs.settings.outputs.region }}
       instances: ${{ needs.settings.outputs.instances }}
       service-account: ${{ needs.settings.outputs.service-account }}
-      project-name: ${{ needs.settings.outputs.project-name }}
-      service-name: ${{ needs.settings.outputs.service-name }}
-      image: ${{ needs.settings.outputs.image }}
     secrets:
-      project-number: ${{ needs.settings.outputs.project-number }}
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}-dev
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}-dev
+      image: us-docker.pkg.dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_PROJECT_NAME }}-dev/${{ secrets.GCP_SERVICE_NAME }}-dev:${{ github.sha }}
   destroy:
     needs: init
     name: Destroy resources
