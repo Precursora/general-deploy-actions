@@ -27,7 +27,4 @@ Para utilizar, basta realizar sua injeção como um workflow reutilizável no pr
         name: CI/CD
         uses: precursora/is-module-general-deploy-actions/.github/workflows/gcp-laravel-app-dev.yml@v1
         secrets: inherit
-        with:
-          service: ${{ github.event.repository.name }}
-          sha: ${{ github.sha }}
     ```
