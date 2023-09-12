@@ -78,6 +78,16 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+      - name: Setup backend
+        run: |
+          cat > backend.tf << EOF
+          terraform {
+            backend "gcs" {
+              bucket  = "${{ env.PROJECT_NAME }}-state-files"
+              prefix  = "${{ env.SERVICE_NAME }}"
+            }
+          }
+          EOF
       - name: Terraform destroy
         run: |
           destroy="$(echo -n "${{needs.init.outputs.destroy}}")"
@@ -99,8 +109,8 @@ jobs:
           fi
   create-pr:
     needs:
-      - deploy
       - destroy
+      - deploy
     if: always() && ((needs.deploy.result == 'success') || needs.destroy.result == 'success')
     name: Create PR to Main
     uses: ./.github/workflows/ext-create-pull-request-to-main.yml
