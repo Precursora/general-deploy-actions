@@ -115,6 +115,7 @@ jobs:
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
       token: ${{ secrets.GH_PKG_ADMIN_TOKEN }}
   custom-command-execution:
+    if: always() && needs.deploy.result == 'success'
     needs:
       - settings
       - deploy
