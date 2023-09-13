@@ -41,6 +41,8 @@ jobs:
     name: Custom command execution
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare
+        run: echo "Preparing to execute custom command..."
       - name: GCP Auth
         uses: google-github-actions/auth@v1
         id: auth
