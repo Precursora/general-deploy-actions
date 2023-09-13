@@ -60,7 +60,7 @@ on:
       token:
         required: true
 env:
-  PROJECT_NUMBER: ${{ secrets.project-project-number }}
+  PROJECT_NUMBER: ${{ secrets.project-number }}
   PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
   SERVICE_NAME: ${{ secrets.service-name }}-${{ inputs.environment }}
   IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.service-name }}-${{ inputs.environment }}:${{ github.sha }}
