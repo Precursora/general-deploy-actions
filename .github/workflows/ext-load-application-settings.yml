@@ -1,0 +1,91 @@
+name: Load application settings
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    outputs:
+      service-account:
+        value: ${{ jobs.load.outputs.service-account }}
+      port:
+        value: ${{ jobs.load.outputs.port }}
+      region:
+        value: ${{ jobs.load.outputs.region }}
+      scaling-concurrency:
+        value: ${{ jobs.load.outputs.scaling-concurrency }}
+      scaling-min-instances:
+        value: ${{ jobs.load.outputs.scaling-min-instances }}
+      scaling-max-instances:
+        value: ${{ jobs.load.outputs.scaling-max-instances }}
+      scaling-timeout:
+        value: ${{ jobs.load.outputs.scaling-timeout }}
+      scaling-memory:
+        value: ${{ jobs.load.outputs.scaling-memory }}
+      scaling-cpu:
+        value: ${{ jobs.load.outputs.scaling-cpu }}
+      enable-ssl:
+        value: ${{ jobs.load.outputs.enable-ssl }}
+      ingress:
+        value: ${{ jobs.load.outputs.ingress }}
+      cpu-throttling:
+        value: ${{ jobs.load.outputs.cpu-throttling }}
+      execution-environment:
+        value: ${{ jobs.load.outputs.execution-environment }}
+      instances:
+        value: ${{ jobs.load.outputs.instances }}
+      command-entrypoint:
+        value: ${{ jobs.load.outputs.command-entrypoint }}
+      command-args:
+        value: ${{ jobs.load.outputs.command-args }}
+      test-disable-unit:
+        value: ${{ jobs.load.outputs.test-disable-unit }}
+      test-disable-mutation:
+        value: ${{ jobs.load.outputs.test-disable-mutation }}
+      test-disable-integration:
+        value: ${{ jobs.load.outputs.test-disable-integration }}
+permissions: write-all
+jobs:
+  load:
+    name: Load application settings
+    runs-on: ubuntu-latest
+    outputs:
+      service-account: "${{ fromJSON(steps.settings.outputs.output).service-account }}"
+      port: "${{ fromJSON(steps.settings.outputs.output).settings.port }}"
+      region: "${{ fromJSON(steps.settings.outputs.output).settings.region }}"
+      scaling-concurrency: "${{ fromJSON(steps.settings.outputs.output).settings.scaling.concurrency }}"
+      scaling-min-instances: "${{ fromJSON(steps.settings.outputs.output).settings.scaling.min-instances }}"
+      scaling-max-instances: "${{ fromJSON(steps.settings.outputs.output).settings.scaling.max-instances }}"
+      scaling-timeout: "${{ fromJSON(steps.settings.outputs.output).settings.scaling.timeout }}"
+      scaling-memory: "${{ fromJSON(steps.settings.outputs.output).settings.scaling.memory }}"
+      scaling-cpu: "${{ fromJSON(steps.settings.outputs.output).settings.scaling.cpu }}"
+      enable-ssl: "${{ fromJSON(steps.settings.outputs.output).settings.enable-ssl }}"
+      ingress: "${{ fromJSON(steps.settings.outputs.output).settings.ingress }}"
+      cpu-throttling: "${{ fromJSON(steps.settings.outputs.output).settings.cpu-throttling }}"
+      execution-environment: "${{ fromJSON(steps.settings.outputs.output).settings.execution-environment }}"
+      instances: "${{ steps.sql-instances-sockets-handler.outputs.instances }}"
+      command-entrypoint: "${{ steps.custom-command-entrypoint-handler.outputs.entrypoint }}"
+      command-args: "${{ fromJSON(steps.settings.outputs.output).command.args }}"
+      test-disable-unit: "${{ fromJSON(steps.settings.outputs.output).test.disable.unit }}"
+      test-disable-mutation: "${{ fromJSON(steps.settings.outputs.output).test.disable.mutation }}"
+      test-disable-integration: "${{ fromJSON(steps.settings.outputs.output).test.disable.integration }}"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Load environment application settings
+        id: settings
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: ./infra/properties/${{ inputs.environment }}.yml
+          from: yaml
+          to: json
+      - name: SQL instances sockets handler
+        id: sql-instances-sockets-handler
+        run: |
+          instances=($(echo '${{ toJSON(fromJSON(steps.settings.outputs.output).settings.instances) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
+          echo "instances="$(IFS=,; echo "${instances[*]}") >> $GITHUB_OUTPUT
+      - name: Custom command entrypoint handler
+        id: custom-command-entrypoint-handler
+        run: |
+          entrypoint=($(echo '${{ toJSON(fromJSON(steps.settings.outputs.output).command.entrypoint) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
+          echo "entrypoint="$(IFS=,; echo "${entrypoint[*]}") >> $GITHUB_OUTPUT

@@ -1,6 +1,11 @@
 name: Deploy to GCP - DEV
 on:
   workflow_call:
+    inputs:
+      environment:
+        required: false
+        type: string
+        default: dev
     secrets:
       GCP_PROJECT_NUMBER_DEV:
         required: true
@@ -8,82 +13,42 @@ on:
         required: true
       GCP_SERVICE_NAME:
         required: true
-env:
-  PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-dev
-  SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-dev
-  TF_VAR_FILE: ./environments/dev/terraform.tfvars
 permissions: write-all
 jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-application-properties.yml
   validation:
+    needs: init
     name: Validation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform format check
-        run: terraform fmt -check
-      - name: Terraform init
-        run: terraform init
-      - name: Terraform Validate
-        run: terraform validate -no-color
+    if: ${{ needs.init.outputs.destroy == 'false' }}
+    uses: ./.github/workflows/ext-gcp-terraform-validation.yml
   deploy:
     needs: validation
     name: Deploy
-    runs-on: ubuntu-latest
-    environment: DEV
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-      - name: GCP Auth
-        uses: google-github-actions/auth@v1
-        with:
-          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Setup backend
-        run: |
-          cat > backend.tf << EOF
-          terraform {
-            backend "gcs" {
-              bucket  = "${{ env.PROJECT_NAME }}-state-files"
-              prefix  = "${{ env.SERVICE_NAME }}"
-            }
-          }
-          EOF
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Load destruction settings
-        id: destroy
-        uses: fabasoad/data-format-converter-action@main
-        with:
-          input: destroy.yml
-          from: yaml
-          to: json
-      - name: Terraform init
-        run: terraform init
-      - name: Terraform destroy
-        if: fromJSON(steps.destroy.outputs.output).destroy.enabled == true
-        run: |
-          resources=($(echo '${{ toJSON(fromJSON(steps.destroy.outputs.output).destroy.resources) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
-
-          if [ ${#resources[*]} -ne 0 ]; then
-            for i in ${resources[@]}; do
-              terraform destroy -target=${i} -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-            done
-          else
-            terraform destroy -auto-approve -var-file="${{ env.TF_VAR_FILE }}";
-          fi
-      - name: Terraform plan
-        if: fromJSON(steps.destroy.outputs.output).destroy.enabled != true
-        run: terraform plan -var-file="${{ env.TF_VAR_FILE }}"
-      - name: Terraform apply
-        if: fromJSON(steps.destroy.outputs.output).destroy.enabled != true
-        run: terraform apply -auto-approve -var-file="${{ env.TF_VAR_FILE }}"
+    uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+  destroy:
+    needs: init
+    name: Destroy
+    if: ${{ needs.init.outputs.destroy != 'false' }}
+    uses: ./.github/workflows/ext-gcp-terraform-destroy.yml
+    with:
+      environment: ${{ inputs.environment }}
+      destroy: ${{ needs.init.outputs.destroy }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
   create-pr:
-    needs: deploy
-    if: always() && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure')
+    needs:
+      - destroy
+      - deploy
+    if: always() && ((needs.deploy.result == 'success') || needs.destroy.result == 'success')
     name: Create PR to Main
-    uses: ./.github/workflows/github-create-pull-request-to-main.yml
-    secrets: inherit
+    uses: ./.github/workflows/ext-create-pull-request-to-main.yml
