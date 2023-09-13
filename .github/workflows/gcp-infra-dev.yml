@@ -33,6 +33,8 @@ jobs:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
   destroy:
     needs: init
     name: Destroy
@@ -45,6 +47,8 @@ jobs:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
   create-pr:
     needs:
       - destroy

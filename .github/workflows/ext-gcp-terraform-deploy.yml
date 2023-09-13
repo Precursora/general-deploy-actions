@@ -12,6 +12,10 @@ on:
         required: true
       service-name:
         required: true
+      cloudflare-api-token:
+        required: true
+      cloudflare-zone-id:
+        required: true
 env:
   PROJECT_NUMBER: ${{ secrets.project-number }}
   PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
@@ -23,6 +27,9 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
+    env:
+      TF_VAR_cloudflare_provider_api_token: ${{ secrets.cloudflare-api-token }}
+      TF_VAR_cloudflare_zone_id: ${{ secrets.cloudflare-zone-id }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3
