@@ -44,7 +44,7 @@ jobs:
           terraform {
             backend "gcs" {
               bucket  = "${{ env.PROJECT_NAME }}-state-files"
-              prefix  = "${{ env.SERVICE_NAME }}"
+              prefix  = "${{ github.repository_id }}"
             }
           }
           EOF
