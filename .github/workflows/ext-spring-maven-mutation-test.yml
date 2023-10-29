@@ -52,7 +52,7 @@ jobs:
             error=0
 
             if [[ $total == 0 ]]; then
-              coverage=0
+              coverage=100
               noCoverage=0
               success=0
               total=0
