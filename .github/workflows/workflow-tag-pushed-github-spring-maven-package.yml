@@ -26,4 +26,4 @@ jobs:
           java-distribution: temurin
           maven-version: 3.8.1
       - name: Deploy
-        run: mvn --batch-mode deploy -s settings.xml -Dserver.github.username=${{ github.actor }} -Dserver.github.password=${{ steps.generate-app-token.outputs.token }}
+        run: mvn --batch-mode deploy -s settings.xml -Dserver.github.username=${{ secrets.GH_APP_LOGIN }} -Dserver.github.password=${{ steps.generate-app-token.outputs.token }}
