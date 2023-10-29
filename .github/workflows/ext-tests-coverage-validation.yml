@@ -20,8 +20,8 @@ jobs:
       - name: Summary
         run: |
           # Check minimum coverage
-          unitMinimumCoverage=$(if (( ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{inputs.minimum-coverage}} )); then echo "✅"; else echo "❌" fi);
-          mutationMinimumCoverage=$(if (( ${{fromJSON(inputs.mutation-tests-report).coverage}} < ${{inputs.minimum-coverage}} )); then echo "✅"; else echo "❌" fi);
+          unitMinimumCoverage=$(if (( ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{inputs.minimum-coverage}} )); then echo "✅"; else echo "❌"; fi);
+          mutationMinimumCoverage=$(if (( ${{fromJSON(inputs.mutation-tests-report).coverage}} < ${{inputs.minimum-coverage}} )); then echo "✅"; else echo "❌"; fi);
           
           # Summary constrution
           summaryHeader="| Tipo | Cobertura 🧐 | Sucesso 😎 | Falha 🥲 | Sem cobertura 😬 | Ignorado 😑 | Tempo de execução 🥱 | Covertura mínima (${{inputs.minimum-coverage}}%) |"
