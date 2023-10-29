@@ -12,8 +12,6 @@ on:
     outputs:
       indexes:
         value: ${{jobs.mutation-tests.outputs.indexes}}
-      indexes2:
-        value: ${{jobs.mutation-tests.outputs.indexes2}}
     secrets:
       token:
         required: false
@@ -23,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       indexes: ${{steps.export.outputs.indexes}}
-      indexes2: ${{steps.export.outputs.indexes2}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -60,5 +57,4 @@ jobs:
             execution_time=0
           fi
 
-          echo 'indexes={"coverage":"${coverage}","success":"${success}","error":"${error}","skipped":"0","execution_time":"${execution_time}"}' >> $GITHUB_OUTPUT
-          echo "indexes2=teste" >> $GITHUB_OUTPUT
+          echo 'indexes={"coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","skipped":"0","execution_time":"'${execution_time}'"}' >> $GITHUB_OUTPUT
