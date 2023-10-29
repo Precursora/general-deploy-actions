@@ -47,19 +47,21 @@ jobs:
           surefire=${{inputs.path}}${{inputs.report-surefire-file}}
 
           if [[ -e "${index}" ]]; then
-            coverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'%' -f1 | cut -d'>' -f5)
             error=$(grep -Eo '[Failures|Errors]: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
             skipped=$(grep -Eo 'Skipped: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
-            total=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f3)
-            success=${total-error}
-            execution_time=$(grep -Eo 'elapsed: [0-9\.]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
+            executionTime=$(grep -Eo 'elapsed: [0-9\.]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
+            coverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'%' -f1 | cut -d'>' -f5) || "0"
+            total=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f3) || "0"
+            noCoverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f1) "0"
+            success=$(($total-$noCoverage))
           else
-            coverage=0
             error=0
             skipped=0
+            executionTime=0
+            coverage=0
             total=0
+            noCoverage=0
             success=0
-            execution_time=0
           fi
 
-          echo 'indexes={"coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","skipped":"'${skipped}'","execution_time":"'${execution_time}'"}' >> $GITHUB_OUTPUT
+          echo 'indexes={"coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"'${skipped}'","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT

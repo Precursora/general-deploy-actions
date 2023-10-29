@@ -37,10 +37,10 @@ jobs:
     steps:
       - name: Summary
         run: |
-          summaryHeader="| Tipo | Cobertura 📊 | Sucesso ✅ | Falha ⛔ | Ignorado ↩️ | Tempo de execução ⏳ |"
-          summaryAlign="|:--|--|--|--|--|--|"
-          summaryUnitTests="| Unitário | ${{fromJSON(inputs.unit-tests-report).coverage}}% | ${{fromJSON(inputs.unit-tests-report).success}} | ${{fromJSON(inputs.unit-tests-report).error}} | ${{fromJSON(inputs.unit-tests-report).skipped}} | ${{fromJSON(inputs.unit-tests-report).execution_time}} |"
-          summaryMutationTests="| Mutação | ${{fromJSON(inputs.mutation-tests-report).coverage}}% | ${{fromJSON(inputs.mutation-tests-report).success}} | ${{fromJSON(inputs.mutation-tests-report).error}} | ${{fromJSON(inputs.mutation-tests-report).skipped}} | ${{fromJSON(inputs.mutation-tests-report).execution_time}} |"
+          summaryHeader="| Tipo | Cobertura 🧐 | Sucesso 😎 | Falha 🥲 | Sem cobertura 😬 | Ignorado 😑 | Tempo de execução 🥱 |"
+          summaryAlign="|:--|--|--|--|--|--|--|"
+          summaryUnitTests="| Unitário | ${{fromJSON(inputs.unit-tests-report).coverage}}% | ${{fromJSON(inputs.unit-tests-report).success}} | ${{fromJSON(inputs.unit-tests-report).error}} | ${{fromJSON(inputs.unit-tests-report).no_coverage}} | ${{fromJSON(inputs.unit-tests-report).skipped}} | ${{fromJSON(inputs.unit-tests-report).execution_time}} |"
+          summaryMutationTests="| Mutação | ${{fromJSON(inputs.mutation-tests-report).coverage}}% | ${{fromJSON(inputs.mutation-tests-report).success}} | ${{fromJSON(inputs.mutation-tests-report).error}} | ${{fromJSON(inputs.mutation-tests-report).no_coverage}} | ${{fromJSON(inputs.mutation-tests-report).skipped}} | ${{fromJSON(inputs.mutation-tests-report).execution_time}} |"
           summary="${summaryHeader}\n${summaryAlign}\n${summaryUnitTests}\n${summaryMutationTests}"
 
           echo -e "${summary}" >> $GITHUB_STEP_SUMMARY
