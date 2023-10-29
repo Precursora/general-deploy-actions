@@ -33,24 +33,32 @@ on:
         type: number
         required: true
 jobs:
-  create-summaries:
-    name: Create summaries
+  validate-unit-tests:
+    name: Validate unit tests
     runs-on: ubuntu-latest
     steps:
       - name: Validate unit tests coverage
         run: |
           if [[ ${{inputs.unit-tests-coverage}} < 50.00 ]]; then
-            echo "### ⛔ Cobertura mínima de 50% não atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
+            echo "#### ⛔ Cobertura mínima de 50% não atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### ✅ Cobertura mínima de 50% atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
+            echo "#### ✅ Cobertura mínima de 50% atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
           fi
+  validate-mutation-tests:
+    name: Validate mutation tests
+    runs-on: ubuntu-latest
+    steps:
       - name: Validate mutation tests coverage
         run: |
           if [[ ${{inputs.unit-tests-coverage}} < 50.00 ]]; then
-            echo "### ⛔ Cobertura mínima de 50% não atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
+            echo "#### ⛔ Cobertura mínima de 50% não atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### ✅ Cobertura mínima de 50% atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
+            echo "#### ✅ Cobertura mínima de 50% atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
           fi
+  create-summaries:
+    name: Create summaries
+    runs-on: ubuntu-latest
+    steps:
       - name: Summary
         run: |
           summaryHeader="| Tipo | Cobertura 📊 | Sucesso ✅ | Falha ⛔ | Ignorado ↩️ | Tempo de execução ⏳ |"
@@ -59,4 +67,4 @@ jobs:
           summaryMutationTests="| Mutação | ${{inputs.mutation-tests-coverage}} | ${{inputs.mutation-tests-total-success}} | ${{inputs.mutation-tests-total-fail}} | ${{inputs.mutation-tests-total-skiped}} | ${{inputs.mutation-tests-execution-time}} |"
           summary="${summaryHeader}\n${summaryAlign}\n${summaryUnitTests}\n${summaryMutationTests}"
 
-          echo $summary >> $GITHUB_STEP_SUMMARY
+          echo -e "${summary}" >> $GITHUB_STEP_SUMMARY
