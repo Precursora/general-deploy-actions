@@ -35,7 +35,9 @@ jobs:
         run: |
           mvn -B pitest:mutationCoverage -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
-              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }} \
+              -DfailWhenNoMutations=false \
+              -DtimestampedReports=false
       - name: Export indexes
         id: export
         run: |
