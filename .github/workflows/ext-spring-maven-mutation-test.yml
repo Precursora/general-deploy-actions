@@ -1,6 +1,10 @@
 name: Mutation tests
 on:
   workflow_call:
+    inputs:
+      path:
+        type: string
+        required: false
     secrets:
       token:
         required: false
@@ -19,6 +23,6 @@ jobs:
           cache: maven
       - name: Run mutation tests
         run: |
-          mvn -B pitest:mutationCoverage -f ./app/pom.xml -s ./app/settings.xml \
+          mvn -B pitest:mutationCoverage -f ${{inputs.path}}pom.xml -s ${{inputs.path}}settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}

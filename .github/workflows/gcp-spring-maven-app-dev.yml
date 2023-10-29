@@ -57,6 +57,8 @@ jobs:
     name: Test
     if: ${{ needs.settings.outputs.test-disable-unit != 'true' }}
     uses: ./.github/workflows/ext-spring-maven-unit-test.yml
+    with:
+      path: ./app/
   mutation-tests:
     needs:
       - settings
@@ -64,6 +66,8 @@ jobs:
     name: Test
     if: ${{ needs.settings.outputs.test-disable-mutation != 'true' }}
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
+    with:
+      path: ./app/
   deploy:
     needs:
       - unit-tests
