@@ -8,6 +8,10 @@ on:
       mutation-tests-report:
         type: string
         required: true
+      minimum-coverage:
+        type: number
+        required: false
+        default: 50
 jobs:
   validate-unit-tests:
     name: Validate unit tests
@@ -15,10 +19,10 @@ jobs:
     steps:
       - name: Validate unit tests coverage
         run: |
-          if [[ ${{fromJSON(inputs.unit-tests-report).coverage}} < 50.00 ]]; then
-            echo "#### ⛔ Cobertura mínima de 50% não atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
+          if [[ ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{inputs.minimum-coverage}} ]]; then
+            echo "#### ⛔ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
           else
-            echo "#### ✅ Cobertura mínima de 50% atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
+            echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
           fi
   validate-mutation-tests:
     name: Validate mutation tests
@@ -26,10 +30,10 @@ jobs:
     steps:
       - name: Validate mutation tests coverage
         run: |
-          if [[ ${{fromJSON(inputs.mutation-tests-report).coverage}} < 50.00 ]]; then
-            echo "#### ⛔ Cobertura mínima de 50% não atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
+          if [[ ${{fromJSON(inputs.mutation-tests-report).coverage}} < ${{inputs.minimum-coverage}} ]]; then
+            echo "#### ⛔ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
           else
-            echo "#### ✅ Cobertura mínima de 50% atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
+            echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
           fi
   create-summaries:
     name: Create summaries
