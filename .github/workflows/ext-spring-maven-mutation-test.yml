@@ -58,3 +58,4 @@ jobs:
           fi
 
           echo 'indexes={"coverage":"${coverage}","success":"${success}","error":"${error}","skipped":"0","execution_time":"${execution_time}"}' >> $GITHUB_OUTPUT
+          echo 'indexes2="teste"' >> $GITHUB_OUTPUT
