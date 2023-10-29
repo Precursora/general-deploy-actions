@@ -16,6 +16,8 @@ on:
     outputs:
       indexes:
         value: ${{jobs.unit-tests.outputs.indexes}}
+      indexes2:
+        value: ${{jobs.unit-tests.outputs.indexes2}}
     secrets:
       token:
         required: false
@@ -24,7 +26,8 @@ jobs:
     name: Unit
     runs-on: ubuntu-latest
     outputs:
-      indexes: ${{steps.export.outputs.indexes}}
+      indexes: "${{steps.export.outputs.indexes}}"
+      indexes2: ${{steps.export.outputs.indexes2}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -63,3 +66,4 @@ jobs:
           fi
 
           echo 'indexes={"coverage":"${coverage}","success":"${success}","error":"${error}","skipped":"${skipped}","execution_time":"${execution_time}"}' >> $GITHUB_OUTPUT
+          echo 'indexes2="teste"' >> $GITHUB_OUTPUT
