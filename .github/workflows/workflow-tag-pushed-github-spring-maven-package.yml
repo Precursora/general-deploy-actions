@@ -1,11 +1,6 @@
 name: Deploy maven package to GitHub Repository
 on:
   workflow_call:
-    secrets:
-      app-id:
-        required: true
-      private-key:
-        required: true
 jobs:
   build:
     name: Deploy
