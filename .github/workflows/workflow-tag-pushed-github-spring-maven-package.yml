@@ -1,6 +1,11 @@
 name: Deploy maven package to GitHub Repository
 on:
   workflow_call:
+    secrets:
+      token:
+        required: false
+      GH_PRECURSORA_DEFAULT_PAT:
+        required: false
 jobs:
   build:
     name: Deploy
@@ -9,13 +14,6 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Generate App Token
-        uses: actions/create-github-app-token@v1
-        id: generate-app-token
-        with:
-          app-id: ${{ secrets.GH_APP_ID }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup Maven
@@ -25,12 +23,12 @@ jobs:
           distribution: corretto
           cache: maven
       - name: Set version
-        run: mvn versions:set -DnewVersion=${{ github.ref_name }}
+        run: mvn versions:set -DnewVersion=${{ github.ref_name }} -DgenerateBackupPoms=false
       - name: Deploy
         run: |
           mvn --batch-mode deploy \
               -s settings.xml \
               -DaltReleaseDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
               -DaltSnapshotDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
-              -Dserver.github.username=${{ secrets.GH_APP_LOGIN }} \
-              -Dserver.github.password=${{ steps.generate-app-token.outputs.token }}
+              -Dserver.github.username=${{ github.repository_owner }} \
+              -Dserver.github.password=${{ secrets.token == '' && secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
