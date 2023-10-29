@@ -20,13 +20,14 @@ jobs:
           java-version: 11
           distribution: corretto
           cache: maven
-      - name: Deploy
+      - name: Set version
         run: |
           mvn versions:set \
               -DnewVersion=${{ github.ref_name }} \
               -DgenerateBackupPoms=false
               -DskipTests
-
+      - name: Deploy
+        run: |
           mvn -B deploy -s settings.xml \
               -DskipTests \
               -DaltReleaseDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
