@@ -47,12 +47,12 @@ jobs:
           surefire=${{inputs.path}}${{inputs.report-surefire-file}}
 
           if [[ -e "${index}" ]]; then
-            error=$(grep -Eo '[Failures|Errors]: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
-            skipped=$(grep -Eo 'Skipped: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
-            executionTime=$(grep -Eo 'elapsed: [0-9\.]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
-            coverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'%' -f1 | cut -d'>' -f5) || "0"
-            total=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f3) || "0"
-            noCoverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f1) || "0"
+            error=$(grep -Eo '[Failures|Errors]: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}') || "0"
+            skipped=$(grep -Eo 'Skipped: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}') || "0"
+            executionTime=$(grep -Eo 'elapsed: [0-9\.]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}') || "0"
+            coverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'%' -f1 | cut -d'>' -f5)
+            total=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f3)
+            noCoverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f1)
             success=$(($total-$noCoverage))
           else
             error=0
