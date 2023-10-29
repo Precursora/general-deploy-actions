@@ -4,8 +4,6 @@ on:
     secrets:
       token:
         required: false
-      GH_PRECURSORA_DEFAULT_PAT:
-        required: false
 jobs:
   build:
     name: Deploy
