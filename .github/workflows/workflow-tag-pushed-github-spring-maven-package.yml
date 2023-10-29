@@ -1,6 +1,11 @@
 name: Deploy maven package to GitHub Repository
 on:
   workflow_call:
+    secrets:
+      app-id:
+        required: true
+      private-key:
+        required: true
 jobs:
   build:
     name: Deploy
@@ -9,6 +14,13 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Generate App Token
+        uses: actions/create-github-app-token@v1
+        id: generate-app-token
+        with:
+          app-id: ${{secrets.app-id}}
+          private-key: ${{secrets.private-key}}
+          owner: ${{github.repository_owner}}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup Maven
@@ -19,4 +31,4 @@ jobs:
           java-distribution: temurin
           maven-version: 3.8.1
       - name: Deploy
-        run: mvn --batch-mode deploy -s settings.xml -Dserver.github.username=${{ github.actor }} -Dserver.github.password=${{ github.token }}
+        run: mvn --batch-mode deploy -s settings.xml -Dserver.github.username=${{ github.actor }} -Dserver.github.password=${{ steps.generate-app-token.outputs.token }}
