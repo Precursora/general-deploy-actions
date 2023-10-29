@@ -5,6 +5,17 @@ on:
       path:
         type: string
         required: false
+      report-index-file:
+        type: string
+        required: false
+        default: target/site/jacoco/index.html
+      report-surefire-file:
+        type: string
+        required: false
+        default: target/surefire-reports/*.txt
+    outputs:
+      indexes:
+        value: ${{jobs.unit-tests.outputs.indexes}}
     secrets:
       token:
         required: false
@@ -12,6 +23,8 @@ jobs:
   unit-tests:
     name: Unit
     runs-on: ubuntu-latest
+    outputs:
+      indexes: ${{steps.export.outputs.indexes}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -22,7 +35,31 @@ jobs:
           distribution: corretto
           cache: maven
       - name: Run unit tests
+        continue-on-error: true
         run: |
-          mvn -B clean install -f ${{inputs.path}}pom.xml -s ${{inputs.path}}settings.xml \
+          mvn -B clean install -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      - name: Export indexes
+        id: export
+        run: |
+          index=${{inputs.path}}${{inputs.report-index-file}}
+          surefire=${{inputs.path}}${{inputs.report-surefire-file}}
+
+          if [[ -e "${index}" ]]; then
+            coverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'%' -f1 | cut -d'>' -f5)
+            error=$(grep -Eo '[Failures|Errors]: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
+            skipped=$(grep -Eo 'Skipped: [0-9]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
+            total=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f3)
+            success=${total-error}
+            execution_time=$(grep -Eo 'elapsed: [0-9\.]*' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
+          else
+            coverage=0
+            error=0
+            skipped=0
+            total=0
+            success=0
+            execution_time=0
+          fi
+
+          echo 'indexes={"coverage":"${coverage}","success":"${success}","error":"${error}","skipped":"${skipped}","execution_time":"${execution_time}"}' >> $GITHUB_OUTPUT

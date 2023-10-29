@@ -16,13 +16,5 @@ jobs:
     uses: ./.github/workflows/ext-tests-coverage-validation.yml
     if: always()
     with:
-      unit-tests-coverage: 50
-      unit-tests-total-success: 10
-      unit-tests-total-fail: 0
-      unit-tests-total-skiped: 0
-      unit-tests-execution-time: 250
-      mutation-tests-coverage: 50
-      mutation-tests-total-success: 10
-      mutation-tests-total-fail: 0
-      mutation-tests-total-skiped: 0
-      mutation-tests-execution-time: 250
+      unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
+      mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
