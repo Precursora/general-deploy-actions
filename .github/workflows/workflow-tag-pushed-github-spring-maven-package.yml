@@ -5,7 +5,7 @@ on:
       token:
         required: false
 jobs:
-  build:
+  deploy:
     name: Deploy
     runs-on: ubuntu-latest
     permissions:
@@ -20,13 +20,16 @@ jobs:
           java-version: 11
           distribution: corretto
           cache: maven
-      - name: Set version
-        run: mvn versions:set -DnewVersion=${{ github.ref_name }} -DgenerateBackupPoms=false
       - name: Deploy
         run: |
-          mvn --batch-mode deploy \
-              -s settings.xml \
+          mvn versions:set \
+              -DnewVersion=${{ github.ref_name }} \
+              -DgenerateBackupPoms=false
+              -DskipTests
+
+          mvn -B deploy -s settings.xml \
+              -DskipTests \
               -DaltReleaseDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
               -DaltSnapshotDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
               -Dserver.github.username=${{ github.repository_owner }} \
-              -Dserver.github.password=${{ secrets.token == '' && secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
