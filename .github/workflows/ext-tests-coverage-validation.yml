@@ -1,0 +1,62 @@
+name: Tests Coverage Validation
+on:
+  workflow_call:
+    inputs:
+      unit-tests-coverage:
+        type: number
+        required: true
+      unit-tests-total-success:
+        type: number
+        required: true
+      unit-tests-total-fail:
+        type: number
+        required: true
+      unit-tests-total-skiped:
+        type: number
+        required: true
+      unit-tests-execution-time:
+        type: number
+        required: true
+      mutation-tests-coverage:
+        type: number
+        required: true
+      mutation-tests-total-success:
+        type: number
+        required: true
+      mutation-tests-total-fail:
+        type: number
+        required: true
+      mutation-tests-total-skiped:
+        type: number
+        required: true
+      mutation-tests-execution-time:
+        type: number
+        required: true
+jobs:
+  create-summaries:
+    name: Create summaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate unit tests coverage
+        run: |
+          if [[ ${{inputs.unit-tests-coverage}} < 50.00 ]]; then
+            echo "### ⛔ Cobertura mínima de 50% não atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Cobertura mínima de 50% atingida nos testes unitários" >> $GITHUB_STEP_SUMMARY
+          fi
+      - name: Validate mutation tests coverage
+        run: |
+          if [[ ${{inputs.unit-tests-coverage}} < 50.00 ]]; then
+            echo "### ⛔ Cobertura mínima de 50% não atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ✅ Cobertura mínima de 50% atingida nos testes de mutação" >> $GITHUB_STEP_SUMMARY
+          fi
+      - name: Summary
+        run: |
+          summaryHeader="| Tipo | Cobertura 📊 | Sucesso ✅ | Falha ⛔ | Ignorado ↩️ | Tempo de execução ⏳ |"
+          summaryAlign="|--|--|--|--|--|--|"
+          summaryUnitTests="| Unitário | ${{inputs.unit-tests-coverage}} | ${{inputs.unit-tests-total-success}} | ${{inputs.unit-tests-total-fail}} | ${{inputs.unit-tests-total-skiped}} | ${{inputs.unit-tests-execution-time}} |"
+          summaryMutationTests="| Mutação | ${{inputs.mutation-tests-coverage}} | ${{inputs.mutation-tests-total-success}} | ${{inputs.mutation-tests-total-fail}} | ${{inputs.mutation-tests-total-skiped}} | ${{inputs.mutation-tests-execution-time}} |"
+          summary="${summaryHeader}\n${summaryAlign}\n${summaryUnitTests}\n${summaryMutationTests}"
+
+          echo $summary >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,27 @@
+name: Validate Pull Request to Maven Package
+on:
+  workflow_call:
+jobs:
+  unit-tests:
+    name: Test
+    uses: ./.github/workflows/ext-spring-maven-unit-test.yml
+  mutation-tests:
+    name: Test
+    uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
+  validate-tests:
+    needs:
+      - unit-tests
+      - mutation-tests
+    name: Validate tests
+    uses: ./.github/workflows/ext-tests-coverage-validation.yml
+    with:
+      unit-tests-coverage: 50
+      unit-tests-total-success: 10
+      unit-tests-total-fail: 0
+      unit-tests-total-skiped: 0
+      unit-tests-execution-time: 1min 50s
+      mutation-tests-coverage: 50
+      mutation-tests-total-success: 10
+      mutation-tests-total-fail: 0
+      mutation-tests-total-skiped: 0
+      mutation-tests-execution-time: 1min 50s

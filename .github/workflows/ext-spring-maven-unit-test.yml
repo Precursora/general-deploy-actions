@@ -1,0 +1,24 @@
+name: Unit tests
+on:
+  workflow_call:
+    secrets:
+      token:
+        required: false
+jobs:
+  unit-tests:
+    name: Unit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: corretto
+          cache: maven
+      - name: Run unit tests
+        run: |
+          mvn -B clean install -f ./app/pom.xml -s ./app/settings.xml \
+              -Dserver.github.username=${{ github.repository_owner }} \
+              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
