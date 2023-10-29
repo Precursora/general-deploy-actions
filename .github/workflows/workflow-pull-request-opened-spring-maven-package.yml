@@ -19,9 +19,9 @@ jobs:
       unit-tests-total-success: 10
       unit-tests-total-fail: 0
       unit-tests-total-skiped: 0
-      unit-tests-execution-time: 1min 50s
+      unit-tests-execution-time: "1min 50s"
       mutation-tests-coverage: 50
       mutation-tests-total-success: 10
       mutation-tests-total-fail: 0
       mutation-tests-total-skiped: 0
-      mutation-tests-execution-time: 1min 50s
+      mutation-tests-execution-time: "1min 50s"
