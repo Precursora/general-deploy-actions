@@ -22,5 +22,5 @@ jobs:
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
-      unit-minimum-coverage: ${{needs.unit-tests.outputs.minimum-coverage}}
-      mutation-minimum-coverage: ${{needs.mutation-tests.outputs.minimum-coverage}}
+      unit-minimum-coverage: 60
+      mutation-minimum-coverage: 40
