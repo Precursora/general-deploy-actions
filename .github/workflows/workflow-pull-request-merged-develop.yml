@@ -16,4 +16,5 @@ jobs:
     with:
       base: main
       head: develop
+      labels: production
     secrets: inherit

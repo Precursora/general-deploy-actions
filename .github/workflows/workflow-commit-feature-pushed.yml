@@ -8,4 +8,5 @@ jobs:
     with:
       base: develop
       head: ${{github.ref_name}}
+      labels: development
     secrets: inherit
