@@ -15,17 +15,28 @@ jobs:
   create-pr:
     name: Create PR to ${{inputs.base}}
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
     steps:
+      - name: Generate App Token
+        uses: actions/create-github-app-token@v1
+        id: generate-app-token
+        with:
+          app-id: ${{secrets.GH_APP_ID}}
+          private-key: ${{secrets.GH_APP_PRIVATE_KEY}}
+          owner: ${{ github.repository_owner }}
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Check if PR exists
         id: pr-number
         run: echo "number=$(gh api "repos/${{github.repository}}/pulls?base=${{inputs.base}}&head=${{github.repository_owner}}:${{inputs.head}}&state=open" --jq ".[].number")" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
       - name: Edit PR to ${{inputs.base}}
         if: steps.pr-number.outputs.number != ''
         run: gh api repos/${{github.repository}}/pulls/${{steps.pr-number.outputs.number}} -X PATCH -f title="${{env.DEFAULT_PR_TITLE}}"
+        env:
+          GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
       - name: Create PR to ${{inputs.base}}
         if: steps.pr-number.outputs.number == ''
         run: gh api repos/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="${{inputs.base}}" -f head="${{inputs.head}}"
+        env:
+          GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
