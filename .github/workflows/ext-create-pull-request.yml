@@ -16,7 +16,7 @@ jobs:
     name: Create PR to ${{inputs.base}}
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ secrets.GH_PRECUSORA_DEFAULT_PAT }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
