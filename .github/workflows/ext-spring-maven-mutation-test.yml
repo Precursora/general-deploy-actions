@@ -16,7 +16,7 @@ on:
       indexes:
         value: ${{jobs.mutation-tests.outputs.indexes}}
       minimum-coverage:
-        value: ${{inputs.minimum-coverage}}
+        value: 40
     secrets:
       token:
         required: false
