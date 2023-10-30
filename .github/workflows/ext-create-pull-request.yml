@@ -37,6 +37,9 @@ jobs:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
       - name: Create PR to ${{inputs.base}}
         if: steps.pr-number.outputs.number == ''
-        run: gh api repos/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="${{inputs.base}}" -f head="${{inputs.head}}"
+        id: pr-creation
+        run: echo "number=$(gh api repos/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="${{inputs.base}}" -f head="${{inputs.head}}" --jq ".number")" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
+      - name: Assignee PR
+        run: gh api repos/${{github.repository}}/issues/${{steps.pr-number.outputs.number || steps.pr-creation.outputs.number}}/assignees -X POST -f "assignees[]=${{github.actor}}"
