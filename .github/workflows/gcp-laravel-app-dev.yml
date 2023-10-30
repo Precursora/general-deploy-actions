@@ -198,4 +198,7 @@ jobs:
       - destroy
     if: always() && ((needs.custom-command-execution.result == 'success') || needs.destroy.result == 'success')
     name: Create PR to Main
-    uses: ./.github/workflows/ext-create-pull-request-to-main.yml
+    uses: ./.github/workflows/ext-create-pull-request.yml
+    with:
+      base: main
+      head: develop

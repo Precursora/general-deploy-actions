@@ -1,0 +1,11 @@
+name: Open PR to Develop
+on:
+  workflow_call:
+jobs:
+  create-pr:
+    name: Create PR to Develop
+    uses: ./.github/workflows/ext-create-pull-request.yml
+    with:
+      base: develop
+      head: ${{github.head_ref}}
+    secrets: inherit
