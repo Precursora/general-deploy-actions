@@ -5,16 +5,22 @@ jobs:
   unit-tests:
     name: Test
     uses: ./.github/workflows/ext-spring-maven-unit-test.yml
+    with:
+      minimum-coverage: 60
   mutation-tests:
     name: Test
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
-  validate-tests:
+    with:
+      minimum-coverage: 40
+  generate-coverage-summary:
     needs:
       - unit-tests
       - mutation-tests
-    name: Validate tests
-    uses: ./.github/workflows/ext-tests-coverage-validation.yml
+    name: Generate coverage summary
+    uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
     if: always()
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
+      unit-minimum-coverage: ${{needs.unit-tests.outputs.minimum-coverage}}
+      mutation-minimum-coverage: ${{needs.mutation-tests.outputs.minimum-coverage}}

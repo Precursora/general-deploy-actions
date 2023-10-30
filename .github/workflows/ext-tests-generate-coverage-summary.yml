@@ -1,0 +1,36 @@
+name: Generate Coverage Summary
+on:
+  workflow_call:
+    inputs:
+      unit-tests-report:
+        type: string
+        required: true
+      mutation-tests-report:
+        type: string
+        required: true
+      unit-minimum-coverage:
+        type: number
+        required: true
+      mutation-minimum-coverage:
+        type: number
+        required: true
+jobs:
+  generate-summary:
+    name: Generate summary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          # Check minimum coverage
+          unitMinimumCoverage=$(if (( ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{inputs.unit-minimum-coverage}} )); then echo "❌"; else echo "✅"; fi);
+          mutationMinimumCoverage=$(if (( ${{fromJSON(inputs.mutation-tests-report).coverage}} < ${{inputs.mutation-minimum-coverage}} )); then echo "❌"; else echo "✅"; fi);
+          
+          # Summary constrution
+          summaryHeader="| Tipo | Cobertura 🧐 | Sucesso 😎 | Falha 🥲 | Sem cobertura 😬 | Ignorado 😑 | Tempo de execução 🥱 | Cobertura mínima atingida 🫣 |"
+          summaryAlign="|:--|--|--|--|--|--|--|:--:|"
+          summaryUnitTests="| Unitário | ${{fromJSON(inputs.unit-tests-report).coverage}}% | ${{fromJSON(inputs.unit-tests-report).success}} | ${{fromJSON(inputs.unit-tests-report).error}} | ${{fromJSON(inputs.unit-tests-report).no_coverage}} | ${{fromJSON(inputs.unit-tests-report).skipped}} | ${{fromJSON(inputs.unit-tests-report).execution_time}} | ${{inputs.unit-minimum-coverage}}% ${unitMinimumCoverage} |"
+          summaryMutationTests="| Mutação | ${{fromJSON(inputs.mutation-tests-report).coverage}}% | ${{fromJSON(inputs.mutation-tests-report).success}} | ${{fromJSON(inputs.mutation-tests-report).error}} | ${{fromJSON(inputs.mutation-tests-report).no_coverage}} | ${{fromJSON(inputs.mutation-tests-report).skipped}} | ${{fromJSON(inputs.mutation-tests-report).execution_time}} | ${{inputs.mutation-minimum-coverage}}% ${mutationMinimumCoverage} |"
+          
+          # Summary export
+          summary="${summaryHeader}\n${summaryAlign}\n${summaryUnitTests}\n${summaryMutationTests}"
+          echo -e "${summary}" >> $GITHUB_STEP_SUMMARY

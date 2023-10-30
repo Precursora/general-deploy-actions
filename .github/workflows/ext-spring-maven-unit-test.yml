@@ -13,9 +13,14 @@ on:
         type: string
         required: false
         default: target/surefire-reports/*.txt
+      minimum-coverage:
+        type: number
+        required: true
     outputs:
       indexes:
         value: ${{jobs.unit-tests.outputs.indexes}}
+      minimum-coverage:
+        value: ${{inputs.minimum-coverage}}
     secrets:
       token:
         required: false
@@ -71,3 +76,11 @@ jobs:
           fi
 
           echo 'indexes={"coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"'${skipped}'","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
+          echo 'covarage='${coverage} >> $GITHUB_OUTPUT
+      - name: Validate coverage
+        run: |
+          if (( ${{steps.export.outputs.coverage}} < ${{inputs.minimum-coverage}} )); then
+            echo "#### ❌ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
+          fi
