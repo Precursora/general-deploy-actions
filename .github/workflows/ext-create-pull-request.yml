@@ -18,6 +18,8 @@ jobs:
   create-pr:
     name: Create PR to ${{inputs.base}}
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{github.token}}
     steps:
       - name: Generate App Token
         uses: actions/create-github-app-token@v1
@@ -31,8 +33,6 @@ jobs:
       - name: Check if PR exists
         id: pr-number
         run: echo "number=$(gh api "repos/${{github.repository}}/pulls?base=${{inputs.base}}&head=${{github.repository_owner}}:${{inputs.head}}&state=open" --jq ".[].number")" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
       - name: Edit PR to ${{inputs.base}}
         if: steps.pr-number.outputs.number != ''
         run: gh api repos/${{github.repository}}/pulls/${{steps.pr-number.outputs.number}} -X PATCH -f title="${{env.DEFAULT_PR_TITLE}}"
@@ -46,5 +46,3 @@ jobs:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
       - name: Assignee PR and Add Labels
         run: gh pr edit ${{steps.pr-number.outputs.number || steps.pr-creation.outputs.number}} --repo ${{github.repository}} --add-assignee="${{github.actor}}" --add-label="${{inputs.labels}}"
-        env:
-          GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
