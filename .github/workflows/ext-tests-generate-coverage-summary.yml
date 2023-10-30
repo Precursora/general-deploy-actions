@@ -21,7 +21,7 @@ jobs:
           
           # Summary constrution
           summaryHeader="| Tipo | Cobertura 🧐 | Sucesso 😎 | Falha 🥲 | Sem cobertura 😬 | Ignorado 😑 | Tempo de execução 🥱 | Cobertura mínima atingida 🫣 |"
-          summaryAlign="|:--|--|--|--|--|--|--|:--:|"
+          summaryAlign="|:--|--|--|--|--|--|--|:--|"
           summaryUnitTests="| Unitário | ${{fromJSON(inputs.unit-tests-report).coverage}}% | ${{fromJSON(inputs.unit-tests-report).success}} | ${{fromJSON(inputs.unit-tests-report).error}} | ${{fromJSON(inputs.unit-tests-report).no_coverage}} | ${{fromJSON(inputs.unit-tests-report).skipped}} | ${{fromJSON(inputs.unit-tests-report).execution_time}} | ${{inputs.unit-minimum-coverage}}% ${unitMinimumCoverage} |"
           summaryMutationTests="| Mutação | ${{fromJSON(inputs.mutation-tests-report).coverage}}% | ${{fromJSON(inputs.mutation-tests-report).success}} | ${{fromJSON(inputs.mutation-tests-report).error}} | ${{fromJSON(inputs.mutation-tests-report).no_coverage}} | ${{fromJSON(inputs.mutation-tests-report).skipped}} | ${{fromJSON(inputs.mutation-tests-report).execution_time}} | ${{inputs.mutation-minimum-coverage}}% ${mutationMinimumCoverage} |"
           
