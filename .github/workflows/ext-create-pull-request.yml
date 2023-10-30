@@ -46,6 +46,3 @@ jobs:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
       - name: Assignee PR and Add Labels
         run: gh pr edit ${{steps.pr-number.outputs.number || steps.pr-creation.outputs.number}} --repo ${{github.repository}} --add-assignee="${{github.actor}}" --add-label="${{inputs.labels}}"
-        env:
-          GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
-          GITHUB_TOKEN: ${{steps.generate-app-token.outputs.token}}
