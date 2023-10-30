@@ -1,0 +1,19 @@
+name: Open PR to Main
+on:
+  workflow_call:
+jobs:
+  validate-origem:
+    name: Validate origem
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Valid
+        run: echo "Abrindo pull request para a branch Main..."
+  create-pr:
+    needs: validate-origem
+    name: Create PR to Main
+    uses: ./.github/workflows/ext-create-pull-request.yml
+    with:
+      base: main
+      head: develop
+    secrets: inherit

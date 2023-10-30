@@ -7,5 +7,5 @@ jobs:
     uses: ./.github/workflows/ext-create-pull-request.yml
     with:
       base: develop
-      head: ${{github.head_ref}}
+      head: ${{github.ref}}
     secrets: inherit
