@@ -7,8 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
-      - name: Valid
-        run: echo "Abrindo pull request para a branch Main..."
+      - run: echo "⏳ Abrindo pull request para a branch Main..."
   create-pr:
     needs: validate-origem
     name: Create PR to Main
