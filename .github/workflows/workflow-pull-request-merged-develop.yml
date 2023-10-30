@@ -2,6 +2,12 @@ name: Open PR to Main
 on:
   workflow_call:
 jobs:
+  test:
+    name: teste
+    runs-on: ubuntu-latest
+    steps:
+      - name: teste
+        run: echo "${{github.event_name}} | ${{github.event.action}}"
   validate-origem:
     name: Validate origem
     runs-on: ubuntu-latest
