@@ -72,7 +72,7 @@ jobs:
           fi
 
           echo 'indexes={"coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"0","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
-          echo 'covarage='${coverage} >> $GITHUB_OUTPUT
+          echo 'coverage='${coverage} >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |
           if (( ${{steps.export.outputs.coverage}} < ${{inputs.minimum-coverage}} )); then
