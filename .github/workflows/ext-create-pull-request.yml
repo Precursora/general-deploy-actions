@@ -8,6 +8,9 @@ on:
       head:
         type: string
         required: true
+      labels:
+        type: string
+        required: false
 permissions: write-all
 env:
   DEFAULT_PR_TITLE: "build(#): PR automático // ${{inputs.head}} > ${{inputs.base}}"
@@ -41,7 +44,7 @@ jobs:
         run: echo "number=$(gh api repos/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="${{inputs.base}}" -f head="${{inputs.head}}" --jq ".number")" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
-      - name: Assignee PR
-        run: gh api repos/${{github.repository}}/issues/${{steps.pr-number.outputs.number || steps.pr-creation.outputs.number}}/assignees -X POST -f "assignees[]=${{github.actor}}"
+      - name: Assignee PR and Add Labels
+        run: gh pr edit ${{steps.pr-number.outputs.number || steps.pr-creation.outputs.number}} --repo ${{github.repository}} --add-assignee="${{github.actor}}" --add-label="${{inputs.labels}}"
         env:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
