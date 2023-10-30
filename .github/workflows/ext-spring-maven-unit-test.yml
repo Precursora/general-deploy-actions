@@ -20,7 +20,7 @@ on:
       indexes:
         value: ${{jobs.unit-tests.outputs.indexes}}
       minimum-coverage:
-        value: 40
+        value: ${{jobs.unit-tests.outputs.minimum-coverage}}
     secrets:
       token:
         required: false
@@ -30,6 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       indexes: ${{steps.export.outputs.indexes}}
+      minimum-coverage: ${{inputs.minimum-coverage}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
