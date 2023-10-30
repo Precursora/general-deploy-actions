@@ -19,8 +19,6 @@ on:
     outputs:
       indexes:
         value: ${{jobs.unit-tests.outputs.indexes}}
-      minimum-coverage:
-        value: ${{jobs.unit-tests.outputs.minimum-coverage}}
     secrets:
       token:
         required: false
@@ -30,7 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       indexes: ${{steps.export.outputs.indexes}}
-      minimum-coverage: ${{inputs.minimum-coverage}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -76,7 +73,7 @@ jobs:
             success=0
           fi
 
-          echo 'indexes={"coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"'${skipped}'","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
+          echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"'${skipped}'","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
           echo 'coverage='${coverage} >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |

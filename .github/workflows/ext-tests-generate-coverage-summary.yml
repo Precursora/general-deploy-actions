@@ -8,12 +8,6 @@ on:
       mutation-tests-report:
         type: string
         required: true
-      unit-minimum-coverage:
-        type: number
-        required: true
-      mutation-minimum-coverage:
-        type: number
-        required: true
 jobs:
   generate-summary:
     name: Generate summary
@@ -22,8 +16,8 @@ jobs:
       - name: Summary
         run: |
           # Check minimum coverage
-          unitMinimumCoverage=$(if (( ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{inputs.unit-minimum-coverage}} )); then echo "❌"; else echo "✅"; fi);
-          mutationMinimumCoverage=$(if (( ${{fromJSON(inputs.mutation-tests-report).coverage}} < ${{inputs.mutation-minimum-coverage}} )); then echo "❌"; else echo "✅"; fi);
+          unitMinimumCoverage=$(if (( ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{fromJSON(inputs.unit-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
+          mutationMinimumCoverage=$(if (( ${{fromJSON(inputs.mutation-tests-report).coverage}} < ${{fromJSON(inputs.mutation-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
           
           # Summary constrution
           summaryHeader="| Tipo | Cobertura 🧐 | Sucesso 😎 | Falha 🥲 | Sem cobertura 😬 | Ignorado 😑 | Tempo de execução 🥱 | Cobertura mínima atingida 🫣 |"
