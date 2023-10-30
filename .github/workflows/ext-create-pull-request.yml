@@ -43,3 +43,5 @@ jobs:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
       - name: Assignee PR
         run: gh api repos/${{github.repository}}/issues/${{steps.pr-number.outputs.number || steps.pr-creation.outputs.number}}/assignees -X POST -f "assignees[]=${{github.actor}}"
+        env:
+          GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
