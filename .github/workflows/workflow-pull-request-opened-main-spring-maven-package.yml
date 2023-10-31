@@ -1,0 +1,32 @@
+name: Validate Pull Request to Maven Package
+on:
+  workflow_call:
+jobs:
+  origin-validation:
+    name: Origin validation
+    if: ${{github.head_ref == 'develop'}}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⏳ Iniciando validação das alterações..."
+  unit-tests:
+    needs: origin-validation
+    name: Test
+    uses: ./.github/workflows/ext-spring-maven-unit-test.yml
+    with:
+      minimum-coverage: 60
+  mutation-tests:
+    needs: origin-validation
+    name: Test
+    uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
+    with:
+      minimum-coverage: 40
+  generate-coverage-summary:
+    needs:
+      - unit-tests
+      - mutation-tests
+    name: Generate coverage summary
+    uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
+    if: always()
+    with:
+      unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
+      mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
