@@ -6,7 +6,7 @@ on:
         required: false
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy to PROD
     runs-on: ubuntu-latest
     permissions:
       contents: read

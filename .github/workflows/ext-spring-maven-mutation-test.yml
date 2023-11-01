@@ -1,4 +1,4 @@
-name: Mutation tests
+name: Mutation Tests
 on:
   workflow_call:
     inputs:
@@ -20,7 +20,7 @@ on:
         required: false
 jobs:
   mutation-tests:
-    name: Mutation
+    name: Mutation Tests
     runs-on: ubuntu-latest
     outputs:
       indexes: ${{steps.export.outputs.indexes}}

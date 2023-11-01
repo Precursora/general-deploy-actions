@@ -10,7 +10,7 @@ on:
         required: true
 jobs:
   generate-summary:
-    name: Generate summary
+    name: Summary
     runs-on: ubuntu-latest
     steps:
       - name: Summary

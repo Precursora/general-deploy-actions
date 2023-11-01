@@ -1,4 +1,4 @@
-name: Unit tests
+name: Unit Tests
 on:
   workflow_call:
     inputs:
@@ -24,7 +24,7 @@ on:
         required: false
 jobs:
   unit-tests:
-    name: Unit
+    name: Unit Tests
     runs-on: ubuntu-latest
     outputs:
       indexes: ${{steps.export.outputs.indexes}}

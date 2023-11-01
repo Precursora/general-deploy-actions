@@ -1,12 +1,13 @@
-name: Feature
+name: Prepare feature
 on:
   workflow_call:
 jobs:
   create-pr:
-    name: Create PR to Develop
+    name: Create PR to DEV
     uses: ./.github/workflows/ext-create-pull-request.yml
     with:
       base: develop
       head: ${{github.ref_name}}
       labels: development
+      environment: DEV
     secrets: inherit
