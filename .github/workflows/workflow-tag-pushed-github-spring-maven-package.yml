@@ -1,4 +1,4 @@
-name: Deploy Maven Package to GitHub Repository
+name: Deploy to PROD
 on:
   workflow_call:
     secrets:

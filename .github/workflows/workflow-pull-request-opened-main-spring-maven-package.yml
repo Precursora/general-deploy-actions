@@ -1,4 +1,4 @@
-name: Validate Pull Request to Maven Package
+name: Validate PR to PROD
 on:
   workflow_call:
 jobs:

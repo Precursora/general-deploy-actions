@@ -1,4 +1,4 @@
-name: Open PR to Develop
+name: Feature
 on:
   workflow_call:
 jobs:
