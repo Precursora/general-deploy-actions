@@ -9,11 +9,11 @@ on:
         type: string
         required: true
 jobs:
-  generate-summary:
-    name: Summary
+  generate-coverage-summary:
+    name: Coverage
     runs-on: ubuntu-latest
     steps:
-      - name: Summary
+      - name: Coverage
         run: |
           # Check minimum coverage
           unitMinimumCoverage=$(if (( ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{fromJSON(inputs.unit-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
