@@ -7,7 +7,7 @@ jobs:
     environment: DEV
     runs-on: ubuntu-latest
     steps:
-      - run: echo "⏳ Deploying to DEV..."
+      - run: echo "⏳ Implantando em DEV..."
   create-pr:
     needs: deploy
     name: Create PR to Main
