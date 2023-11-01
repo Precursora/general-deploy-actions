@@ -3,12 +3,12 @@ on:
   workflow_call:
 jobs:
   unit-tests:
-    name: Unit Tests
+    name: Unit tests
     uses: ./.github/workflows/ext-spring-maven-unit-test.yml
     with:
       minimum-coverage: 60
   mutation-tests:
-    name: Mutation Tests
+    name: Mutation tests
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
     with:
       minimum-coverage: 40

@@ -10,13 +10,13 @@ jobs:
       - run: echo "⏳ Iniciando validação das alterações..."
   unit-tests:
     needs: origin-validation
-    name: Unit Tests
+    name: Unit tests
     uses: ./.github/workflows/ext-spring-maven-unit-test.yml
     with:
       minimum-coverage: 60
   mutation-tests:
     needs: origin-validation
-    name: Mutation Tests
+    name: Mutation tests
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
     with:
       minimum-coverage: 40
