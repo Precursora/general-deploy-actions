@@ -2,19 +2,19 @@ name: Open PR to Main
 on:
   workflow_call:
 jobs:
-  deploy:
-    name: Deploy to DEV
-    environment: DEV
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "⏳ Processando deploy para DEV"
   origin-validation:
-    needs: deploy
     name: Origin validation
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - run: echo "⏳ Abrindo pull request para a branch Main..."
+  deploy:
+    needs: origin-validation
+    name: Deploy to DEV
+    environment: DEV
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⏳ Deploying in DEV..."
   create-pr:
     needs: origin-validation
     name: Create PR to Main
