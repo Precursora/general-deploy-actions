@@ -36,12 +36,12 @@ jobs:
       - name: Check if PR exists
         id: pr-number
         run: echo "number=$(gh api "repos/${{github.repository}}/pulls?base=${{inputs.base}}&head=${{github.repository_owner}}:${{inputs.head}}&state=open" --jq ".[].number")" >> $GITHUB_OUTPUT
-      - name: Edit PR to ${{inputs.base}}
+      - name: Edit PR to ${{inputs.environment || inputs.base}}
         if: steps.pr-number.outputs.number != ''
         run: gh api repos/${{github.repository}}/pulls/${{steps.pr-number.outputs.number}} -X PATCH -f title="${{env.DEFAULT_PR_TITLE}}"
         env:
           GH_TOKEN: ${{steps.generate-app-token.outputs.token}}
-      - name: Create PR to ${{inputs.base}}
+      - name: Create PR to ${{inputs.environment || inputs.base}}
         if: steps.pr-number.outputs.number == ''
         id: pr-creation
         run: echo "number=$(gh api repos/${{github.repository}}/pulls -X POST -f title="${{env.DEFAULT_PR_TITLE}}" -f base="${{inputs.base}}" -f head="${{inputs.head}}" --jq ".number")" >> $GITHUB_OUTPUT
