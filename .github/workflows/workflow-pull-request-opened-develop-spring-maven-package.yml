@@ -16,7 +16,7 @@ jobs:
     needs:
       - unit-tests
       - mutation-tests
-    name: Generate coverage summary
+    name: Summary
     uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
     if: always()
     with:
