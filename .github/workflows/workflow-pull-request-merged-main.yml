@@ -12,3 +12,4 @@ jobs:
     needs: deploy
     name: Create tag
     uses: ./.github/workflows/ext-create-tag.yml
+    secrets: inherit
