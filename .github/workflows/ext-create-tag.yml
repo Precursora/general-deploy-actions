@@ -27,4 +27,3 @@ jobs:
         name: Release ${{ steps.tag.outputs.new_tag }}
         body: ${{ steps.tag.outputs.changelog }}
         token: ${{ steps.generate-app-token.outputs.token }}
-        owner: ${{github.actor}}
