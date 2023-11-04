@@ -9,6 +9,7 @@ jobs:
     steps:
       - run: echo "⏳ Implantando em PROD..."
   create-tag:
+    needs: deploy
     name: Create new tag
     runs-on: ubuntu-latest
     permissions:

@@ -4,10 +4,15 @@ on:
 jobs:
   origin-validation:
     name: Origin validation
-    if: ${{github.head_ref == 'develop'}}
     runs-on: ubuntu-latest
     steps:
       - run: echo "⏳ Validando a origem das alterações..."
+      - name: Validate
+        run: |
+          if [[ "${{github.head_ref}}" != "develop" ]]; then
+            echo "A origem das alterações deve ser a branch develop";
+            exit 1;
+          fi
   unit-tests:
     needs: origin-validation
     name: Unit tests
