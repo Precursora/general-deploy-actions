@@ -24,7 +24,7 @@ jobs:
         run: |
           mvn versions:set \
               -DnewVersion=${{ github.ref_name }} \
-              -DgenerateBackupPoms=false
+              -DgenerateBackupPoms=false \
               -DskipTests
       - name: Deploy
         run: |
