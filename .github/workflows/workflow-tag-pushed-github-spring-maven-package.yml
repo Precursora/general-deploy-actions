@@ -8,10 +8,12 @@ jobs:
   deploy:
     name: Deploy to PROD
     runs-on: ubuntu-latest
+    environment: PROD
     permissions:
       contents: read
       packages: write
     steps:
+      - run: echo "⏳ Implantando em PROD..."
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup Maven
