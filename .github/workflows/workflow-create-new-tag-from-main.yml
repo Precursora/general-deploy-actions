@@ -2,6 +2,12 @@ name: Create new tag
 on:
   workflow_call: 
 jobs:
+  deploy:
+    name: Deploy to PROD
+    environment: PROD
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⏳ Implantando em PROD..."
   create-tag:
     name: Create new tag
     runs-on: ubuntu-latest

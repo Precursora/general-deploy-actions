@@ -7,7 +7,7 @@ jobs:
     if: ${{github.head_ref == 'develop'}}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "⏳ Validação da origem das alterações..."
+      - run: echo "⏳ Validando a origem das alterações..."
   unit-tests:
     needs: origin-validation
     name: Unit tests
