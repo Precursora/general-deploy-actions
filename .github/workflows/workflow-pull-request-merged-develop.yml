@@ -1,0 +1,20 @@
+name: Deploy to DEV
+on:
+  workflow_call:
+jobs:
+  deploy:
+    name: Deploy to DEV
+    environment: DEV
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "⏳ Implantando em DEV..."
+  create-pr:
+    needs: deploy
+    name: Create PR to PROD
+    uses: ./.github/workflows/ext-create-pull-request.yml
+    with:
+      base: main
+      head: develop
+      labels: production
+      environment: PROD
+    secrets: inherit

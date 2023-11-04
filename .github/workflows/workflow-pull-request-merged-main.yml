@@ -1,0 +1,8 @@
+name: Create tag
+on:
+  workflow_call: 
+jobs:
+  create-tag:
+    name: Create tag
+    uses: ./.github/workflows/ext-create-tag.yml
+    secrets: inherit

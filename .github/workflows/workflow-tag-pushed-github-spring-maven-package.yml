@@ -1,0 +1,38 @@
+name: Deploy to PROD
+on:
+  workflow_call:
+    secrets:
+      token:
+        required: false
+jobs:
+  deploy:
+    name: Deploy to PROD
+    runs-on: ubuntu-latest
+    environment: PROD
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - run: echo "⏳ Implantando em PROD..."
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Maven
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: corretto
+          cache: maven
+      - name: Set version
+        run: |
+          mvn -B versions:set \
+              -DnewVersion=${{ github.ref_name }} \
+              -DgenerateBackupPoms=false \
+              -DskipTests
+      - name: Deploy
+        run: |
+          mvn -B deploy -s settings.xml \
+              -DaltReleaseDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
+              -DaltSnapshotDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
+              -Dserver.github.username=${{ github.repository_owner }} \
+              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }} \
+              -DskipTests

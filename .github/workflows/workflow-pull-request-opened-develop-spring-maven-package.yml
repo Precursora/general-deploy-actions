@@ -1,0 +1,24 @@
+name: Validate PR to DEV
+on:
+  workflow_call:
+jobs:
+  unit-tests:
+    name: Unit tests
+    uses: ./.github/workflows/ext-spring-maven-unit-test.yml
+    with:
+      minimum-coverage: 60
+  mutation-tests:
+    name: Mutation tests
+    uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
+    with:
+      minimum-coverage: 40
+  generate-coverage-summary:
+    needs:
+      - unit-tests
+      - mutation-tests
+    name: Coverage
+    uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
+    if: always()
+    with:
+      unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
+      mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}

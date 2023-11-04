@@ -50,44 +50,28 @@ jobs:
           distribution: temurin
       - name: Validating dependencies
         run: mvn --batch-mode dependency:analyze -f ./app/pom.xml -s ./app/settings.xml -Dserver.github.username=${{ github.actor }} -Dserver.github.password=${{ secrets.GH_PKG_ADMIN_TOKEN }}
-  test-unit:
+  unit-tests:
     needs:
       - settings
       - validate-install-dependencies
-    name: Test / Unit
-    runs-on: ubuntu-latest
+    name: Test
     if: ${{ needs.settings.outputs.test-disable-unit != 'true' }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: temurin
-      - name: Run unit tests
-        run: mvn --batch-mode clean install -f ./app/pom.xml -s ./app/settings.xml -Dserver.github.username=${{ github.actor }} -Dserver.github.password=${{ secrets.GH_PKG_ADMIN_TOKEN }}
-  test-mutation:
+    uses: ./.github/workflows/ext-spring-maven-unit-test.yml
+    with:
+      path: ./app/
+  mutation-tests:
     needs:
       - settings
       - validate-install-dependencies
-    name: Test / Mutation
-    runs-on: ubuntu-latest
+    name: Test
     if: ${{ needs.settings.outputs.test-disable-mutation != 'true' }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: temurin
-      - name: Run mutation tests
-        run: mvn --batch-mode pitest:mutationCoverage -f ./app/pom.xml -s ./app/settings.xml -Dserver.github.username=${{ github.actor }} -Dserver.github.password=${{ secrets.GH_PKG_ADMIN_TOKEN }}
+    uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
+    with:
+      path: ./app/
   deploy:
     needs:
-      - test-unit
-      - test-mutation
+      - unit-tests
+      - mutation-tests
       - settings
     name: Deploy to DEV
     if: always() && needs.settings.result == 'success' && ((needs.settings.outputs.test-disable-unit == 'true' && needs.test-mutation.result == 'success') || (needs.settings.outputs.test-disable-mutation == 'true' && needs.test-unit.result == 'success') || (needs.settings.outputs.test-disable-unit == 'true' && needs.settings.outputs.test-disable-mutation == 'true') || (needs.test-unit.result == 'success' && needs.test-mutation.result == 'success'))
@@ -151,4 +135,7 @@ jobs:
       - destroy
     if: always() && (needs.custom-command-execution.result == 'success' || needs.destroy.result == 'success')
     name: Create PR to Main
-    uses: ./.github/workflows/ext-create-pull-request-to-main.yml
+    uses: ./.github/workflows/ext-create-pull-request.yml
+    with:
+      base: main
+      head: develop
