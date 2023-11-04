@@ -1,0 +1,24 @@
+name: Create tag
+on:
+  workflow_call: 
+jobs:
+  create-tag:
+    name: Create tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Generate App Token
+      uses: actions/create-github-app-token@v1
+      id: generate-app-token
+      with:
+          app-id: ${{secrets.GH_APP_ID}}
+          private-key: ${{secrets.GH_APP_PRIVATE_KEY}}
+          owner: ${{ github.repository_owner }}
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Create tag
+      uses: anothrNick/github-tag-action@1.67.0
+      env:
+        GITHUB_TOKEN: ${{ steps.generate-app-token.outputs.token }}
+        WITH_V: false
