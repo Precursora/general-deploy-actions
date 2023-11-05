@@ -70,7 +70,6 @@ jobs:
             skipped=0
             executionTime=0
             coverage=0
-            total=0
             noCoverage=0
             success=0
           fi
