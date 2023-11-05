@@ -37,12 +37,14 @@ jobs:
           java-version: 11
           distribution: corretto
           cache: maven
-      - name: Run unit tests
+      - name: Run tests
         continue-on-error: true
         run: |
-          mvn -B clean jacoco:prepare-agent install jacoco:report -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
+          mvn -B clear install -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      - name: Generate reports
+        run: mvn -B jacoco:prepare-agent jacoco:report
       - name: Export indexes
         id: export
         run: |
