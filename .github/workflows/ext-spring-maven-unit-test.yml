@@ -40,11 +40,11 @@ jobs:
       - name: Run tests
         continue-on-error: true
         run: |
-          mvn -B clean install -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
+          mvn -B clean jacoco:prepare-agent install -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
       - name: Generate reports
-        run: mvn -B jacoco:prepare-agent jacoco:report
+        run: mvn -B jacoco:report
       - name: Export indexes
         id: export
         run: |
