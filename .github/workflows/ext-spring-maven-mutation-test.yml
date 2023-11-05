@@ -36,7 +36,7 @@ jobs:
       - name: Run tests
         continue-on-error: true
         run: |
-          mvn -B clear install -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
+          mvn -B clean install -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
       - name: Generate reports
