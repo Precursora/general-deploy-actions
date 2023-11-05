@@ -51,28 +51,22 @@ jobs:
 
           if [[ -e "${index}" ]]; then
             coverage=$(grep -Eo 'td>[^>]*%' ${index} | paste -sd ' ' | cut -d'%' -f2 | cut -d'>' -f2)
-            noCoverage=$(grep -Eo 'td>[^>]*%.?*>[0-9]*/[0-9]*' ${index} | cut -d'/' -f2 | paste -sd '' | cut -d'>' -f5)
+            success=$(grep -Eo 'td>[^>]*%.?*>[0-9]*/[0-9]*' ${index} | cut -d'/' -f2 | paste -sd ',' | cut -d'>' -f5 | cut -d',' -f1)
             total=$(grep -Eo 'td>[^>]*%.?*>[0-9]*/[0-9]*' ${index} | cut -d'/' -f3 | paste -sd ',' | cut -d',' -f2)
-            success=$(($total-$noCoverage))
-            executionTime=0
-            error=0
+            noCoverage=$(($total-$success))
 
             if [[ $total == 0 ]]; then
               coverage=100
               noCoverage=0
               success=0
-              total=0
             fi
           else
             coverage=0
             noCoverage=0
-            total=0
             success=0
-            executionTime=0
-            error=0
           fi
 
-          echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"0","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
+          echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"0","no_coverage":"'${noCoverage}'","skipped":"0","execution_time":"0"}' >> $GITHUB_OUTPUT
           echo 'coverage='${coverage} >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |
