@@ -6,11 +6,13 @@ jobs:
     name: Unit tests
     uses: ./.github/workflows/ext-spring-maven-unit-test.yml
     with:
+      sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 60
   mutation-tests:
     name: Mutation tests
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
     with:
+      sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 40
   generate-coverage-summary:
     needs:
@@ -22,3 +24,14 @@ jobs:
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
+  finish:
+    needs: 
+      - unit-tests
+      - mutation-tests
+      - generate-coverage-summary
+    name: Finish
+    uses: ./.github/workflows/ext-create-commit-status-check.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      state: success
+      context: Finish Pull Request Validation
