@@ -20,8 +20,14 @@ jobs:
       - run: echo "⏳ Validando a origem das alterações..."
       - name: Validate
         run: |
-          if [[ "${{github.head_ref}}" != "${{inputs.expected_origin}}" ]]; then
-            gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=failure -f description='A origem das alterações deve ser a branch ${{inputs.expected_origin}}' -f context='Validate Pull Request Origin'
+          state=failure
+          description="A origem das alterações deve ser a branch ${{inputs.expected_origin}}"
+
+          if [[ "${{github.head_ref}}" == "${{inputs.expected_origin}}" ]]; then
+            state=success
+            description="Origem validada com sucesso"
           fi
+
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${state} -f description="${description}" -f context='Validate Pull Request Origin'
         env:
           GH_TOKEN: ${{secrets.token || github.token}}
