@@ -72,7 +72,7 @@ jobs:
 
           echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"0","no_coverage":"'${noCoverage}'","skipped":"0","execution_time":"0"}' >> $GITHUB_OUTPUT
           echo 'coverage='${coverage} >> $GITHUB_OUTPUT
-          echo 'description=Mínimo: ${{inputs.minimum-coverage}}% | Cobertura: ${coverage}% | Qtd. Sucesso: ${success} | Qtd. sem cobertura: ${noCoverage}' >> $GITHUB_OUTPUT
+          echo 'description=Min: ${{inputs.minimum-coverage}}% | Cov: ${coverage}% | Suc: ${success} | Uncov: ${noCoverage}' >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |
           state=failure
@@ -84,6 +84,6 @@ jobs:
             echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
           fi
 
-          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state='${state}' -f description='${{steps.export.outputs.description}}'
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${state} -f description='${{steps.export.outputs.description}}'
         env:
           GH_TOKEN: ${{secrets.token || github.token}}
