@@ -75,15 +75,15 @@ jobs:
           echo 'description=Mínimo: ${{inputs.minimum-coverage}}% | Cobertura: ${coverage}% | Qtd. Sucesso: ${success} | Qtd. sem cobertura: ${noCoverage}' >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |
-          state='error'
+          state=failure
 
           if (( ${{steps.export.outputs.coverage}} < ${{inputs.minimum-coverage}} )); then
             echo "#### ❌ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida" >> $GITHUB_STEP_SUMMARY
           else
-            state='success'
+            state=success
             echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
           fi
 
-          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state='$state' -f description='${{steps.export.outputs.description}}'
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state='${state}' -f description='${{steps.export.outputs.description}}'
         env:
           GH_TOKEN: ${{secrets.token || github.token}}
