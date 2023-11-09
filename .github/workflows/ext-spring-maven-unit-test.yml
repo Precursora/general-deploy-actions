@@ -92,6 +92,6 @@ jobs:
             echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
           fi
 
-          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${state} -f description='${{steps.export.outputs.description}}' -f context='${{github.action.name}}'
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${state} -f description='${{steps.export.outputs.description}}' -f context='Unit tests result'
         env:
           GH_TOKEN: ${{secrets.token || github.token}}
