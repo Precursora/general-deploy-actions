@@ -4,26 +4,23 @@ on:
 jobs:
   origin-validation:
     name: Origin validation
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "⏳ Validando a origem das alterações..."
-      - name: Validate
-        run: |
-          if [[ "${{github.head_ref}}" != "develop" ]]; then
-            echo "A origem das alterações deve ser a branch develop";
-            exit 1;
-          fi
+    uses: ./.github/workflows/ext-pull-request-origin-validation.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      expected_origin: develop
   unit-tests:
     needs: origin-validation
     name: Unit tests
     uses: ./.github/workflows/ext-spring-maven-unit-test.yml
     with:
+      sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 60
   mutation-tests:
     needs: origin-validation
     name: Mutation tests
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
     with:
+      sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 40
   generate-coverage-summary:
     needs:
@@ -36,3 +33,15 @@ jobs:
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
+  finish:
+    needs: 
+      - origin-validation
+      - unit-tests
+      - mutation-tests
+      - generate-coverage-summary
+    name: Finish
+    uses: ./.github/workflows/ext-create-commit-status-check.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      state: success
+      context: Finish Pull Request Validation

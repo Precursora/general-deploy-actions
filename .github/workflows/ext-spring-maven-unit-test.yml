@@ -16,6 +16,9 @@ on:
       minimum-coverage:
         type: number
         required: true
+      sha:
+        type: string
+        required: true
     outputs:
       indexes:
         value: ${{jobs.unit-tests.outputs.indexes}}
@@ -28,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       indexes: ${{steps.export.outputs.indexes}}
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -76,11 +80,18 @@ jobs:
 
           echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"'${skipped}'","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
           echo 'coverage='${coverage} >> $GITHUB_OUTPUT
+          echo 'description=Mínimo: ${{inputs.minimum-coverage}}% | Cobertura: ${coverage}% | Qtd. sucesso: ${success} | Qtd. erro: ${error} | Qtd. ignorado: ${skipped} | Qtd. sem cobertura: ${noCoverage}' >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |
+          state='error'
+          
           if (( ${{steps.export.outputs.coverage}} < ${{inputs.minimum-coverage}} )); then
             echo "#### ❌ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida" >> $GITHUB_STEP_SUMMARY
-            exit 1
           else
+            state='success'
             echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
           fi
+          
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state='$state' -f description='${{steps.export.outputs.description}}'
+        env:
+          GH_TOKEN: ${{secrets.token || github.token}}

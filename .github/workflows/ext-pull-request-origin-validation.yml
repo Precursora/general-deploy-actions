@@ -1,0 +1,27 @@
+name: PR origin validation
+on:
+  workflow_call:
+    inputs:
+      expected_origin:
+        type: string
+        required: true
+      sha:
+        type: string
+        required: true
+    secrets:
+      token:
+        required: false
+jobs:
+  origin-validation:
+    name: Origin validation
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - run: echo "⏳ Validando a origem das alterações..."
+      - name: Validate
+        run: |
+          if [[ "${{github.head_ref}}" != "${{inputs.expected_origin}}" ]]; then
+            gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state='error' -f description='A origem das alterações deve ser a branch ${{inputs.expected_origin}}'
+          fi
+        env:
+          GH_TOKEN: ${{secrets.token || github.token}}

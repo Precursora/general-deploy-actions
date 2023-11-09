@@ -12,6 +12,9 @@ on:
       minimum-coverage:
         type: number
         required: true
+      sha:
+        type: string
+        required: true
     outputs:
       indexes:
         value: ${{jobs.mutation-tests.outputs.indexes}}
@@ -22,6 +25,7 @@ jobs:
   mutation-tests:
     name: Mutation tests
     runs-on: ubuntu-latest
+    permissions: write-all
     outputs:
       indexes: ${{steps.export.outputs.indexes}}
     steps:
@@ -68,11 +72,18 @@ jobs:
 
           echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"0","no_coverage":"'${noCoverage}'","skipped":"0","execution_time":"0"}' >> $GITHUB_OUTPUT
           echo 'coverage='${coverage} >> $GITHUB_OUTPUT
+          echo 'description=Mínimo: ${{inputs.minimum-coverage}}% | Cobertura: ${coverage}% | Qtd. Sucesso: ${success} | Qtd. sem cobertura: ${noCoverage}' >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |
+          state='error'
+
           if (( ${{steps.export.outputs.coverage}} < ${{inputs.minimum-coverage}} )); then
             echo "#### ❌ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida" >> $GITHUB_STEP_SUMMARY
-            exit 1
           else
+            state='success'
             echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
           fi
+
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state='$state' -f description='${{steps.export.outputs.description}}'
+        env:
+          GH_TOKEN: ${{secrets.token || github.token}}
