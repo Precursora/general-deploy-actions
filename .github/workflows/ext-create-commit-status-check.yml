@@ -8,12 +8,12 @@ on:
       state:
         type: string
         required: true
-      description:
-        type: string
-        required: true
       context:
         type: string
         required: true
+      description:
+        type: string
+        required: false
     secrets:
       token:
         required: false
