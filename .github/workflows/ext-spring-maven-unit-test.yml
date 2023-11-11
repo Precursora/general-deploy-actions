@@ -80,7 +80,7 @@ jobs:
 
           echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"'${skipped}'","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
           echo 'coverage='${coverage} >> $GITHUB_OUTPUT
-          echo 'description=Min: ${{inputs.minimum-coverage}}% • Cov: '${coverage}'% • Suc: '${success}' • Err: '${error}' • Skip: '${skipped}' • Uncov: '${noCoverage} >> $GITHUB_OUTPUT
+          echo 'description=Minimum: ${{inputs.minimum-coverage}}% • Covered: '${coverage}'% • Success: '${success}' • Error: '${error}' • Skipped: '${skipped}' • Uncovered: '${noCoverage} >> $GITHUB_OUTPUT
       - name: Validate coverage
         run: |
           state=failure
