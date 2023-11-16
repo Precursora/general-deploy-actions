@@ -15,6 +15,7 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 60
+    secrets: inherit
   mutation-tests:
     needs: origin-validation
     name: Mutation tests
@@ -22,6 +23,7 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 40
+    secrets: inherit
   generate-coverage-summary:
     needs:
       - origin-validation
