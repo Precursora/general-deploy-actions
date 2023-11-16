@@ -45,7 +45,7 @@ jobs:
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
       - name: Generate reports
         run: |
-          mvn -B pitest:mutationCoverage \
+          mvn -B pitest:mutationCoverage -f ${{ inputs.path }}pom.xml -s ${{ inputs.path }}settings.xml \
               -DfailWhenNoMutations=false \
               -DtimestampedReports=false
       - name: Export indexes
