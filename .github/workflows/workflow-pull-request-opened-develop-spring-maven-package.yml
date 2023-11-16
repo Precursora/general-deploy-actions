@@ -8,12 +8,14 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 60
+    secrets: inherit
   mutation-tests:
     name: Mutation tests
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 40
+    secrets: inherit
   generate-coverage-summary:
     needs:
       - unit-tests
