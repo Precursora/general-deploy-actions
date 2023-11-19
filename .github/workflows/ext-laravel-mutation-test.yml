@@ -8,7 +8,7 @@ on:
       report-index-file:
         type: string
         required: false
-        default: target/pit-reports/index.html
+        default: reports/mutation/index.json
       minimum-coverage:
         type: number
         required: true
@@ -31,30 +31,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: corretto
-          cache: maven
+      - name: Install dependencies
+        run: |
+          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT}}\"}}" \
+          composer install --no-progress
+        working-directory: ${{inputs.path}}
       - name: Run tests
         continue-on-error: true
         id: run
         run: |
           startTime=$(date +%s)
 
-          mvn -B clean install -f pom.xml -s settings.xml \
-              -Dserver.github.username=${{ github.repository_owner }} \
-              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+          XDEBUG_MODE="coverage" composer run test-mutation
           
           endTime=$(date +%s)
           echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
-        working-directory: ${{inputs.path}}
-      - name: Generate reports
-        run: |
-          mvn -B pitest:mutationCoverage -f pom.xml -s settings.xml \
-              -DfailWhenNoMutations=false \
-              -DtimestampedReports=false
         working-directory: ${{inputs.path}}
       - name: Export indexes
         id: export
@@ -62,9 +53,9 @@ jobs:
           index=${{inputs.report-index-file}}
 
           if [[ -e "${index}" ]]; then
-            coverage=$(grep -Eo 'td>[^>]*%' ${index} | paste -sd ' ' | cut -d'%' -f2 | cut -d'>' -f2)
-            success=$(grep -Eo 'td>[^>]*%.?*>[0-9]{1,}/[0-9]{1,}' ${index} | cut -d'/' -f2 | paste -sd ',' | cut -d'>' -f5 | cut -d',' -f1)
-            total=$(grep -Eo 'td>[^>]*%.?*>[0-9]{1,}/[0-9]{1,}' ${index} | cut -d'/' -f3 | paste -sd ',' | cut -d',' -f2)
+            coverage=$(grep -Eo '"mutationCodeCoverage":[0-9\.]{1,}' ${index} | cut -d':' -f2)
+            success=$(grep -Eo '"killedCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)
+            total=$(grep -Eo '"totalMutantsCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)
             noCoverage=$(($total-$success))
             executionTime=${{steps.run.outputs.executionTime}}
 

@@ -1,0 +1,40 @@
+name: Validate PR to DEV
+on:
+  workflow_call:
+jobs:
+  unit-tests:
+    name: Unit tests
+    uses: ./.github/workflows/ext-laravel-unit-test.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      minimum-coverage: 60
+    secrets: inherit
+  mutation-tests:
+    name: Mutation tests
+    uses: ./.github/workflows/ext-laravel-mutation-test.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      minimum-coverage: 40
+    secrets: inherit
+  generate-coverage-summary:
+    needs:
+      - unit-tests
+      - mutation-tests
+    name: Coverage
+    uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
+    if: always()
+    with:
+      unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
+      mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
+  finish:
+    needs: 
+      - unit-tests
+      - mutation-tests
+      - generate-coverage-summary
+    name: Finish
+    uses: ./.github/workflows/ext-create-commit-status-check.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      state: success
+      context: Finish Pull Request Validation
+      description: Successful
