@@ -53,11 +53,11 @@ jobs:
           index=${{inputs.report-index-file}}
 
           if [[ -e "${index}" ]]; then
-            coverage=$(grep -Eo '"mutationCodeCoverage":[0-9\.]{1,}' ${index} | cut -d':' -f2)
             success=$(grep -Eo '"killedCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)
             total=$(grep -Eo '"totalMutantsCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)
             noCoverage=$(($total-$success))
             executionTime=${{steps.run.outputs.executionTime}}
+            coverage=$(echo "scale=2; ($success/$total)*100" | bc)
 
             if [[ $total == 0 ]]; then
               coverage=100
