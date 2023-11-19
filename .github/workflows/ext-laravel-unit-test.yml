@@ -8,11 +8,11 @@ on:
       report-index-file:
         type: string
         required: false
-        default: target/site/jacoco/index.html
-      report-surefire-file:
+        default: reports/unit/index.xml
+      report-junit-file:
         type: string
         required: false
-        default: target/surefire-reports/*.txt
+        default: reports/unit/junit.xml
       minimum-coverage:
         type: number
         required: true
@@ -35,43 +35,38 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: corretto
-          cache: maven
+      - name: Install dependencies
+        run: |
+          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT}}\"}}" \
+          composer install --no-progress
+        working-directory: ${{inputs.path}}
       - name: Run tests
-        continue-on-error: true
         id: run
+        continue-on-error: true
         run: |
           startTime=$(date +%s)
 
-          mvn -B clean jacoco:prepare-agent install -f pom.xml -s settings.xml \
-              -Dserver.github.username=${{ github.repository_owner }} \
-              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+          XDEBUG_MODE="coverage" composer run test-unit
 
           endTime=$(date +%s)
           echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
         working-directory: ${{inputs.path}}
-      - name: Generate reports
-        run: mvn -B jacoco:report
       - name: Export indexes
         id: export
         run: |
           index=${{inputs.report-index-file}}
-          surefire=${{inputs.report-surefire-file}}
+          junit=${{inputs.report-junit-file}}
 
           if [[ -e "${index}" ]]; then
-            error=$(grep -Eo 'Failures: [0-9]{1,}|Errors: [0-9]{1,}' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
-            skipped=$(grep -Eo 'Skipped: [0-9]{1,}' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
-            coverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'%' -f1 | cut -d'>' -f5)
-            total=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f3)
-            noCoverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'>' -f3 | cut -d'<' -f1 | cut -d' ' -f1)
-            success=$(($total-$noCoverage))
+            error=$(grep -Eom 1 'failures="[0-9\.]{1,}|errors="[0-9\.]{1,}' ${junit} | cut -d'"' -f2 | awk '{s+=$1} END {print s}')
+            skipped=$(grep -Eom 1 'skipped="[0-9\.]{1,}' ${junit} | cut -d'"' -f2)
+            coverage=$(grep -Eo 'percent="[0-9\.]{1,}' ${index} | cut -d'"' -f2 | paste -sd ";" | cut -d';' -f1)
+            total=$(grep -Eo 'executable="[0-9\.]{1,}' ${index} | cut -d'"' -f2 | paste -sd ";" | cut -d';' -f1)
+            success=$(grep -Eo 'executed="[0-9\.]{1,}' ${index} | cut -d'"' -f2 | paste -sd ";" | cut -d';' -f1)
+            noCoverage=$(($total-$success))
             executionTime=${{steps.run.outputs.executionTime}}
 
-            if [ ! -e $surefire ]; then
+            if [ ! -e $junit ]; then
               error=0
               skipped=0
               executionTime=0
