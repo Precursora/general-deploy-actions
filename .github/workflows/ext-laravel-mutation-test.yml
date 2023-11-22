@@ -58,12 +58,13 @@ jobs:
             total=$(($(grep -Eo '"totalMutantsCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)-$error))
             noCoverage=$(($total-$success))
             executionTime=${{steps.run.outputs.executionTime}}
-            coverage=$(echo "${success} ${total}" | awk '{printf "%.2f\n", $1 / $2 * 100}')
 
             if [[ $total == 0 ]]; then
               coverage=100
               noCoverage=0
               success=0
+            else
+              coverage=$(echo "${success} ${total}" | awk '{printf "%.2f\n", $1 / $2 * 100}')
             fi
           else
             coverage=0
