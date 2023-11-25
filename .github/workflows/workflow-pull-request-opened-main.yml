@@ -1,0 +1,31 @@
+name: Validate PR to PROD
+on:
+  workflow_call:
+jobs:
+  origin-validation:
+    name: Origin validation
+    uses: ./.github/workflows/ext-pull-request-origin-validation.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      expected_origin: develop
+  init:
+    needs: origin-validation
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-application-properties.yml
+  validation:
+    needs: init
+    name: Validation
+    if: ${{ needs.init.outputs.destroy == 'false' }}
+    uses: ./.github/workflows/ext-gcp-terraform-validation.yml
+  finish:
+    needs:
+      - init
+      - validation
+    if: always() && (needs.init.outputs.destroy != 'false' || (needs.init.outputs.destroy == 'false' && needs.validation.result == 'success'))
+    name: Finish
+    uses: ./.github/workflows/ext-create-commit-status-check.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      state: success
+      context: Finish Pull Request Validation
+      description: Successful
