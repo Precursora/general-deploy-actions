@@ -15,7 +15,7 @@ jobs:
   validation:
     needs: init
     name: Validation
-    if: ${{ needs.init.outputs.destroy == 'false' }}
+    if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-gcp-terraform-validation.yml
   finish:
     needs:

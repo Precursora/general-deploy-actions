@@ -8,7 +8,7 @@ jobs:
     uses: ./.github/workflows/ext-initialization-application-properties.yml
   deploy:
     needs: init
-    if: ${{ needs.init.outputs.destroy == 'false' }}
+    if: needs.init.outputs.destroy == 'false'
     name: Deploy
     uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
     with:
@@ -22,7 +22,7 @@ jobs:
   destroy:
     needs: init
     name: Destroy
-    if: ${{ needs.init.outputs.destroy != 'false' }}
+    if: needs.init.outputs.destroy != 'false'
     uses: ./.github/workflows/ext-gcp-terraform-destroy.yml
     with:
       environment: prod
@@ -37,7 +37,17 @@ jobs:
     needs:
       - destroy
       - deploy
-    if: always() && ((needs.deploy.result == 'success') || needs.destroy.result == 'success')
+    if: needs.deploy.result == 'success'
     name: Create tag
     uses: ./.github/workflows/ext-create-tag.yml
     secrets: inherit
+  finish:
+    needs:
+      - deploy
+      - destroy
+      - create-tag
+    if: always() && (needs.deploy.result == 'success' || needs.destroy.result == 'success')
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - run: echo "⏳ Finalizando deploy..."
