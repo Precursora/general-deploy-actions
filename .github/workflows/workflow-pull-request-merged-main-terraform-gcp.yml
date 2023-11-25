@@ -37,7 +37,7 @@ jobs:
     needs:
       - destroy
       - deploy
-    if: needs.deploy.result == 'success'
+    if: always() && needs.deploy.result == 'success'
     name: Create tag
     uses: ./.github/workflows/ext-create-tag.yml
     secrets: inherit
