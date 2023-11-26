@@ -15,26 +15,14 @@ jobs:
     steps:
       - name: Coverage
         run: |
-          echo "Construção de relatório de testes unitários..."
+          unitMinimumCoverage=$(if (( ${{fromJSON(inputs.unit-tests-report).coverage}} < ${{fromJSON(inputs.unit-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
+          unitExecutionTime=$(printf "%02s" $((${{fromJSON(inputs.unit-tests-report).execution_time}}/60)))"m "$(printf "%02s" $((${{fromJSON(inputs.unit-tests-report).execution_time}}%60)))"s"
+          summaryUnitTests="| Unitário | ${{fromJSON(inputs.unit-tests-report).coverage}}% | ${{fromJSON(inputs.unit-tests-report).success}} | ${{fromJSON(inputs.unit-tests-report).error}} | ${{fromJSON(inputs.unit-tests-report).no_coverage}} | ${{fromJSON(inputs.unit-tests-report).skipped}} | ${unitExecutionTime} | ${{fromJSON(inputs.unit-tests-report).minimum_coverage}}% ${unitMinimumCoverage} |"
 
-          if [[ "${{inputs.unit-tests-report}}" != "" ]]; then
-            unitMinimumCoverage=$(if (( ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).coverage}} < ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
-            unitExecutionTime=$(printf "%02s" $((${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).execution_time}}/60)))"m "$(printf "%02s" $((${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).execution_time}}%60)))"s"
-            summaryUnitTests="| Unitário | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).coverage}}% | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).success}} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).error}} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).no_coverage}} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).skipped}} | ${unitExecutionTime} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).minimum_coverage}}% ${unitMinimumCoverage} |"
-          else
-            summaryUnitTests="| Unitário | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |"
-          fi
-
-          echo "Construção de relatório de testes mutantes..."
-
-          if [[ "${{inputs.mutation-tests-report}}" != "" ]]; then
-            mutationExecutionTime=$(printf "%02s" $((${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).execution_time}}/60)))"m "$(printf "%02s" $((${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).execution_time}}%60)))"s"
-            mutationMinimumCoverage=$(if (( ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).coverage}} < ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
-            summaryMutationTests="| Mutação | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).coverage}}% | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).success}} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).error}} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).no_coverage}} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).skipped}} | ${mutationExecutionTime} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).minimum_coverage}}% ${mutationMinimumCoverage} |"
-          else
-            summaryMutationTests="| Unitário | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |"
-          fi
-
+          mutationExecutionTime=$(printf "%02s" $((${{fromJSON(inputs.mutation-tests-report).execution_time}}/60)))"m "$(printf "%02s" $((${{fromJSON(inputs.mutation-tests-report).execution_time}}%60)))"s"
+          mutationMinimumCoverage=$(if (( ${{fromJSON(inputs.mutation-tests-report).coverage}} < ${{fromJSON(inputs.mutation-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
+          summaryMutationTests="| Mutação | ${{fromJSON(inputs.mutation-tests-report).coverage}}% | ${{fromJSON(inputs.mutation-tests-report).success}} | ${{fromJSON(inputs.mutation-tests-report).error}} | ${{fromJSON(inputs.mutation-tests-report).no_coverage}} | ${{fromJSON(inputs.mutation-tests-report).skipped}} | ${mutationExecutionTime} | ${{fromJSON(inputs.mutation-tests-report).minimum_coverage}}% ${mutationMinimumCoverage} |"
+          
           # Summary constrution
           summaryHeader="| Tipo | Cobertura 🧐 | Sucesso 😎 | Falha 🥲 | Sem cobertura 😬 | Ignorado 😑 | Tempo de execução 🥱 | Cobertura mínima atingida 🫣 |"
           summaryAlign="|:--|--|--|--|--|--|--|:--|"
