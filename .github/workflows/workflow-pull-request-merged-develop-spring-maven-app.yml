@@ -1,9 +1,6 @@
 name: Deploy to GCP - DEV
 on:
   workflow_call:
-env:
-  ENVIRONMENT: dev
-  REGISTRY: us-docker.pkg.dev
 permissions: write-all
 jobs:
   init:
@@ -15,7 +12,7 @@ jobs:
     if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-load-application-settings.yml
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: dev
   deploy:
     needs:
       - init
@@ -24,7 +21,7 @@ jobs:
     if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-gcp-deploy-service.yml
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: dev
       region: ${{ needs.init.outputs.region }}
       scaling-memory: ${{ needs.settings.outputs.scaling-memory }}
       scaling-min-instances: ${{ needs.settings.outputs.scaling-min-instances }}
@@ -39,7 +36,7 @@ jobs:
       cpu-throttling: ${{ needs.settings.outputs.cpu-throttling }}
       service-account: ${{ needs.settings.outputs.service-account }}
       instances: ${{ needs.settings.outputs.instances }}
-      registry: ${{ env.REGISTRY }}
+      registry: us-docker.pkg.dev
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
@@ -58,8 +55,8 @@ jobs:
       region: ${{ needs.settings.outputs.region }}
       instances: ${{ needs.settings.outputs.instances }}
       service-account: ${{ needs.settings.outputs.service-account }}
-      registry: ${{ env.REGISTRY }}
-      environment: ${{ env.ENVIRONMENT }}
+      registry: us-docker.pkg.dev
+      environment: dev
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
@@ -70,7 +67,7 @@ jobs:
     if: needs.init.outputs.destroy != 'false'
     uses: ./.github/workflows/ext-gcp-destroy-service.yml
     with:
-      environment: ${{ env.ENVIRONMENT }}
+      environment: dev
       region: ${{ needs.init.outputs.region }}
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
