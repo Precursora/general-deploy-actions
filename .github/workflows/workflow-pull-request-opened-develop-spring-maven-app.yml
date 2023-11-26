@@ -33,6 +33,7 @@ jobs:
       - unit-tests
       - mutation-tests
     name: Coverage
+    if: always() && (needs.mutation-tests.result == 'success' || needs.unit-tests.result == 'success')
     uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
