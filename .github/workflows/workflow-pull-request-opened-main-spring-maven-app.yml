@@ -16,7 +16,7 @@ jobs:
     name: Unit tests
     needs: init
     uses: ./.github/workflows/ext-spring-maven-unit-test.yml
-    if: needs.init.outputs.unit-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
+    if: needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 90
@@ -28,7 +28,7 @@ jobs:
     name: Mutation tests
     needs: init
     uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
-    if: needs.init.outputs.mutation-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
+    if: needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 70
