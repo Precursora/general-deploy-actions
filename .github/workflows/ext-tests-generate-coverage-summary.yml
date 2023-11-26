@@ -17,9 +17,17 @@ jobs:
         run: |
           echo "Construção de relatório de testes unitários..."
 
+          if [[ "${{inputs.unit-tests-report}}" != "" ]]; then
+            echo "aqui 1"
+            echo "${{inputs.unit-tests-report}}"
+          else
+            echp "aqui 2"
+          fi
+
           summaryUnitTests="| Unitário | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |"
 
           echo "Construção de relatório de testes mutantes..."
+
 
           summaryMutationTests="| Unitário | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |"
 
