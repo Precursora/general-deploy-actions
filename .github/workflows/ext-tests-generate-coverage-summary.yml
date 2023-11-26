@@ -21,7 +21,7 @@ jobs:
             echo "aqui 1"
             echo "${{inputs.unit-tests-report}}"
           else
-            echp "aqui 2"
+            echo "aqui 2"
           fi
 
           summaryUnitTests="| Unitário | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |"
