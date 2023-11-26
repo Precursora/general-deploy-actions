@@ -26,9 +26,7 @@ permissions: write-all
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-application-properties.yml
-    with:
-      environment: ${{ inputs.ENVIRONMENT }}
+    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
   settings:
     needs: init
     name: Load application settings

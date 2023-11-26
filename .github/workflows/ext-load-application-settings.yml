@@ -38,12 +38,6 @@ on:
         value: ${{ jobs.load.outputs.command-entrypoint }}
       command-args:
         value: ${{ jobs.load.outputs.command-args }}
-      test-disable-unit:
-        value: ${{ jobs.load.outputs.test-disable-unit }}
-      test-disable-mutation:
-        value: ${{ jobs.load.outputs.test-disable-mutation }}
-      test-disable-integration:
-        value: ${{ jobs.load.outputs.test-disable-integration }}
 permissions: write-all
 jobs:
   load:
@@ -66,9 +60,6 @@ jobs:
       instances: "${{ steps.sql-instances-sockets-handler.outputs.instances }}"
       command-entrypoint: "${{ steps.custom-command-entrypoint-handler.outputs.entrypoint }}"
       command-args: "${{ fromJSON(steps.settings.outputs.output).command.args }}"
-      test-disable-unit: "${{ fromJSON(steps.settings.outputs.output).test.disable.unit }}"
-      test-disable-mutation: "${{ fromJSON(steps.settings.outputs.output).test.disable.mutation }}"
-      test-disable-integration: "${{ fromJSON(steps.settings.outputs.output).test.disable.integration }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
