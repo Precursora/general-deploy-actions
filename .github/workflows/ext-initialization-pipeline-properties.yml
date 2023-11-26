@@ -41,7 +41,7 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v3
-      - name: Load destruction settings
+      - name: Load pipeline properties
         id: pipeline
         uses: fabasoad/data-format-converter-action@main
         with:

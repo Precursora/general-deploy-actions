@@ -4,7 +4,7 @@ on:
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+    uses: ./.github/workflows/ext-initialization-destruction-properties.yml
   validation:
     needs: init
     name: Validation

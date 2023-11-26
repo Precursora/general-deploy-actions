@@ -5,7 +5,7 @@ permissions: write-all
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+    uses: ./.github/workflows/ext-initialization-destruction-properties.yml
   deploy:
     needs: init
     if: needs.init.outputs.destroy == 'false'
