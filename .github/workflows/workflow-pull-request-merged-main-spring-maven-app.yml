@@ -75,6 +75,7 @@ jobs:
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
   create-tag:
     needs:
+      - custom-command-execution
       - destroy
       - deploy
     if: always() && needs.deploy.result == 'success'
