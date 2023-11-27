@@ -84,9 +84,10 @@ jobs:
     secrets: inherit
   finish:
     needs:
+      - custom-command-execution
+      - create-tag
       - deploy
       - destroy
-      - create-tag
     if: always() && (needs.deploy.result == 'success' || needs.destroy.result == 'success')
     runs-on: ubuntu-latest
     permissions: write-all
