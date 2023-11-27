@@ -22,7 +22,7 @@ jobs:
             unitExecutionTime=$(printf "%02s" $((${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).execution_time}}/60)))"m "$(printf "%02s" $((${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).execution_time}}%60)))"s"
             summaryUnitTests="| Unitário | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).coverage}}% | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).success}} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).error}} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).no_coverage}} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).skipped}} | ${unitExecutionTime} | ${{inputs.unit-tests-report != '' && fromJSON(inputs.unit-tests-report).minimum_coverage}}% ${unitMinimumCoverage} |"
           else
-            summaryUnitTests=""
+            summaryUnitTests="| Unitário | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |"
           fi
 
           echo "Construção de relatório de testes mutantes..."
@@ -32,7 +32,7 @@ jobs:
             mutationMinimumCoverage=$(if (( ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).coverage}} < ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).minimum_coverage}} )); then echo "❌"; else echo "✅"; fi);
             summaryMutationTests="| Mutação | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).coverage}}% | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).success}} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).error}} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).no_coverage}} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).skipped}} | ${mutationExecutionTime} | ${{inputs.mutation-tests-report != '' && fromJSON(inputs.mutation-tests-report).minimum_coverage}}% ${mutationMinimumCoverage} |"
           else
-            summaryMutationTests=""
+            summaryMutationTests="| Unitário | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |"
           fi
 
           # Summary constrution

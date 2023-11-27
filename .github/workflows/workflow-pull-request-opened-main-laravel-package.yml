@@ -36,8 +36,7 @@ jobs:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
   finish:
-    needs: 
-      - origin-validation
+    needs:
       - unit-tests
       - mutation-tests
       - generate-coverage-summary
@@ -45,6 +44,6 @@ jobs:
     uses: ./.github/workflows/ext-create-commit-status-check.yml
     with:
       sha: ${{github.event.pull_request.head.sha}}
-      state: success
+      state: ${{(needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success') && 'success' || 'failure'}}
       context: Finish Pull Request Validation
-      description: Successful
+      description: ${{(needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success') && 'Successful' || 'Failed'}}

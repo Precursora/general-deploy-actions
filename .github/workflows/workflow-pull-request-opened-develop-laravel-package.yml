@@ -35,6 +35,6 @@ jobs:
     uses: ./.github/workflows/ext-create-commit-status-check.yml
     with:
       sha: ${{github.event.pull_request.head.sha}}
-      state: success
+      state: ${{(needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success') && 'success' || 'failure'}}
       context: Finish Pull Request Validation
-      description: Successful
+      description: ${{(needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success') && 'Successful' || 'Failed'}}
