@@ -1,0 +1,50 @@
+name: Initialization
+on:
+  workflow_call:
+    outputs:
+      destroy:
+        value: ${{ jobs.init.outputs.destroy }}
+      region:
+        value: ${{ jobs.init.outputs.region }}
+      unit-tests-disabled: 
+        value: ${{ jobs.init.outputs.unit-tests-disabled }}
+      mutation-tests-disabled:
+        value: ${{ jobs.init.outputs.mutation-tests-disabled }}
+      integration-tests-disabled:
+        value: ${{ jobs.init.outputs.integration-tests-disabled }}
+      unit-tests-report-index-file:
+        value: ${{ jobs.init.outputs.unit-tests-report-index-file }}
+      unit-tests-report-sufire-file:
+        value: ${{ jobs.init.outputs.unit-tests-report-sufire-file }}
+      mutation-tests-report-index-file: 
+        value: ${{ jobs.init.outputs.mutation-tests-report-index-file }}
+      integration-tests-report-file: 
+        value: ${{ jobs.init.outputs.integration-tests-report-file }}
+      integration-tests-report-format: 
+        value: ${{ jobs.init.outputs.integration-tests-report-format }}
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    runs-on: ubuntu-latest
+    outputs:
+      destroy: ${{ toJson(fromJSON(steps.pipeline.outputs.output).destroy) }}
+      region: ${{ fromJSON(steps.pipeline.outputs.output).region }}
+      unit-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.unit }}
+      mutation-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.mutation }}
+      integration-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.integration }}
+      unit-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-index-file }}
+      unit-tests-report-sufire-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-surefire-file }}
+      mutation-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.mutation.report-index-file }}
+      integration-tests-report-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-file }}
+      integration-tests-report-format: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-format }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Load pipeline properties
+        id: pipeline
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: pipeline.yml
+          from: yaml
+          to: json

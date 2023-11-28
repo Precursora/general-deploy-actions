@@ -1,0 +1,88 @@
+name: Deploy to GCP - DEV
+on:
+  workflow_call:
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+  settings:
+    needs: init
+    name: Load application settings
+    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-load-application-settings.yml
+    with:
+      environment: dev
+  deploy:
+    needs:
+      - init
+      - settings
+    name: Deploy
+    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-gcp-deploy-service.yml
+    with:
+      environment: dev
+      region: ${{ needs.init.outputs.region }}
+      scaling-memory: ${{ needs.settings.outputs.scaling-memory }}
+      scaling-min-instances: ${{ needs.settings.outputs.scaling-min-instances }}
+      scaling-max-instances: ${{ needs.settings.outputs.scaling-max-instances }}
+      port: ${{ needs.settings.outputs.port }}
+      scaling-timeout: ${{ needs.settings.outputs.scaling-timeout }}
+      enable-ssl: ${{ needs.settings.outputs.enable-ssl }}
+      execution-environment: ${{ needs.settings.outputs.execution-environment }}
+      ingress: ${{ needs.settings.outputs.ingress }}
+      scaling-cpu: ${{ needs.settings.outputs.scaling-cpu }}
+      scaling-concurrency: ${{ needs.settings.outputs.scaling-concurrency }}
+      cpu-throttling: ${{ needs.settings.outputs.cpu-throttling }}
+      service-account: ${{ needs.settings.outputs.service-account }}
+      instances: ${{ needs.settings.outputs.instances }}
+      registry: us-docker.pkg.dev
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+  custom-command-execution:
+    needs:
+      - settings
+      - deploy
+    name: Custom command execution
+    if: always() && needs.deploy.result == 'success'
+    uses: ./.github/workflows/ext-gcp-execute-job-custom-command.yml
+    with:
+      command-entrypoint: ${{ needs.settings.outputs.command-entrypoint }}
+      command-args: ${{ needs.settings.outputs.command-args }}
+      region: ${{ needs.settings.outputs.region }}
+      instances: ${{ needs.settings.outputs.instances }}
+      service-account: ${{ needs.settings.outputs.service-account }}
+      registry: us-docker.pkg.dev
+      environment: dev
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+  destroy:
+    needs: init
+    name: Destroy resources
+    if: needs.init.outputs.destroy != 'false'
+    uses: ./.github/workflows/ext-gcp-destroy-service.yml
+    with:
+      environment: dev
+      region: ${{ needs.init.outputs.region }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+  create-pr:
+    needs:
+      - custom-command-execution
+      - destroy
+    if: always() && (needs.custom-command-execution.result == 'success' || needs.destroy.result == 'success')
+    name: Create PR to PROD
+    uses: ./.github/workflows/ext-create-pull-request.yml
+    with:
+      base: main
+      head: develop
+      labels: production
+      environment: PROD
+    secrets: inherit

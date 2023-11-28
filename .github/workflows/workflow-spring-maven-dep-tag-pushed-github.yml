@@ -24,13 +24,13 @@ jobs:
           cache: maven
       - name: Set version
         run: |
-          mvn -B versions:set \
+          mvn -B versions:set -f pom.xml -s settings.xml \
               -DnewVersion=${{ github.ref_name }} \
               -DgenerateBackupPoms=false \
               -DskipTests
       - name: Deploy
         run: |
-          mvn -B deploy -s settings.xml \
+          mvn -B deploy -f pom.xml -s settings.xml \
               -DaltReleaseDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
               -DaltSnapshotDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }} \
               -Dserver.github.username=${{ github.repository_owner }} \

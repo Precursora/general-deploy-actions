@@ -1,0 +1,23 @@
+name: Initialization
+on:
+  workflow_call:
+    outputs:
+      destroy:
+        value: ${{ jobs.init.outputs.destroy }}
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    runs-on: ubuntu-latest
+    outputs:
+      destroy: ${{ toJson(fromJSON(steps.destroy.outputs.output).destroy) }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Load destruction properties
+        id: destroy
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: destroy.yml
+          from: yaml
+          to: json
