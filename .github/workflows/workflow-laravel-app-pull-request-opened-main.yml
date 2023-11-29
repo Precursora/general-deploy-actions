@@ -1,0 +1,62 @@
+name: Validate PR to PROD
+on:
+  workflow_call:
+jobs:
+  origin-validation:
+    name: Origin validation
+    uses: ./.github/workflows/ext-pull-request-origin-validation.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      expected_origin: develop
+  init:
+    needs: origin-validation
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+  unit-tests:
+    name: Unit tests
+    needs: init
+    uses: ./.github/workflows/ext-laravel-unit-test.yml
+    if: needs.init.outputs.destroy == 'false'
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      minimum-coverage: 90
+      path: app/
+      report-index-file: ${{needs.init.outputs.unit-tests-report-index-file}}
+      report-junit-file: ${{needs.init.outputs.unit-tests-report-junit-file}}
+    secrets: inherit
+  mutation-tests:
+    name: Mutation tests
+    needs: init
+    uses: ./.github/workflows/ext-laravel-mutation-test.yml
+    if: needs.init.outputs.destroy == 'false'
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      minimum-coverage: 70
+      path: app/
+      report-index-file: ${{needs.init.outputs.mutation-tests-report-index-file}}
+    secrets: inherit
+  generate-coverage-summary:
+    needs:
+      - origin-validation
+      - unit-tests
+      - mutation-tests
+    name: Coverage
+    if: always() && needs.origin-validation.result == 'success'
+    uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
+    with:
+      unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
+      mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
+  finish:
+    needs:
+      - init
+      - unit-tests
+      - mutation-tests
+      - generate-coverage-summary
+    name: Finish
+    if: always()
+    uses: ./.github/workflows/ext-create-commit-status-check.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      state: ${{ (needs.init.outputs.destroy != 'false' || (needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success')) && 'success' || 'failure' }}
+      context: Finish Pull Request Validation
+      description: ${{ (needs.init.outputs.destroy != 'false' || (needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success')) && 'Successful' || 'Failed' }}
