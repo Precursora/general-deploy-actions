@@ -1,9 +1,6 @@
 name: Deploy to GCP - PROD
 on:
   workflow_call:
-    outputs:
-      destroyed: 
-        value: ${{jobs.destroy.result == 'success' && 'true' || 'false'}}
 permissions: write-all
 jobs:
   init:
@@ -45,11 +42,11 @@ jobs:
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
       token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
-  custom-command-execution:
+  custom-command:
     needs:
       - settings
       - deploy
-    name: Custom command execution
+    name: Custom command
     if: always() && needs.deploy.result == 'success'
     uses: ./.github/workflows/ext-gcp-execute-job-custom-command.yml
     with:
@@ -78,7 +75,7 @@ jobs:
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
   create-tag:
     needs:
-      - custom-command-execution
+      - custom-command
       - destroy
       - deploy
     if: always() && needs.deploy.result == 'success'
@@ -87,7 +84,7 @@ jobs:
     secrets: inherit
   finish:
     needs:
-      - custom-command-execution
+      - custom-command
       - create-tag
       - deploy
       - destroy

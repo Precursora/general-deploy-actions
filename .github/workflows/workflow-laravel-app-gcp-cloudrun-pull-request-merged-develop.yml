@@ -1,9 +1,6 @@
 name: Deploy to GCP - DEV
 on:
   workflow_call:
-    inputs:
-      engine:
-        type: string
 permissions: write-all
 jobs:
   process:
@@ -15,6 +12,10 @@ jobs:
     if: always() && needs.process.outputs.destroyed != 'true' && needs.process.result == 'success'
     name: Execute integration tests
     uses: ./.github/workflows/ext-laravel-integration-test.yml
+    with:
+      path: ${{needs.process.outputs.integration-tests-base-path}}
+      report-file: ${{needs.process.outputs.integration-tests-report-file}}
+      report-format: ${{needs.process.outputs.integration-tests-report-format}}
     secrets: inherit
   create-pr:
     needs:
