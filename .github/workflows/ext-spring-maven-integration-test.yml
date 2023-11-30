@@ -1,24 +1,12 @@
 name: Execute integration tests
 on:
   workflow_call:
-    inputs:
-      path:
-        type: string
-        required: false
-        default: tests
-      report-file:
-        type: string
-        required: false
-        default: reports/default.xml
-      report-format:
-        type: string
-        required: false
-        default: CucumberXml
-    secrets:
-      token:
-        required: false
 jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
   execute:
+    needs: init
     name: Execute
     runs-on: ubuntu-latest
     permissions: write-all
@@ -39,4 +27,4 @@ jobs:
 
           endTime=$(date +%s)
           echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
-        working-directory: ${{inputs.path}}
+        working-directory: ${{needs.init.outputs.integration-tests-base-path}}

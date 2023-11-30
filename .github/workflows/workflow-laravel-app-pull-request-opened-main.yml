@@ -20,7 +20,7 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 90
-      path: app/
+      path: ${{needs.init.outputs.unit-tests-base-path}}
       report-index-file: ${{needs.init.outputs.unit-tests-report-index-file}}
       report-junit-file: ${{needs.init.outputs.unit-tests-report-junit-file}}
     secrets: inherit
@@ -32,7 +32,7 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 70
-      path: app/
+      path: ${{needs.init.outputs.mutation-tests-base-path}}
       report-index-file: ${{needs.init.outputs.mutation-tests-report-index-file}}
     secrets: inherit
   generate-coverage-summary:

@@ -12,14 +12,20 @@ on:
         value: ${{ jobs.init.outputs.mutation-tests-disabled }}
       integration-tests-disabled:
         value: ${{ jobs.init.outputs.integration-tests-disabled }}
+      unit-tests-base-path:
+        value: ${{ jobs.init.outputs.unit-tests-base-path }}
       unit-tests-report-index-file:
         value: ${{ jobs.init.outputs.unit-tests-report-index-file }}
       unit-tests-report-sufire-file:
         value: ${{ jobs.init.outputs.unit-tests-report-sufire-file }}
       unit-tests-report-junit-file:
         value: ${{ jobs.init.outputs.unit-tests-report-junit-file }}
+      mutation-tests-base-path: 
+        value: ${{ jobs.init.outputs.mutation-tests-base-path }}
       mutation-tests-report-index-file: 
         value: ${{ jobs.init.outputs.mutation-tests-report-index-file }}
+      integration-tests-base-path: 
+        value: ${{ jobs.init.outputs.integration-tests-base-path }}
       integration-tests-report-file: 
         value: ${{ jobs.init.outputs.integration-tests-report-file }}
       integration-tests-report-format: 
@@ -35,10 +41,13 @@ jobs:
       unit-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.unit }}
       mutation-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.mutation }}
       integration-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.integration }}
+      unit-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.base }}
       unit-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-index-file }}
       unit-tests-report-sufire-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-surefire-file }}
       unit-tests-report-junit-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-junit-file }}
+      mutation-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.mutation.base }}
       mutation-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.mutation.report-index-file }}
+      integration-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.base }}
       integration-tests-report-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-file }}
       integration-tests-report-format: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-format }}
     steps:
