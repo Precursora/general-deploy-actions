@@ -4,6 +4,12 @@ on:
     outputs:
       destroyed: 
         value: ${{jobs.destroy.result == 'success' && 'true' || 'false'}}
+      integration-tests-base-path:
+        value: ${{jobs.init.outputs.integration-tests-base-path}}
+      integration-tests-report-file:
+        value: ${{jobs.init.outputs.integration-tests-report-file}}
+      integration-tests-report-format:
+        value: ${{jobs.init.outputs.integration-tests-report-format}}
 permissions: write-all
 jobs:
   init:
@@ -45,11 +51,11 @@ jobs:
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
       token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
-  custom-command-execution:
+  custom-command:
     needs:
       - settings
       - deploy
-    name: Custom command execution
+    name: Custom command
     if: always() && needs.deploy.result == 'success'
     uses: ./.github/workflows/ext-gcp-execute-job-custom-command.yml
     with:

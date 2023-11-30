@@ -1,13 +1,19 @@
 name: Execute integration tests
 on:
   workflow_call:
+    inputs:
+      path:
+        type: string
+        required: true
+      report-file:
+        type: string
+        required: true
+      report-format:
+        type: string
+        required: true
 jobs:
-  init:
-    name: Initialization
-    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
-  execute:
-    needs: init
-    name: Execute
+  integration-tests:
+    name: Integration tests
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -27,4 +33,4 @@ jobs:
 
           endTime=$(date +%s)
           echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
-        working-directory: ${{needs.init.outputs.integration-tests-base-path}}
+        working-directory: ${{inputs.path}}
