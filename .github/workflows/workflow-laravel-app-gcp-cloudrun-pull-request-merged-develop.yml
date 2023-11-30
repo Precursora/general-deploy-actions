@@ -14,7 +14,7 @@ jobs:
     needs: process
     if: always() && needs.process.outputs.destroyed != 'true' && needs.process.result == 'success'
     name: Execute integration tests
-    uses: ./.github/workflows/ext-spring-maven-integration-test.yml
+    uses: ./.github/workflows/ext-laravel-integration-test.yml
     secrets: inherit
   create-pr:
     needs:

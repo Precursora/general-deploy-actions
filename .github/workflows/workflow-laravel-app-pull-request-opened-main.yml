@@ -15,19 +15,19 @@ jobs:
   unit-tests:
     name: Unit tests
     needs: init
-    uses: ./.github/workflows/ext-spring-maven-unit-test.yml
+    uses: ./.github/workflows/ext-laravel-unit-test.yml
     if: needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 90
       path: ${{needs.init.outputs.unit-tests-base-path}}
       report-index-file: ${{needs.init.outputs.unit-tests-report-index-file}}
-      report-surefire-file: ${{needs.init.outputs.unit-tests-report-sufire-file}}
+      report-junit-file: ${{needs.init.outputs.unit-tests-report-junit-file}}
     secrets: inherit
   mutation-tests:
     name: Mutation tests
     needs: init
-    uses: ./.github/workflows/ext-spring-maven-mutation-test.yml
+    uses: ./.github/workflows/ext-laravel-mutation-test.yml
     if: needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}

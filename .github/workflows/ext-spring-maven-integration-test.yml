@@ -1,0 +1,30 @@
+name: Execute integration tests
+on:
+  workflow_call:
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+  execute:
+    needs: init
+    name: Execute
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: corretto
+          cache: maven
+      - name: Execute
+        run: |
+          startTime=$(date +%s)
+
+          mvn -B clean install -f pom.xml -s settings.xml
+
+          endTime=$(date +%s)
+          echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
+        working-directory: ${{needs.init.outputs.integration-tests-base-path}}
