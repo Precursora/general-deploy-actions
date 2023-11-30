@@ -1,0 +1,9 @@
+name: Execute integration tests
+on:
+  workflow_call:
+jobs:
+  execute:
+    name: Execute
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Executing integration tests"
