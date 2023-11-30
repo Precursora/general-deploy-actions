@@ -1,4 +1,4 @@
-name: Custom command execution
+name: Custom command
 on:
   workflow_call:
     inputs:
@@ -38,7 +38,7 @@ env:
   IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.service-name }}-${{ inputs.environment }}:${{ github.sha }}
 jobs:
   execute:
-    name: Custom command execution
+    name: Custom command
     runs-on: ubuntu-latest
     steps:
       - name: Prepare
