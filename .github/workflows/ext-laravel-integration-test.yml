@@ -1,9 +1,40 @@
 name: Execute integration tests
 on:
   workflow_call:
+    inputs:
+      path:
+        type: string
+        required: false
+        default: tests
+      report-file:
+        type: string
+        required: false
+        default: reports/default.xml
+      report-format:
+        type: string
+        required: false
+        default: BehatXml
+    secrets:
+      token:
+        required: false
 jobs:
   execute:
     name: Execute
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
-      - run: echo "Executing integration tests"
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: composer install --no-progress
+        working-directory: ${{inputs.path}}
+      - name: Execute
+        id: run
+        run: |
+          startTime=$(date +%s)
+
+          XDEBUG_MODE="coverage" composer run test-unit
+
+          endTime=$(date +%s)
+          echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
+        working-directory: ${{inputs.path}}
