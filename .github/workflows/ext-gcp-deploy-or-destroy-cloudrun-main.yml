@@ -53,7 +53,7 @@ jobs:
     with:
       command-entrypoint: ${{ needs.settings.outputs.command-entrypoint }}
       command-args: ${{ needs.settings.outputs.command-args }}
-      region: ${{ needs.settings.outputs.region }}
+      region: ${{ needs.init.outputs.region }}
       instances: ${{ needs.settings.outputs.instances }}
       service-account: ${{ needs.settings.outputs.service-account }}
       registry: us-docker.pkg.dev
