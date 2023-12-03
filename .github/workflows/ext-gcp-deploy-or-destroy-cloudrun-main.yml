@@ -6,6 +6,18 @@ jobs:
   init:
     name: Initialization
     uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+  destroy:
+    needs: init
+    name: Destroy resources
+    if: needs.init.outputs.destroy != 'false'
+    uses: ./.github/workflows/ext-gcp-destroy-service.yml
+    with:
+      environment: prod
+      region: ${{ needs.init.outputs.region }}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
   settings:
     needs: init
     name: Load application settings
@@ -44,7 +56,6 @@ jobs:
       token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
   custom-command:
     needs:
-      - init
       - settings
       - deploy
     name: Custom command
@@ -53,23 +64,11 @@ jobs:
     with:
       command-entrypoint: ${{ needs.settings.outputs.command-entrypoint }}
       command-args: ${{ needs.settings.outputs.command-args }}
-      region: ${{ needs.init.outputs.region }}
+      region: ${{ needs.deploy.outputs.region }}
       instances: ${{ needs.settings.outputs.instances }}
       service-account: ${{ needs.settings.outputs.service-account }}
       registry: us-docker.pkg.dev
       environment: prod
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
-  destroy:
-    needs: init
-    name: Destroy resources
-    if: needs.init.outputs.destroy != 'false'
-    uses: ./.github/workflows/ext-gcp-destroy-service.yml
-    with:
-      environment: prod
-      region: ${{ needs.init.outputs.region }}
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
@@ -80,7 +79,8 @@ jobs:
     name: Create tag
     uses: ./.github/workflows/ext-create-tag.yml
     secrets: inherit
-  finish:
+  finish-deploy:
+    name: Finish deploy
     needs:
       - create-tag
       - destroy

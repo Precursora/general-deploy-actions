@@ -59,6 +59,9 @@ on:
         required: true
       token:
         required: true
+    outputs:
+      region:
+        value: ${{inputs.region}}
 env:
   PROJECT_NUMBER: ${{ secrets.project-number }}
   PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
