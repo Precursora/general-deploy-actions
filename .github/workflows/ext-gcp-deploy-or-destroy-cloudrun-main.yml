@@ -75,21 +75,16 @@ jobs:
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
   create-tag:
-    needs:
-      - custom-command
-      - destroy
-      - deploy
-    if: always() && needs.deploy.result == 'success'
+    needs: custom-command
+    if: always() && needs.custom-command.result == 'success'
     name: Create tag
     uses: ./.github/workflows/ext-create-tag.yml
     secrets: inherit
   finish:
     needs:
-      - custom-command
       - create-tag
-      - deploy
       - destroy
-    if: always() && (needs.deploy.result == 'success' || needs.destroy.result == 'success')
+    if: always() && (needs.create-tag.result == 'success' || needs.destroy.result == 'success')
     runs-on: ubuntu-latest
     permissions: write-all
     steps:

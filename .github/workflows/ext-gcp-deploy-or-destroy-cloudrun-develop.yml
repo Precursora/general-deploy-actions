@@ -2,10 +2,12 @@ name: Deploy to GCP - DEV
 on:
   workflow_call:
     outputs:
+      deployed: 
+        value: ${{jobs.custom-command.result == 'success' && 'true' || 'false'}}
       destroyed: 
         value: ${{jobs.destroy.result == 'success' && 'true' || 'false'}}
       integration-tests-base-path:
-        value: ${{jobs.init.outputs.integration-tests-base-path}}
+        value: ${{jobs.init.outputs.integration}}
       integration-tests-report-file:
         value: ${{jobs.init.outputs.integration-tests-report-file}}
       integration-tests-report-format:
