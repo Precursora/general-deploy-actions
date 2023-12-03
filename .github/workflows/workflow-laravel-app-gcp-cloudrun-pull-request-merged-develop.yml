@@ -9,7 +9,7 @@ jobs:
     secrets: inherit
   integration-tests:
     needs: process
-    if: always() && needs.process.outputs.destroyed != 'true' && needs.process.result == 'success'
+    if: always() && needs.process.outputs.deployed == 'true'
     name: Execute integration tests
     uses: ./.github/workflows/ext-laravel-integration-test.yml
     with:
@@ -21,7 +21,7 @@ jobs:
     needs:
       - process
       - integration-tests
-    if: always() && (needs.integration-tests.result == 'success' || (needs.process.outputs.destroyed == 'true' && needs.process.result == 'success'))
+    if: always() && (needs.integration-tests.result == 'success' || needs.process.outputs.destroyed == 'true')
     name: Create PR to PROD
     uses: ./.github/workflows/ext-create-pull-request.yml
     with:
