@@ -27,7 +27,7 @@ jobs:
         run: |
           startTime=$(date +%s)
 
-          XDEBUG_MODE="coverage" composer run test-unit
+          XDEBUG_MODE="coverage" composer run test-integration
 
           endTime=$(date +%s)
           echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
