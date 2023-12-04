@@ -20,10 +20,14 @@ on:
         value: ${{ jobs.init.outputs.unit-tests-report-sufire-file }}
       unit-tests-report-junit-file:
         value: ${{ jobs.init.outputs.unit-tests-report-junit-file }}
+      unit-tests-gate:
+        value: ${{ jobs.init.outputs.unit-tests-gate }}
       mutation-tests-base-path: 
         value: ${{ jobs.init.outputs.mutation-tests-base-path }}
       mutation-tests-report-index-file: 
         value: ${{ jobs.init.outputs.mutation-tests-report-index-file }}
+      mutation-tests-gate:
+        value: ${{ jobs.init.outputs.mutation-tests-gate }}
       integration-tests-base-path: 
         value: ${{ jobs.init.outputs.integration-tests-base-path }}
       integration-tests-report-file: 
@@ -45,8 +49,10 @@ jobs:
       unit-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-index-file }}
       unit-tests-report-sufire-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-surefire-file }}
       unit-tests-report-junit-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-junit-file }}
+      unit-tests-gate: ${{ fromJSON(steps.pipeline.outputs.output).test.gate.unit }}
       mutation-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.mutation.base }}
       mutation-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.mutation.report-index-file }}
+      mutation-tests-gate: ${{ fromJSON(steps.pipeline.outputs.output).test.gate.mutation }}
       integration-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.base }}
       integration-tests-report-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-file }}
       integration-tests-report-format: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-format }}

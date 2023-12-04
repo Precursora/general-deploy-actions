@@ -12,7 +12,7 @@ jobs:
     if: needs.init.outputs.unit-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
-      minimum-coverage: 90
+      minimum-coverage: ${{needs.init.unit-tests-gate}}
       path: ${{needs.init.outputs.unit-tests-base-path}}
       report-index-file: ${{needs.init.outputs.unit-tests-report-index-file}}
       report-surefire-file: ${{needs.init.outputs.unit-tests-report-sufire-file}}
@@ -24,7 +24,7 @@ jobs:
     if: needs.init.outputs.mutation-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
-      minimum-coverage: 70
+      minimum-coverage: ${{needs.init.mutation-tests-gate}}
       path: ${{needs.init.outputs.mutation-tests-base-path}}
       report-index-file: ${{needs.init.outputs.mutation-tests-report-index-file}}
     secrets: inherit
