@@ -24,11 +24,5 @@ jobs:
         working-directory: ${{inputs.path}}
       - name: Execute
         id: run
-        run: |
-          startTime=$(date +%s)
-
-          XDEBUG_MODE="coverage" composer run test-integration
-
-          endTime=$(date +%s)
-          echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
+        run: XDEBUG_MODE="coverage" composer run test-integration
         working-directory: ${{inputs.path}}
