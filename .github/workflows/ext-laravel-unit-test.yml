@@ -44,16 +44,13 @@ jobs:
         id: run
         continue-on-error: true
         run: |
-          startTime=$(date +%s)
-
+          echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
           XDEBUG_MODE="coverage" composer run test-unit
-
-          endTime=$(date +%s)
-          echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
         working-directory: ${{inputs.path}}
       - name: Export indexes
         id: export
         run: |
+          executionTime=$(($(date +%s)-${{steps.run.outputs.startTime}}))
           index=${{inputs.report-index-file}}
           junit=${{inputs.report-junit-file}}
 
@@ -64,17 +61,14 @@ jobs:
             total=$(grep -Eo 'executable="[0-9\.]{1,}' ${index} | cut -d'"' -f2 | paste -sd ";" | cut -d';' -f1)
             success=$(grep -Eo 'executed="[0-9\.]{1,}' ${index} | cut -d'"' -f2 | paste -sd ";" | cut -d';' -f1)
             noCoverage=$(($total-$success))
-            executionTime=${{steps.run.outputs.executionTime}}
 
             if [ ! -e $junit ]; then
               error=0
               skipped=0
-              executionTime=0
             fi
           else
             error=0
             skipped=0
-            executionTime=0
             coverage=0
             noCoverage=0
             success=0

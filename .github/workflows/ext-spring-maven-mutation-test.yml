@@ -41,14 +41,10 @@ jobs:
         continue-on-error: true
         id: run
         run: |
-          startTime=$(date +%s)
-
+          echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
           mvn -B clean install -f pom.xml -s settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
-          
-          endTime=$(date +%s)
-          echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
         working-directory: ${{inputs.path}}
       - name: Generate reports
         run: |
@@ -59,6 +55,7 @@ jobs:
       - name: Export indexes
         id: export
         run: |
+          executionTime=$(($(date +%s)-${{steps.run.outputs.startTime}}))
           index=${{inputs.report-index-file}}
 
           if [[ -e "${index}" ]]; then
@@ -66,7 +63,6 @@ jobs:
             success=$(grep -Eo 'td>[^>]*%.?*>[0-9]{1,}/[0-9]{1,}' ${index} | cut -d'/' -f2 | paste -sd ',' | cut -d'>' -f5 | cut -d',' -f1)
             total=$(grep -Eo 'td>[^>]*%.?*>[0-9]{1,}/[0-9]{1,}' ${index} | cut -d'/' -f3 | paste -sd ',' | cut -d',' -f2)
             noCoverage=$(($total-$success))
-            executionTime=${{steps.run.outputs.executionTime}}
 
             if [[ $total == 0 ]]; then
               coverage=100
@@ -77,7 +73,6 @@ jobs:
             coverage=0
             noCoverage=0
             success=0
-            executionTime=0
           fi
 
           echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"0","no_coverage":"'${noCoverage}'","skipped":"0","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT

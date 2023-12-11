@@ -26,11 +26,5 @@ jobs:
           distribution: corretto
           cache: maven
       - name: Execute
-        run: |
-          startTime=$(date +%s)
-
-          mvn -B clean install -f pom.xml -s settings.xml
-
-          endTime=$(date +%s)
-          echo "executionTime="$(($endTime-$startTime)) >> $GITHUB_OUTPUT
+        run: mvn -B clean install -f pom.xml -s settings.xml
         working-directory: ${{inputs.path}}
