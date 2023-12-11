@@ -14,7 +14,7 @@ on:
         required: false
         default: reports/unit/junit.xml
       minimum-coverage:
-        type: number
+        type: string
         required: true
       sha:
         type: string

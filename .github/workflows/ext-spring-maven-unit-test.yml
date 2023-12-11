@@ -14,7 +14,7 @@ on:
         required: false
         default: target/surefire-reports/*.txt
       minimum-coverage:
-        type: number
+        type: string
         required: true
       sha:
         type: string
