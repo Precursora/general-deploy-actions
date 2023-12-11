@@ -10,7 +10,7 @@ on:
         required: false
         default: target/pit-reports/index.html
       minimum-coverage:
-        type: number
+        type: string
         required: true
       sha:
         type: string
