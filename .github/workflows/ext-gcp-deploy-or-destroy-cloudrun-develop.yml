@@ -7,7 +7,7 @@ on:
       destroyed: 
         value: ${{jobs.destroy.result == 'success' && 'true' || 'false'}}
       integration-tests-base-path:
-        value: ${{jobs.init.outputs.integration}}
+        value: ${{jobs.init.outputs.integration-tests-base-path}}
       integration-tests-report-file:
         value: ${{jobs.init.outputs.integration-tests-report-file}}
       integration-tests-report-format:
