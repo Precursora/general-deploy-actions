@@ -95,4 +95,4 @@ jobs:
     steps:
       - run: echo "⏳ Finalizando deploy..."
       - name: "Waiting"
-        run: sleep 1m
+        run: sleep 3m
