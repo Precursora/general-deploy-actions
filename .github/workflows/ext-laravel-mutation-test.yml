@@ -41,13 +41,14 @@ jobs:
         id: run
         run: |
           echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
+          echo "artifactDir="$(pdw)"/"$(dirname "${{inputs.report-index-file}}") >> $GITHUB_OUTPUT
           XDEBUG_MODE="coverage" composer run test-mutation
         working-directory: ${{inputs.path}}
       - name: Export artifacts
         uses: actions/upload-artifact@v3
         with:
           name: mutation-coverage-report
-          path: ${{inputs.path}}/${{inputs.report-index-file}}/../*
+          path: ${{steps.run.outputs.artifactDir}}
       - name: Export indexes
         id: export
         run: |
