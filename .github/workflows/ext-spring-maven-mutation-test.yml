@@ -52,6 +52,11 @@ jobs:
               -DfailWhenNoMutations=false \
               -DtimestampedReports=false
         working-directory: ${{inputs.path}}
+      - name: Export artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: mutation-coverage-report
+          path: ${{inputs.path}}/${{inputs.report-index-file}}/../*
       - name: Export indexes
         id: export
         run: |
