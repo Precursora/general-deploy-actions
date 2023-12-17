@@ -4,7 +4,7 @@ on:
     inputs:
       path:
         type: string
-        required: false
+        required: true
       report-index-file:
         type: string
         required: false
@@ -43,6 +43,11 @@ jobs:
           echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
           XDEBUG_MODE="coverage" composer run test-mutation
         working-directory: ${{inputs.path}}
+      - name: Export artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: mutation-coverage-report
+          path: ${{inputs.path}}/${{inputs.report-index-file}}/../*
       - name: Export indexes
         id: export
         run: |

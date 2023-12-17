@@ -53,6 +53,11 @@ jobs:
       - name: Generate reports
         run: mvn -B jacoco:report
         working-directory: ${{inputs.path}}
+      - name: Export artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-coverage-report
+          path: ${{inputs.path}}/${{inputs.report-index-file}}/../*
       - name: Export indexes
         id: export
         run: |
