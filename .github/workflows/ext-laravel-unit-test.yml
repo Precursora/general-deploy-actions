@@ -45,7 +45,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
-          echo "artifactDir="$(pdw)"/"$(dirname "${{inputs.report-index-file}}") >> $GITHUB_OUTPUT
+          echo "artifactDir="$(pdw)"/"$(dirname "${{inputs.report-index-file}}")"/*" >> $GITHUB_OUTPUT
           XDEBUG_MODE="coverage" composer run test-unit
         working-directory: ${{inputs.path}}
       - name: Export artifacts
