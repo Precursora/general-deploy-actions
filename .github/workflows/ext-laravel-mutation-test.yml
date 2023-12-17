@@ -4,7 +4,7 @@ on:
     inputs:
       path:
         type: string
-        required: true
+        required: false
       report-index-file:
         type: string
         required: false
