@@ -42,7 +42,7 @@ jobs:
         id: run
         run: |
           echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
-          echo "artifactDir="$(pdw)"/"$(dirname "${{inputs.report-index-file}}")"/*" >> $GITHUB_OUTPUT
+          echo "artifactDir="$(pwd)"/"$(dirname "${{inputs.report-index-file}}")"/*" >> $GITHUB_OUTPUT
           mvn -B clean install -f pom.xml -s settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
               -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
