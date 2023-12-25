@@ -63,7 +63,7 @@ jobs:
           index=${{inputs.report-index-file}}
 
           if [[ -e "${index}" ]]; then
-            success=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f3)
+            success=$(($(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f3)+0))
             timeout=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f4)
             survived=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f5)
             noCoverage=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f6)
