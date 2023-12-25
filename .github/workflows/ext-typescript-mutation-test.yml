@@ -1,0 +1,108 @@
+name: Mutation tests
+on:
+  workflow_call:
+    inputs:
+      path:
+        type: string
+        required: false
+      report-index-file:
+        type: string
+        required: false
+        default: reports/mutation/index.txt
+      minimum-coverage:
+        type: string
+        required: true
+      sha:
+        type: string
+        required: true
+    outputs:
+      indexes:
+        value: ${{jobs.mutation-tests.outputs.indexes}}
+    secrets:
+      token:
+        required: false
+jobs:
+  mutation-tests:
+    name: Mutation tests
+    runs-on: ubuntu-latest
+    permissions: write-all
+    outputs:
+      indexes: ${{steps.export.outputs.indexes}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          registry-url: https://npm.pkg.github.com
+      - name: Install dependencies
+        run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+        working-directory: ${{inputs.path}}
+      - name: Run tests
+        continue-on-error: true
+        id: run
+        run: |
+          echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
+          echo "artifactDir="$(pwd)"/"$(dirname "${{inputs.report-index-file}}")"/*" >> $GITHUB_OUTPUT
+          report=$(npm run test-mutation)
+
+          echo $report > $(dirname "${{inputs.report-index-file}}")"/index.txt"
+        working-directory: ${{inputs.path}}
+      - name: Export artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: mutation-coverage-report
+          path: ${{steps.run.outputs.artifactDir}}
+      - name: Export indexes
+        id: export
+        run: |
+          executionTime=$(($(date +%s)-${{steps.run.outputs.startTime}}))
+          index=${{inputs.report-index-file}}
+
+          if [[ -e "${index}" ]]; then
+            success=$(($(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f3)+0))
+            timeout=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f4)
+            survived=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f5)
+            noCoverage=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f6)
+            errors=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f7)
+            total=$(($success+$timeout+$survived+$noCoverage+$errors))
+            noCoverage=$(($total-$success))
+
+            if [[ $total == 0 ]]; then
+              coverage=100
+              noCoverage=0
+              success=0
+            else
+              coverage=$(echo "${success} ${total}" | awk '{printf "%.2f\n", $1 / $2 * 100}')
+            fi
+          else
+            coverage=0
+            noCoverage=0
+            success=0
+          fi
+
+          echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"0","no_coverage":"'${noCoverage}'","skipped":"0","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
+          echo 'coverage='${coverage} >> $GITHUB_OUTPUT
+          echo 'description=Minimum: ${{inputs.minimum-coverage}}% • Covered: '${coverage}'% • Success: '${success}' • Uncovered: '${noCoverage} >> $GITHUB_OUTPUT
+        working-directory: ${{inputs.path}}
+      - name: Validate coverage
+        run: |
+          state=failure
+
+          if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
+            echo "#### ❌ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida" >> $GITHUB_STEP_SUMMARY
+          else
+            state=success
+            echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${state} -f description='${{steps.export.outputs.description}}' -f context='Mutation tests result'
+
+          if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
+            exit 1;
+          fi
+        env:
+          GH_TOKEN: ${{secrets.token || github.token}}

@@ -1,28 +1,33 @@
-name: Deploy TypeScript package to GitHub Repository
+name: Deploy to PROD
 on:
   workflow_call:
+    secrets:
+      token:
+        required: false
 jobs:
-  build:
-    name: Deploy
+  deploy:
+    name: Deploy to PROD
     runs-on: ubuntu-latest
+    environment: PROD
     permissions:
       contents: read
       packages: write
     steps:
+      - run: echo "⏳ Implantando em PROD..."
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Setup Node 16
+      - name: Setup Node 18
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
           registry-url: https://npm.pkg.github.com
       - name: CI
         run: npm ci --production
         env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
       - name: Build
         run: npm run build
       - name: Publish
         run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ github.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}

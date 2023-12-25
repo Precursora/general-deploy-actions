@@ -1,0 +1,103 @@
+name: Unit tests
+on:
+  workflow_call:
+    inputs:
+      path:
+        type: string
+        required: false
+      report-index-file:
+        type: string
+        required: false
+        default: reports/unit/index.txt
+      minimum-coverage:
+        type: string
+        required: true
+      sha:
+        type: string
+        required: true
+    outputs:
+      indexes:
+        value: ${{jobs.unit-tests.outputs.indexes}}
+    secrets:
+      token:
+        required: false
+jobs:
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    outputs:
+      indexes: ${{steps.export.outputs.indexes}}
+    permissions: write-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          registry-url: https://npm.pkg.github.com
+      - name: Install dependencies
+        run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+        working-directory: ${{inputs.path}}
+      - name: Run tests
+        id: run
+        continue-on-error: true
+        run: |
+          echo "startTime="$(date +%s) >> $GITHUB_OUTPUT
+          echo "artifactDir="$(pwd)"/"$(dirname "${{inputs.report-index-file}}")"/*" >> $GITHUB_OUTPUT
+          report=$(npm run test-unit)
+
+          echo $report > $(dirname "${{inputs.report-index-file}}")"/index.txt"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+        working-directory: ${{inputs.path}}
+      - name: Export artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-coverage-report
+          path: ${{steps.run.outputs.artifactDir}}
+      - name: Export indexes
+        id: export
+        run: |
+          executionTime=$(($(date +%s)-${{steps.run.outputs.startTime}}))
+          index=${{inputs.report-index-file}}
+
+          if [[ -e "${index}" ]]; then
+            error=0
+            skipped=0
+            coverage=$(($(grep -Eo 'Statements : [^%]*% \( [0,9]*/[0-9]* \)' ${index} | cut -d'%' -f1 | cut -d':' -f2)+0))
+            total=$(grep -Eo 'Statements : [^%]*% \( [0,9]*/[0-9]* \)' ${index} | cut -d'/' -f2 | cut -d')' -f1)
+            success=$(($(grep -Eo 'Statements : [^%]*% \( [0,9]*/[0-9]* \)' ${index} | cut -d'/' -f1 | cut -d'(' -f2)+0))
+            noCoverage=$(($total-$success))
+          else
+            error=0
+            skipped=0
+            coverage=0
+            noCoverage=0
+            success=0
+          fi
+
+          echo 'indexes={"minimum_coverage":"${{inputs.minimum-coverage}}","coverage":"'${coverage}'","success":"'${success}'","error":"'${error}'","no_coverage":"'${noCoverage}'","skipped":"'${skipped}'","execution_time":"'${executionTime}'"}' >> $GITHUB_OUTPUT
+          echo 'coverage='${coverage} >> $GITHUB_OUTPUT
+          echo 'description=Minimum: ${{inputs.minimum-coverage}}% • Covered: '${coverage}'% • Success: '${success}' • Error: '${error}' • Skipped: '${skipped}' • Uncovered: '${noCoverage} >> $GITHUB_OUTPUT
+        working-directory: ${{inputs.path}}
+      - name: Validate coverage
+        run: |
+          state=failure
+          
+          if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
+            echo "#### ❌ Cobertura mínima de ${{inputs.minimum-coverage}}% não atingida" >> $GITHUB_STEP_SUMMARY
+          else
+            state=success
+            echo "#### ✅ Cobertura mínima de ${{inputs.minimum-coverage}}% atingida" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${state} -f description='${{steps.export.outputs.description}}' -f context='Unit tests result'
+
+          if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
+            exit 1;
+          fi
+        env:
+          GH_TOKEN: ${{secrets.token || github.token}}
