@@ -65,6 +65,8 @@ jobs:
           index=${{inputs.report-index-file}}
 
           if [[ -e "${index}" ]]; then
+            echo "Arquivo index encontrado..."
+            
             coverage=$(grep -Eo 'td>[^>]*%' ${index} | paste -sd ' ' | cut -d'%' -f2 | cut -d'>' -f2)
             success=$(grep -Eo 'td>[^>]*%.?*>[0-9]{1,}/[0-9]{1,}' ${index} | cut -d'/' -f2 | paste -sd ',' | cut -d'>' -f5 | cut -d',' -f1)
             total=$(grep -Eo 'td>[^>]*%.?*>[0-9]{1,}/[0-9]{1,}' ${index} | cut -d'/' -f3 | paste -sd ',' | cut -d',' -f2)
@@ -76,6 +78,8 @@ jobs:
               success=0
             fi
           else
+            echo "Arquivo index não encontrado..."
+            
             coverage=0
             noCoverage=0
             success=0
