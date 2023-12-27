@@ -67,6 +67,8 @@ jobs:
           surefire=${{inputs.report-surefire-file}}
 
           if [[ -e "${index}" ]]; then
+            echo "Arquivo index encontrado..."
+
             error=$(grep -Eo 'Failures: [0-9]{1,}|Errors: [0-9]{1,}' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
             skipped=$(grep -Eo 'Skipped: [0-9]{1,}' ${surefire} | cut -d':' -f3 | awk '{s+=$1} END {print s}')
             coverage=$(grep -Eo 'Total[^%]*[^>]*%' ${index} | cut -d'%' -f1 | cut -d'>' -f5)
@@ -79,6 +81,8 @@ jobs:
               skipped=0
             fi
           else
+            echo "Arquivo index não encontrado..."
+            
             error=0
             skipped=0
             coverage=0

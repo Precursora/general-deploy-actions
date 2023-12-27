@@ -61,6 +61,8 @@ jobs:
           junit=${{inputs.report-junit-file}}
 
           if [[ -e "${index}" ]]; then
+            echo "Arquivo index encontrado..."
+            
             error=$(grep -Eom 1 'failures="[0-9\.]{1,}|errors="[0-9\.]{1,}' ${junit} | cut -d'"' -f2 | awk '{s+=$1} END {print s}')
             skipped=$(grep -Eom 1 'skipped="[0-9\.]{1,}' ${junit} | cut -d'"' -f2)
             coverage=$(grep -Eo 'percent="[0-9\.]{1,}' ${index} | cut -d'"' -f2 | paste -sd ";" | cut -d';' -f1)
@@ -73,6 +75,8 @@ jobs:
               skipped=0
             fi
           else
+            echo "Arquivo index não encontrado..."
+            
             error=0
             skipped=0
             coverage=0

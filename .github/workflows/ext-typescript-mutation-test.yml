@@ -49,7 +49,7 @@ jobs:
           echo "artifactDir="$(pwd)"/"$(dirname "${{inputs.report-index-file}}")"/*" >> $GITHUB_OUTPUT
           report=$(npm run test-mutation)
 
-          echo $report > $(dirname "${{inputs.report-index-file}}")"/index.txt"
+          echo $report > ${{inputs.report-index-file}}
         working-directory: ${{inputs.path}}
       - name: Export artifacts
         uses: actions/upload-artifact@v3
@@ -63,6 +63,8 @@ jobs:
           index=${{inputs.report-index-file}}
 
           if [[ -e "${index}" ]]; then
+            echo "Arquivo index encontrado..."
+
             success=$(($(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f3)+0))
             timeout=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f4)
             survived=$(grep -Eo 'All files \|[ \.0-9\|]*' ${index} | cut -d'|' -f5)
@@ -79,6 +81,8 @@ jobs:
               coverage=$(echo "${success} ${total}" | awk '{printf "%.2f\n", $1 / $2 * 100}')
             fi
           else
+            echo "Arquivo index não encontrado..."
+
             coverage=0
             noCoverage=0
             success=0

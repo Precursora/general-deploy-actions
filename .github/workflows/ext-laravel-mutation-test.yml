@@ -56,6 +56,8 @@ jobs:
           index=${{inputs.report-index-file}}
 
           if [[ -e "${index}" ]]; then
+            echo "Arquivo index encontrado..."
+            
             error=$(grep -Eo '"errorCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)
             success=$(grep -Eo '"killedCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)
             total=$(($(grep -Eo '"totalMutantsCount":[0-9\.]{1,}' ${index} | cut -d':' -f2)-$error))
@@ -69,6 +71,8 @@ jobs:
               coverage=$(echo "${success} ${total}" | awk '{printf "%.2f\n", $1 / $2 * 100}')
             fi
           else
+            echo "Arquivo index não encontrado..."
+            
             coverage=0
             noCoverage=0
             success=0
