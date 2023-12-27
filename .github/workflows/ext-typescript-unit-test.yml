@@ -69,9 +69,9 @@ jobs:
 
             error=0
             skipped=0
-            coverage=$(($(grep -Eo 'Statements : [^%]*% \( [0,9]*/[0-9]* \)' ${index} | cut -d'%' -f1 | cut -d':' -f2)+0))
-            total=$(grep -Eo 'Statements : [^%]*% \( [0,9]*/[0-9]* \)' ${index} | cut -d'/' -f2 | cut -d')' -f1)
-            success=$(($(grep -Eo 'Statements : [^%]*% \( [0,9]*/[0-9]* \)' ${index} | cut -d'/' -f1 | cut -d'(' -f2)+0))
+            coverage=$(($(grep -Eo 'Statements : [^%]*% \( [0-9\.]*/[0-9\.]* \)' ${index} | cut -d'%' -f1 | cut -d':' -f2)+0))
+            total=$(($(grep -Eo 'Statements : [^%]*% \( [0-9\.]*/[0-9\.]* \)' ${index} | cut -d'/' -f2 | cut -d')' -f1)+0))
+            success=$(($(grep -Eo 'Statements : [^%]*% \( [0-9\.]*/[0-9\.]* \)' ${index} | cut -d'/' -f1 | cut -d'(' -f2)+0))
             noCoverage=$(($total-$success))
           else
             echo "Arquivo index não encontrado..."
