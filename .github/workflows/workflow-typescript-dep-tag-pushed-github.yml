@@ -21,7 +21,9 @@ jobs:
         with:
           node-version: 18.x
           registry-url: https://npm.pkg.github.com
-      - name: CI
+      - name: Set version
+        run: npm version ${{ github.ref_name }}
+      - name: Prepare
         run: npm ci --production
         env:
           NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
