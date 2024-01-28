@@ -1,0 +1,60 @@
+name: Deploy to environment
+on:
+  workflow_call:
+    inputs:
+      path:
+        required: true
+        type: string
+      resource-directory:
+        required: true
+        type: string
+      bucket:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+    secrets:
+      project-number:
+        required: true
+      project-name:
+        required: true
+      token:
+        required: true
+env:
+  PROJECT_NUMBER: ${{ secrets.project-number }}
+  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
+  ENVIRONMENT: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
+permissions: write-all
+jobs:
+  deploy:
+    name: Deploy to environment
+    environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: GCP Auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+      - name: Setup Node 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          registry-url: https://npm.pkg.github.com
+      - name: Prepare environment
+        run: cp environments/${{env.ENVIRONMENT}}.env .env
+        working-directory: ${{inputs.path}}
+      - name: Install dependencies
+        run: npm install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+        working-directory: ${{inputs.path}}
+      - name: Build
+        run: npm run build
+        working-directory: ${{inputs.path}}
+      - name: Upload to bucket
+        run: gcloud storage cp ${{inputs.resource-directory}} gs://${{inputs.bucket}}/
+        working-directory: ${{inputs.path}}

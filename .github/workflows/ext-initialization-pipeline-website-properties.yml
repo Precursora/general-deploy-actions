@@ -1,0 +1,35 @@
+name: Initialization
+on:
+  workflow_call:
+    outputs:
+      destroy:
+        value: ${{ jobs.init.outputs.destroy }}
+      deploy-base-path: 
+        value: ${{ jobs.init.outputs.deploy-base-path }}
+      deploy-resource-directory: 
+        value: ${{ jobs.init.outputs.deploy-resource-directory }}
+      deploy-bucket-dev:
+        value: ${{ jobs.init.outputs.deploy-bucket-dev }}
+      deploy-bucket-prod:
+        value: ${{ jobs.init.outputs.deploy-bucket-prod }}
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    runs-on: ubuntu-latest
+    outputs:
+      destroy: ${{ toJson(fromJSON(steps.pipeline.outputs.output).destroy) }}
+      deploy-base-path: ${{ fromJSON(steps.pipeline.outputs.output).deploy.base }}
+      deploy-resource-directory: ${{ fromJSON(steps.pipeline.outputs.output).deploy.resource-directory }}
+      deploy-bucket-dev: ${{ fromJSON(steps.pipeline.outputs.output).deploy.bucket.dev }}
+      deploy-bucket-prod: ${{ fromJSON(steps.pipeline.outputs.output).deploy.bucket.prod }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Load pipeline properties
+        id: pipeline
+        uses: fabasoad/data-format-converter-action@main
+        with:
+          input: pipeline.yml
+          from: yaml
+          to: json
