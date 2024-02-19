@@ -1,11 +1,17 @@
 name: Initialization
 on:
   workflow_call:
+    inputs:
+      without-integration-tests:
+        type: boolean
+        default: false
     outputs:
       destroy:
         value: ${{ jobs.init.outputs.destroy }}
       region:
         value: ${{ jobs.init.outputs.region }}
+      runner-version:
+        value: ${{ jobs.init.outputs.runner-version }}
       unit-tests-disabled: 
         value: ${{ jobs.init.outputs.unit-tests-disabled }}
       mutation-tests-disabled:
@@ -42,9 +48,10 @@ jobs:
     outputs:
       destroy: ${{ toJson(fromJSON(steps.pipeline.outputs.output).destroy) }}
       region: ${{ fromJSON(steps.pipeline.outputs.output).region }}
+      runner-version: ${{ fromJson(steps.pipeline.outputs.output).test.runner-version }}
       unit-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.unit }}
       mutation-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.mutation }}
-      integration-tests-disabled: ${{ fromJSON(steps.pipeline.outputs.output).test.disable.integration }}
+      integration-tests-disabled: ${{ (inputs.without-integration-tests && '') || fromJSON(steps.pipeline.outputs.output).test.disable.integration }}
       unit-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.base }}
       unit-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-index-file }}
       unit-tests-report-sufire-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.unit.report-surefire-file }}
@@ -53,9 +60,9 @@ jobs:
       mutation-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.mutation.base }}
       mutation-tests-report-index-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.mutation.report-index-file }}
       mutation-tests-gate: ${{ fromJSON(steps.pipeline.outputs.output).test.gate.mutation }}
-      integration-tests-base-path: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.base }}
-      integration-tests-report-file: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-file }}
-      integration-tests-report-format: ${{ fromJSON(steps.pipeline.outputs.output).test.path.integration.report-format }}
+      integration-tests-base-path: ${{ (inputs.without-integration-tests && '') || fromJSON(steps.pipeline.outputs.output).test.path.integration.base }}
+      integration-tests-report-file: ${{ (inputs.without-integration-tests && '') || fromJSON(steps.pipeline.outputs.output).test.path.integration.report-file }}
+      integration-tests-report-format: ${{ (inputs.without-integration-tests && '') || fromJSON(steps.pipeline.outputs.output).test.path.integration.report-format }}
     steps:
       - name: Check out code
         uses: actions/checkout@v3

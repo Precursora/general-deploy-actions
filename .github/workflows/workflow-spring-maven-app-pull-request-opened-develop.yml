@@ -16,6 +16,7 @@ jobs:
       path: ${{needs.init.outputs.unit-tests-base-path}}
       report-index-file: ${{needs.init.outputs.unit-tests-report-index-file}}
       report-surefire-file: ${{needs.init.outputs.unit-tests-report-sufire-file}}
+      java-version: ${{needs.init.outputs.runner-version}}
     secrets: inherit
   mutation-tests:
     name: Mutation tests
@@ -27,6 +28,7 @@ jobs:
       minimum-coverage: ${{needs.init.outputs.mutation-tests-gate}}
       path: ${{needs.init.outputs.mutation-tests-base-path}}
       report-index-file: ${{needs.init.outputs.mutation-tests-report-index-file}}
+      java-version: ${{needs.init.outputs.runner-version}}
     secrets: inherit
   generate-coverage-summary:
     needs:
