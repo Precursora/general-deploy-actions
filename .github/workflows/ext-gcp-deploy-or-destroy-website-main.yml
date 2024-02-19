@@ -1,0 +1,49 @@
+name: Deploy to GCP - PROD
+on:
+  workflow_call:
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-pipeline-website-properties.yml
+  destroy:
+    needs: init
+    name: Destroy resources
+    if: needs.init.outputs.destroy != 'false'
+    uses: ./.github/workflows/ext-gcp-destroy-website.yml
+    with:
+      bucket: ${{needs.init.outputs.deploy-bucket-prod}}
+      environment: prod
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+  deploy:
+    needs: init
+    name: Deploy
+    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-gcp-deploy-website.yml
+    with:
+      path: ${{ needs.init.outputs.deploy-base-path }}
+      resource-directory: ${{ needs.init.outputs.deploy-resource-directory }}
+      bucket: ${{ needs.init.outputs.deploy-bucket-prod }}
+      environment: prod
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+  create-tag:
+    needs: deploy
+    if: always() && needs.deploy == 'success'
+    name: Create tag
+    uses: ./.github/workflows/ext-create-tag.yml
+    secrets: inherit
+  finish-deploy:
+    name: Finish deploy
+    needs:
+      - create-tag
+      - destroy
+    if: always() && (needs.create-tag.result == 'success' || needs.destroy.result == 'success')
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - run: echo "⏳ Finalizando deploy..."

@@ -19,6 +19,9 @@ on:
       sha:
         type: string
         required: true
+      java-version:
+        type: number
+        default: 11
     outputs:
       indexes:
         value: ${{jobs.unit-tests.outputs.indexes}}
@@ -38,7 +41,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          java-version: 11
+          java-version: ${{ inputs.java-version }}
           distribution: corretto
           cache: maven
       - name: Run tests
