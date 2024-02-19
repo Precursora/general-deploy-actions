@@ -1,15 +1,8 @@
-name: Validate PR to PROD
+name: Validate PR to DEV
 on:
   workflow_call:
 jobs:
-  origin-validation:
-    name: Origin validation
-    uses: ./.github/workflows/ext-pull-request-origin-validation.yml
-    with:
-      sha: ${{github.event.pull_request.head.sha}}
-      expected_origin: develop
   init:
-    needs: origin-validation
     name: Initialization
     uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
     with:
@@ -17,38 +10,39 @@ jobs:
   unit-tests:
     name: Unit tests
     needs: init
-    uses: ./.github/workflows/ext-typescript-unit-test.yml
-    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-node-unit-test.yml
+    if: needs.init.outputs.unit-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: ${{needs.init.outputs.unit-tests-gate}}
       path: ${{needs.init.outputs.unit-tests-base-path}}
       report-index-file: ${{needs.init.outputs.unit-tests-report-index-file}}
+      node-version: ${{needs.init.outputs.runner-version}}
     secrets: inherit
   mutation-tests:
     name: Mutation tests
     needs: init
-    uses: ./.github/workflows/ext-typescript-mutation-test.yml
-    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-node-mutation-test.yml
+    if: needs.init.outputs.mutation-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: ${{needs.init.outputs.mutation-tests-gate}}
       path: ${{needs.init.outputs.mutation-tests-base-path}}
       report-index-file: ${{needs.init.outputs.mutation-tests-report-index-file}}
+      node-version: ${{needs.init.outputs.runner-version}}
     secrets: inherit
   generate-coverage-summary:
     needs:
-      - origin-validation
       - unit-tests
       - mutation-tests
     name: Coverage
-    if: always() && needs.origin-validation.result == 'success'
+    if: always()
     uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
   finish:
-    needs:
+    needs: 
       - init
       - unit-tests
       - mutation-tests
@@ -58,6 +52,6 @@ jobs:
     uses: ./.github/workflows/ext-create-commit-status-check.yml
     with:
       sha: ${{github.event.pull_request.head.sha}}
-      state: ${{ (needs.init.outputs.destroy != 'false' || (needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success')) && 'success' || 'failure' }}
+      state: ${{ (needs.init.outputs.destroy != 'false' || ((needs.init.outputs.unit-tests-disabled == 'true' || needs.unit-tests.result == 'success') && (needs.init.outputs.mutation-tests-disabled == 'true' || needs.mutation-tests.result == 'success'))) && 'success' || 'failure' }}
       context: Finish Pull Request Validation
-      description: ${{ (needs.init.outputs.destroy != 'false' || (needs.unit-tests.result == 'success' && needs.mutation-tests.result == 'success')) && 'Successful' || 'Failed' }}
+      description: ${{ (needs.init.outputs.destroy != 'false' || ((needs.init.outputs.unit-tests-disabled == 'true' || needs.unit-tests.result == 'success') && (needs.init.outputs.mutation-tests-disabled == 'true' || needs.mutation-tests.result == 'success'))) && 'Successful' || 'Failed' }}
