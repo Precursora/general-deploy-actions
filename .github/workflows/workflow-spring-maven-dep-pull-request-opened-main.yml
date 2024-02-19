@@ -1,6 +1,10 @@
 name: Validate PR to PROD
 on:
   workflow_call:
+    inputs:
+      java-version:
+        type: number
+        default: 11
 jobs:
   origin-validation:
     name: Origin validation
@@ -15,6 +19,7 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 60
+      java-version: ${{inputs.java-version}}
     secrets: inherit
   mutation-tests:
     needs: origin-validation
@@ -23,6 +28,7 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 40
+      java-version: ${{inputs.java-version}}
     secrets: inherit
   generate-coverage-summary:
     needs:
