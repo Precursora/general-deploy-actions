@@ -80,6 +80,7 @@ jobs:
       service-account: ${{ needs.settings.outputs.service-account }}
       registry: us-docker.pkg.dev
       environment: dev
+      env-vars-file: ${{ needs.settings.outputs.env-vars-file }}
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
