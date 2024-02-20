@@ -34,7 +34,7 @@ jobs:
     permissions: write-all
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT}}\"}}" \
@@ -49,7 +49,7 @@ jobs:
           XDEBUG_MODE="coverage" composer run test-unit
         working-directory: ${{inputs.path}}
       - name: Export artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: unit-coverage-report
           path: ${{steps.run.outputs.artifactDir}}

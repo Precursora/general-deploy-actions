@@ -19,9 +19,9 @@ jobs:
     steps:
       - run: echo "⏳ Implantando em PROD..."
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Maven
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{inputs.java-version}}
           distribution: corretto
