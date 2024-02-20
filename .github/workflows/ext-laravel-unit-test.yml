@@ -49,7 +49,7 @@ jobs:
           XDEBUG_MODE="coverage" composer run test-unit
         working-directory: ${{inputs.path}}
       - name: Export artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: unit-coverage-report
           path: ${{steps.run.outputs.artifactDir}}

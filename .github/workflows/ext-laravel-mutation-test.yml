@@ -45,7 +45,7 @@ jobs:
           XDEBUG_MODE="coverage" composer run test-mutation
         working-directory: ${{inputs.path}}
       - name: Export artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mutation-coverage-report
           path: ${{steps.run.outputs.artifactDir}}
