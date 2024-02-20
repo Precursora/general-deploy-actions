@@ -23,6 +23,9 @@ on:
       registry:
         required: true
         type: string
+      env-vars-file:
+        required: true
+        type: string
     secrets:
       project-number:
         required: true
@@ -68,7 +71,8 @@ jobs:
           --max-retries 0 \
           --task-timeout 180 \
           --add-cloudsql-instances=${{ inputs.instances }} \
-          --service-account ${{ inputs.service-account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+          --service-account ${{ inputs.service-account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com \
+          --env-vars-file="${{ inputs.env-vars-file }}"
       - name: Execute job
         if: ${{ steps.auth.outcome == 'success' }}
         run: gcloud run jobs execute ${{ env.SERVICE_NAME }} --region ${{ inputs.region }} --wait
