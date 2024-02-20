@@ -51,7 +51,6 @@ jobs:
       scaling-max-instances: ${{ needs.settings.outputs.scaling-max-instances }}
       port: ${{ needs.settings.outputs.port }}
       scaling-timeout: ${{ needs.settings.outputs.scaling-timeout }}
-      enable-ssl: ${{ needs.settings.outputs.enable-ssl }}
       execution-environment: ${{ needs.settings.outputs.execution-environment }}
       ingress: ${{ needs.settings.outputs.ingress }}
       scaling-cpu: ${{ needs.settings.outputs.scaling-cpu }}

@@ -26,9 +26,6 @@ on:
       scaling-timeout:
         required: true
         type: string
-      enable-ssl:
-        required: true
-        type: string
       execution-environment:
         required: true
         type: string
@@ -109,7 +106,6 @@ jobs:
             --platform managed \
             --port ${{ inputs.port }} \
             --timeout ${{ inputs.scaling-timeout }} \
-            --set-env-vars "ENABLE_SSL=${{ inputs.enable-ssl }}" \
             --env-vars-file="${{inputs.env-vars-file}}" \
             --execution-environment ${{ inputs.execution-environment }} \
             --ingress ${{ inputs.ingress }} \
