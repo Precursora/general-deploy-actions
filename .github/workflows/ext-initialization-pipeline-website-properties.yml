@@ -4,6 +4,8 @@ on:
     outputs:
       destroy:
         value: ${{ jobs.init.outputs.destroy }}
+      runner-version:
+        value: ${{ jobs.init.outputs.runner-version }}
       deploy-base-path: 
         value: ${{ jobs.init.outputs.deploy-base-path }}
       deploy-resource-directory: 
@@ -19,13 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       destroy: ${{ toJson(fromJSON(steps.pipeline.outputs.output).destroy) }}
+      runner-version: ${{ fromJson(steps.pipeline.outputs.output).test.runner-version }}
       deploy-base-path: ${{ fromJSON(steps.pipeline.outputs.output).deploy.base }}
       deploy-resource-directory: ${{ fromJSON(steps.pipeline.outputs.output).deploy.resource-directory }}
       deploy-bucket-dev: ${{ fromJSON(steps.pipeline.outputs.output).deploy.bucket.dev }}
       deploy-bucket-prod: ${{ fromJSON(steps.pipeline.outputs.output).deploy.bucket.prod }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load pipeline properties
         id: pipeline
         uses: fabasoad/data-format-converter-action@main

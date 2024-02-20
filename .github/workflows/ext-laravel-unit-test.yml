@@ -34,7 +34,7 @@ jobs:
     permissions: write-all
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT}}\"}}" \

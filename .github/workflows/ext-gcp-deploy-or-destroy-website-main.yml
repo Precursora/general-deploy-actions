@@ -1,6 +1,10 @@
 name: Deploy to GCP - PROD
 on:
   workflow_call:
+    inputs:
+      node-version:
+        type: string
+        required: true
 permissions: write-all
 jobs:
   init:
@@ -27,6 +31,7 @@ jobs:
       resource-directory: ${{ needs.init.outputs.deploy-resource-directory }}
       bucket: ${{ needs.init.outputs.deploy-bucket-prod }}
       environment: prod
+      node-version: ${{needs.init.outputs.runner-version}}
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}

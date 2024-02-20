@@ -13,7 +13,7 @@ jobs:
       destroy: ${{ toJson(fromJSON(steps.destroy.outputs.output).destroy) }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load destruction properties
         id: destroy
         uses: fabasoad/data-format-converter-action@main
