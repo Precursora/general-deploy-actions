@@ -62,7 +62,7 @@ jobs:
       command-args: "${{ fromJSON(steps.settings.outputs.output).command.args }}"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load environment application settings
         id: settings
         uses: fabasoad/data-format-converter-action@main

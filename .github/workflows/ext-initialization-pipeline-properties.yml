@@ -65,7 +65,7 @@ jobs:
       integration-tests-report-format: ${{ (inputs.without-integration-tests && '') || fromJSON(steps.pipeline.outputs.output).test.path.integration.report-format }}
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Load pipeline properties
         id: pipeline
         uses: fabasoad/data-format-converter-action@main
