@@ -38,6 +38,8 @@ on:
         value: ${{ jobs.load.outputs.command-entrypoint }}
       command-args:
         value: ${{ jobs.load.outputs.command-args }}
+      env-vars-file:
+        value: ${{ jobs.load.outputs.env-vars-file }}
 permissions: write-all
 jobs:
   load:
@@ -60,6 +62,7 @@ jobs:
       instances: "${{ steps.sql-instances-sockets-handler.outputs.instances }}"
       command-entrypoint: "${{ steps.custom-command-entrypoint-handler.outputs.entrypoint }}"
       command-args: "${{ fromJSON(steps.settings.outputs.output).command.args }}"
+      env-vars-file: "${{ fromJSON(steps.settings.outputs.output).settings.env-vars-file }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
