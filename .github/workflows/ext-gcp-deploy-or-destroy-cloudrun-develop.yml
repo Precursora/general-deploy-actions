@@ -59,6 +59,7 @@ jobs:
       cpu-throttling: ${{ needs.settings.outputs.cpu-throttling }}
       service-account: ${{ needs.settings.outputs.service-account }}
       instances: ${{ needs.settings.outputs.instances }}
+      env-vars-file: ${{ needs.settings.outputs.env-vars-file }}
       registry: us-docker.pkg.dev
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
