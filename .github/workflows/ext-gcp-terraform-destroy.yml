@@ -29,6 +29,7 @@ jobs:
   destroy:
     name: Destroy
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
     env:
       TF_VAR_cloudflare_provider_api_token: ${{ secrets.cloudflare-api-token }}
       TF_VAR_cloudflare_zone_id: ${{ secrets.cloudflare-zone-id }}
