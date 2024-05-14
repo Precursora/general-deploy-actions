@@ -16,6 +16,8 @@ on:
         required: true
       cloudflare-zone-id:
         required: true
+      aiven-api-token:
+        required: true
 env:
   PROJECT_NUMBER: ${{ secrets.project-number }}
   PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
@@ -30,6 +32,7 @@ jobs:
     env:
       TF_VAR_cloudflare_provider_api_token: ${{ secrets.cloudflare-api-token }}
       TF_VAR_cloudflare_zone_id: ${{ secrets.cloudflare-zone-id }}
+      TF_VAR_aiven_provider_api_token: ${{ secrets.aiven-api-token }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
