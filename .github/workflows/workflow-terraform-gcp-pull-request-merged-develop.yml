@@ -19,6 +19,7 @@ jobs:
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN }}
   destroy:
     needs: init
     name: Destroy
@@ -33,6 +34,7 @@ jobs:
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN }}
   create-pr:
     needs:
       - destroy
