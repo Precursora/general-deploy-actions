@@ -47,5 +47,3 @@ jobs:
     permissions: write-all
     steps:
       - run: echo "⏳ Finalizando deploy..."
-      - name: "Waiting"
-        run: sleep 1m
