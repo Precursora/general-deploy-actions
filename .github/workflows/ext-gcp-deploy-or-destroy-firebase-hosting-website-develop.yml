@@ -19,6 +19,7 @@ jobs:
     with:
       environment: dev
       destroy: "[]"
+      working-directory: infra
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
@@ -33,6 +34,7 @@ jobs:
     uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
     with:
       environment: dev
+      working-directory: infra
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}

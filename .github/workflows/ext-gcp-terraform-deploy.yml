@@ -5,6 +5,9 @@ on:
       environment:
         required: true
         type: string
+      working-directory:
+        type: string
+        default: ./
     secrets:
       project-number:
         required: true
@@ -51,11 +54,15 @@ jobs:
             }
           }
           EOF
+        working-directory: ${{inputs.working-directory}}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init
         run: terraform init
+        working-directory: ${{inputs.working-directory}}
       - name: Terraform plan
         run: terraform plan -var-file="${{ env.TF_VAR_FILE }}"
+        working-directory: ${{inputs.working-directory}}
       - name: Terraform apply
         run: terraform apply -auto-approve -var-file="${{ env.TF_VAR_FILE }}"
+        working-directory: ${{inputs.working-directory}}
