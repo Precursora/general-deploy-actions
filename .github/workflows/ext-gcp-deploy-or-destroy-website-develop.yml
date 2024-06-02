@@ -17,7 +17,7 @@ jobs:
     if: needs.init.outputs.destroy != 'false'
     uses: ./.github/workflows/ext-gcp-destroy-website.yml
     with:
-      bucket: ${{needs.init.outputs.deploy-bucket-dev}}
+      bucket: ${{needs.init.outputs.deploy-storage-dev}}
       environment: dev
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
@@ -30,7 +30,7 @@ jobs:
     with:
       path: ${{ needs.init.outputs.deploy-base-path }}
       resource-directory: ${{ needs.init.outputs.deploy-resource-directory }}
-      bucket: ${{ needs.init.outputs.deploy-bucket-dev }}
+      bucket: ${{ needs.init.outputs.deploy-storage-dev }}
       environment: dev
       node-version: ${{needs.init.outputs.runner-version}}
     secrets:
@@ -42,7 +42,7 @@ jobs:
     needs:
       - deploy
       - destroy
-    if: always() && (needs.deploy == 'success' || needs.destroy.result == 'success')
+    if: always() && (needs.deploy.result == 'success' || needs.destroy.result == 'success')
     runs-on: ubuntu-latest
     permissions: write-all
     steps:

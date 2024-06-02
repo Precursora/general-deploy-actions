@@ -1,0 +1,68 @@
+name: Deploy to GCP - PROD
+on:
+  workflow_call:
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-pipeline-website-properties.yml
+  destroy-infra:
+    needs: init
+    name: Destroy resources
+    if: needs.init.outputs.destroy != 'false'
+    uses: ./.github/workflows/ext-gcp-terraform-destroy.yml
+    with:
+      environment: prod
+      destroy: "[]"
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_PROD }}
+  deploy-infra:
+    needs: init
+    if: needs.init.outputs.destroy == 'false'
+    name: Deploy
+    uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
+    with:
+      environment: prod
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_PROD }}
+  deploy-app:
+    needs: init
+    name: Deploy
+    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-gcp-deploy-website-firebase-hosting.yml
+    with:
+      path: ${{ needs.init.outputs.deploy-base-path }}
+      resource-directory: ${{ needs.init.outputs.deploy-resource-directory }}
+      site-id: ${{ needs.init.outputs.deploy-storage-prod }}
+      environment: prod
+      node-version: ${{needs.init.outputs.runner-version}}
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+  create-tag:
+    needs: deploy-app
+    if: always() && needs.deploy-app.result == 'success'
+    name: Create tag
+    uses: ./.github/workflows/ext-create-tag.yml
+    secrets: inherit
+  finish-deploy:
+    name: Finish deploy
+    needs:
+      - create-tag
+      - destroy-infra
+    if: always() && (needs.create-tag.result == 'success' || needs.destroy-infra.result == 'success')
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - run: echo "⏳ Finalizando deploy..."
