@@ -55,6 +55,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
         working-directory: ${{inputs.path}}
+      - name: Install Firebase Tools
+        run: npm install firebase-tools -D
       - name: Prepare
         run: > 
           echo '{"projects": {"default": "${{env.PROJECT_NAME}}"}}' > .firebaserc
