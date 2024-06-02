@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/ext-initialization-pipeline-website-properties.yml
   destroy-infra:
     needs: init
-    name: Destroy resources
+    name: Destroy infrastructure
     if: needs.init.outputs.destroy != 'false'
     uses: ./.github/workflows/ext-gcp-terraform-destroy.yml
     with:
@@ -30,7 +30,7 @@ jobs:
   deploy-infra:
     needs: init
     if: needs.init.outputs.destroy == 'false'
-    name: Deploy
+    name: Deploy infrastructure
     uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
     with:
       environment: dev
@@ -46,7 +46,7 @@ jobs:
     needs:
       - init
       - deploy-infra
-    name: Deploy
+    name: Deploy application
     if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-gcp-deploy-website-firebase-hosting.yml
     with:
