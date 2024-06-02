@@ -51,7 +51,7 @@ jobs:
         run: cp environments/${{env.ENVIRONMENT}}.env .env
         working-directory: ${{inputs.path}}
       - name: Install dependencies
-        run: npm prune --omit=dev
+        run: npm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
         working-directory: ${{inputs.path}}
