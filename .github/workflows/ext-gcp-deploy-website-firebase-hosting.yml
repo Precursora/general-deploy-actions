@@ -57,6 +57,7 @@ jobs:
         working-directory: ${{inputs.path}}
       - name: Install Firebase Tools
         run: npm install firebase-tools -D
+        working-directory: ${{inputs.path}}
       - name: Prepare
         run: > 
           echo '{"projects": {"default": "${{env.PROJECT_NAME}}"}}' > .firebaserc
