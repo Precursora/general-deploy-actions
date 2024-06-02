@@ -56,7 +56,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
         working-directory: ${{inputs.path}}
       - name: Install Firebase Tools
-        run: npm install firebase-tools -D
+        run: npm install -g firebase-tools
         working-directory: ${{inputs.path}}
       - name: Prepare
         run: > 
