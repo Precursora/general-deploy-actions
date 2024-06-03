@@ -1,0 +1,19 @@
+name: Deploy to GCP - DEV
+on:
+  workflow_call:
+permissions: write-all
+jobs:
+  process:
+    name: Process
+    uses: ./.github/workflows/ext-gcp-deploy-or-destroy-firebase-hosting-website-develop.yml
+    secrets: inherit
+  create-pr:
+    needs: process
+    name: Create PR to PROD
+    uses: ./.github/workflows/ext-create-pull-request.yml
+    with:
+      base: main
+      head: develop
+      labels: production
+      environment: PROD
+    secrets: inherit

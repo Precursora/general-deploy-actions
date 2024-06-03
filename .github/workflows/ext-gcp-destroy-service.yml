@@ -22,7 +22,7 @@ env:
 permissions: write-all
 jobs:
   destroy:
-    name: Destroy resources
+    name: Destroy service
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
     steps:

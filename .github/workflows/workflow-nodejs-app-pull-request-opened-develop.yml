@@ -1,12 +1,23 @@
 name: Validate PR to DEV
 on:
   workflow_call:
+    inputs:
+      without-infra:
+        type: boolean
+        default: true
 jobs:
   init:
     name: Initialization
     uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
     with:
       without-integration-tests: true
+  validation-infra:
+    needs: init
+    name: Validate infrastructure
+    if: needs.init.outputs.destroy == 'false' && !inputs.without-infra
+    uses: ./.github/workflows/ext-gcp-terraform-validation.yml
+    with:
+      path: infra
   unit-tests:
     name: Unit tests
     needs: init
