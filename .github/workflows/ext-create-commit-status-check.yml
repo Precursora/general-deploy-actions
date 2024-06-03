@@ -14,9 +14,6 @@ on:
       description:
         type: string
         required: false
-    secrets:
-      token:
-        required: false
 jobs:
   create-commit-status-check:
     name: Create commit status check
