@@ -37,6 +37,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Install Firebase Tools
+        run: npm install -g firebase-tools
       - name: GCP Auth
         id: auth
         uses: google-github-actions/auth@v2
@@ -56,9 +58,6 @@ jobs:
         run: npm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
-        working-directory: ${{inputs.path}}
-      - name: Install Firebase Tools
-        run: npm install -g firebase-tools
         working-directory: ${{inputs.path}}
       - name: Prepare
         run: > 
