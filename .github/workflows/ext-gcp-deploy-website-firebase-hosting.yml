@@ -44,7 +44,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-app@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
+          service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
           create_credentials_file: true
       - name: Setup Node ${{inputs.node-version}}
         uses: actions/setup-node@v4
