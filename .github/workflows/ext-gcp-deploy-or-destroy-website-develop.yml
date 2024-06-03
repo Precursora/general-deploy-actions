@@ -24,7 +24,7 @@ jobs:
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
   deploy:
     needs: init
-    name: Deploy
+    name: Deploy resources
     if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-gcp-deploy-website.yml
     with:

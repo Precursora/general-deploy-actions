@@ -31,7 +31,7 @@ env:
 permissions: write-all
 jobs:
   deploy:
-    name: Deploy to environment
+    name: Deploy application
     environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
     runs-on: ubuntu-latest
     steps:

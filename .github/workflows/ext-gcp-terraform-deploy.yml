@@ -29,7 +29,7 @@ env:
 permissions: write-all
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy infrastructure
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
     env:
