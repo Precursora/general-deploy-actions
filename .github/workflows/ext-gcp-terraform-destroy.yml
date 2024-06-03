@@ -10,24 +10,11 @@ on:
         type: string
       path:
         type: string
-        default: .
-    secrets:
-      project-number:
-        required: true
-      project-name:
-        required: true
-      service-name:
-        required: true
-      cloudflare-api-token:
-        required: true
-      cloudflare-zone-id:
-        required: true
-      aiven-api-token:
-        required: true
+        default: ./
 env:
-  PROJECT_NUMBER: ${{ secrets.project-number }}
-  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
-  SERVICE_NAME: ${{ secrets.service-name }}-${{ inputs.environment }}
+  PROJECT_NUMBER: ${{ inputs.environment == 'dev' && secrets.GCP_PROJECT_NUMBER_DEV || inputs.environment == 'prod' && secrets.GCP_PROJECT_NUMBER_PROD }}
+  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}
+  SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-${{ inputs.environment }}
   TF_VAR_FILE: ./environments/${{ inputs.environment }}/terraform.tfvars
 permissions: write-all
 jobs:
@@ -36,9 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
     env:
-      TF_VAR_cloudflare_provider_api_token: ${{ secrets.cloudflare-api-token }}
-      TF_VAR_cloudflare_zone_id: ${{ secrets.cloudflare-zone-id }}
-      TF_VAR_aiven_provider_api_token: ${{ secrets.aiven-api-token }}
+      TF_VAR_cloudflare_provider_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TF_VAR_cloudflare_provider_zone_id_precursoracombr: ${{ secrets.CLOUDFLARE_ZONE_ID_PRECURSORACOMBR }}
+      TF_VAR_cloudflare_provider_zone_id_felipemenezescombr: ${{ secrets.CLOUDFLARE_ZONE_ID_FELIPEMENEZESCOMBR }}
+      TF_VAR_aiven_provider_api_token: ${{ inputs.environment == 'dev' && secrets.AIVEN_API_TOKEN_DEV || inputs.environment == 'prod' && secrets.AIVEN_API_TOKEN_PROD }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4

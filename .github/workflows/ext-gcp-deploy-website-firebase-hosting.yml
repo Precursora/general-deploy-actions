@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: npm install
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+          NODE_AUTH_TOKEN: ${{ secrets.token }}
         working-directory: ${{inputs.path}}
       - name: Install Firebase Tools
         run: npm install -g firebase-tools
