@@ -60,7 +60,7 @@ jobs:
       - name: Deploy
         run: |
           firebase use ${{ env.PROJECT_NAME }}
-          firebase deploy --only hosting:${{inputs.environment}}
+          firebase deploy --only hosting:app
         working-directory: ${{inputs.path}}
         env:
           FIREBASE_TOKEN: ${{secrets.fb-token}}
