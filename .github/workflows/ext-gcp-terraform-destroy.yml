@@ -8,7 +8,7 @@ on:
       destroy:
         required: true
         type: string
-      working-directory:
+      path:
         type: string
         default: .
     secrets:
@@ -57,12 +57,12 @@ jobs:
             }
           }
           EOF
-        working-directory: ${{inputs.working-directory}}
+        working-directory: ${{inputs.path}}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init
         run: terraform init
-        working-directory: ${{inputs.working-directory}}
+        working-directory: ${{inputs.path}}
       - name: Terraform destroy
         run: |
           destroy="$(echo -n "${{ inputs.destroy }}")"
@@ -82,4 +82,4 @@ jobs:
               done
             fi
           fi
-        working-directory: ${{inputs.working-directory}}
+        working-directory: ${{inputs.path}}

@@ -1,6 +1,10 @@
 name: Validate PR to PROD
 on:
   workflow_call:
+    inputs:
+      with-infra:
+        type: boolean
+        default: false
 jobs:
   origin-validation:
     name: Origin validation
@@ -17,8 +21,10 @@ jobs:
   validation-infra:
     needs: init
     name: Validate infrastructure
-    if: needs.init.outputs.destroy == 'false'
+    if: needs.init.outputs.destroy == 'false' && inputs.with-infra
     uses: ./.github/workflows/ext-gcp-terraform-validation.yml
+    with:
+      path: infra
   unit-tests:
     name: Unit tests
     needs: init

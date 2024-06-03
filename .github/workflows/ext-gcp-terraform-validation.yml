@@ -1,6 +1,10 @@
 name: Validation
 on:
   workflow_call:
+    inputs:
+      path:
+        type: string
+        default: ./
 permissions: write-all
 jobs:
   validation:
@@ -13,7 +17,10 @@ jobs:
         uses: hashicorp/setup-terraform@v3
       - name: Terraform format check
         run: terraform fmt -check
+        working-directory: ${{ inputs.path }}
       - name: Terraform init
         run: terraform init
+        working-directory: ${{ inputs.path }}
       - name: Terraform Validate
         run: terraform validate -no-color
+        working-directory: ${{ inputs.path }}

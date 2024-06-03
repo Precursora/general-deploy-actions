@@ -5,7 +5,7 @@ on:
       environment:
         required: true
         type: string
-      working-directory:
+      path:
         type: string
         default: ./
     secrets:
@@ -54,15 +54,15 @@ jobs:
             }
           }
           EOF
-        working-directory: ${{inputs.working-directory}}
+        working-directory: ${{inputs.path}}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init
         run: terraform init
-        working-directory: ${{inputs.working-directory}}
+        working-directory: ${{inputs.path}}
       - name: Terraform plan
         run: terraform plan -var-file="${{ env.TF_VAR_FILE }}"
-        working-directory: ${{inputs.working-directory}}
+        working-directory: ${{inputs.path}}
       - name: Terraform apply
         run: terraform apply -auto-approve -var-file="${{ env.TF_VAR_FILE }}"
-        working-directory: ${{inputs.working-directory}}
+        working-directory: ${{inputs.path}}
