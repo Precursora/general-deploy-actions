@@ -30,7 +30,7 @@ jobs:
     with:
       path: ${{ needs.init.outputs.deploy-base-path }}
       resource-directory: ${{ needs.init.outputs.deploy-resource-directory }}
-      bucket: ${{ needs.init.outputs.deploy-storage-dev }}
+      bucket: ${{ needs.init.outputs.deploy-bucket-dev }}
       environment: dev
       node-version: ${{needs.init.outputs.runner-version}}
     secrets:

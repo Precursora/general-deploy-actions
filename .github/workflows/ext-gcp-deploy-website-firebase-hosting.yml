@@ -5,12 +5,6 @@ on:
       path:
         required: true
         type: string
-      resource-directory:
-        required: true
-        type: string
-      site-id:
-        required: true
-        type: string
       environment:
         required: true
         type: string

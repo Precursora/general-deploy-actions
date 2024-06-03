@@ -44,8 +44,6 @@ jobs:
     uses: ./.github/workflows/ext-gcp-deploy-website-firebase-hosting.yml
     with:
       path: ${{ needs.init.outputs.deploy-base-path }}
-      resource-directory: ${{ needs.init.outputs.deploy-resource-directory }}
-      site-id: ${{ needs.init.outputs.deploy-storage-prod }}
       environment: prod
       node-version: ${{needs.init.outputs.runner-version}}
     secrets:
