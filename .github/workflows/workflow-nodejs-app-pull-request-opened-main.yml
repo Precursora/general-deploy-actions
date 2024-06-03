@@ -14,6 +14,11 @@ jobs:
     uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
     with:
       without-integration-tests: true
+  validation-infra:
+    needs: init
+    name: Validate infrastructure
+    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-gcp-terraform-validation.yml
   unit-tests:
     name: Unit tests
     needs: init
