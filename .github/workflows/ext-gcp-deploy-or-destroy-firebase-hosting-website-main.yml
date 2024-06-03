@@ -47,7 +47,6 @@ jobs:
       environment: prod
       node-version: ${{needs.init.outputs.runner-version}}
     secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
   create-tag:
