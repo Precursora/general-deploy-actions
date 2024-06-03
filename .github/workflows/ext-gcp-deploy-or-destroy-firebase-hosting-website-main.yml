@@ -38,7 +38,9 @@ jobs:
       cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_PROD }}
   deploy-app:
-    needs: init
+    needs:
+      - init
+      - deploy-infra
     name: Deploy application
     if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-gcp-deploy-website-firebase-hosting.yml
