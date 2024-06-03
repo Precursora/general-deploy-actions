@@ -70,6 +70,7 @@ jobs:
         working-directory: ${{inputs.path}}
       - name: Get Google Identity Token
         run: |
+          gcloud config set account devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
           export GOOGLE_ID_TOKEN=$(gcloud auth print-identity-token)
           echo "GOOGLE_ID_TOKEN=$GOOGLE_ID_TOKEN" >> $GITHUB_ENV
       - name: Configure Firebase CLI
