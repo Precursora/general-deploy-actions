@@ -55,7 +55,7 @@ jobs:
       node-version: ${{needs.init.outputs.runner-version}}
     secrets:
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      token: ${{ secrets.GH_DEFAULT_ORG_PAT }}
       fb-token: ${{ secrets.FB_GENERAL_TOKEN }}
   finish-deploy:
     name: Finish deploy

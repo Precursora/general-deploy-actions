@@ -21,9 +21,6 @@ on:
     outputs:
       indexes:
         value: ${{jobs.mutation-tests.outputs.indexes}}
-    secrets:
-      token:
-        required: false
 jobs:
   mutation-tests:
     name: Mutation tests
@@ -48,7 +45,7 @@ jobs:
           echo "artifactDir="$(pwd)"/"$(dirname "${{inputs.report-index-file}}")"/*" >> $GITHUB_OUTPUT
           mvn -B clean install -f pom.xml -s settings.xml \
               -Dserver.github.username=${{ github.repository_owner }} \
-              -Dserver.github.password=${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+              -Dserver.github.password=${{ secrets.GH_DEFAULT_ORG_PAT }}
         working-directory: ${{inputs.path}}
       - name: Generate reports
         run: |
@@ -108,5 +105,3 @@ jobs:
           if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
             exit 1;
           fi
-        env:
-          GH_TOKEN: ${{secrets.token || github.token}}
