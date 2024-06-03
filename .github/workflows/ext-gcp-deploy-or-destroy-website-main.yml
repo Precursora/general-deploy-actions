@@ -1,10 +1,6 @@
 name: Deploy to GCP - PROD
 on:
   workflow_call:
-    inputs:
-      node-version:
-        type: string
-        required: true
 permissions: write-all
 jobs:
   init:
@@ -16,14 +12,14 @@ jobs:
     if: needs.init.outputs.destroy != 'false'
     uses: ./.github/workflows/ext-gcp-destroy-website.yml
     with:
-      bucket: ${{needs.init.outputs.deploy-bucket-prod}}
+      bucket: ${{needs.init.outputs.deploy-storage-prod}}
       environment: prod
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
   deploy:
     needs: init
-    name: Deploy
+    name: Deploy resources
     if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-gcp-deploy-website.yml
     with:

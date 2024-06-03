@@ -8,6 +8,9 @@ on:
       destroy:
         required: true
         type: string
+      path:
+        type: string
+        default: .
     secrets:
       project-number:
         required: true
@@ -29,7 +32,7 @@ env:
 permissions: write-all
 jobs:
   destroy:
-    name: Destroy
+    name: Destroy infrastructure
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
     env:
@@ -54,10 +57,12 @@ jobs:
             }
           }
           EOF
+        working-directory: ${{inputs.path}}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
       - name: Terraform init
         run: terraform init
+        working-directory: ${{inputs.path}}
       - name: Terraform destroy
         run: |
           destroy="$(echo -n "${{ inputs.destroy }}")"
@@ -77,3 +82,4 @@ jobs:
               done
             fi
           fi
+        working-directory: ${{inputs.path}}

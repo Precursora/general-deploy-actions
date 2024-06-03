@@ -29,7 +29,7 @@ jobs:
     needs:
       - init
       - settings
-    name: Deploy
+    name: Deploy resources
     if: needs.init.outputs.destroy == 'false'
     uses: ./.github/workflows/ext-gcp-deploy-service.yml
     with:

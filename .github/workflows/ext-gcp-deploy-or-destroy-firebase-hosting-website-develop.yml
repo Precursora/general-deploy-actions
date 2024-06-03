@@ -1,0 +1,69 @@
+name: Deploy to GCP - DEV
+on:
+  workflow_call:
+    outputs:
+      deployed: 
+        value: ${{jobs.deploy.result == 'success' && 'true' || 'false'}}
+      destroyed: 
+        value: ${{jobs.destroy.result == 'success' && 'true' || 'false'}}
+permissions: write-all
+jobs:
+  init:
+    name: Initialization
+    uses: ./.github/workflows/ext-initialization-pipeline-website-properties.yml
+  destroy-infra:
+    needs: init
+    name: Destroy infrastructure
+    if: needs.init.outputs.destroy != 'false'
+    uses: ./.github/workflows/ext-gcp-terraform-destroy.yml
+    with:
+      environment: dev
+      destroy: "[]"
+      path: infra
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_DEV }}
+  deploy-infra:
+    needs: init
+    if: needs.init.outputs.destroy == 'false'
+    name: Deploy infrastructure
+    uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
+    with:
+      environment: dev
+      path: infra
+    secrets:
+      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_DEV }}
+  deploy-app:
+    needs:
+      - init
+      - deploy-infra
+    name: Deploy application
+    if: needs.init.outputs.destroy == 'false'
+    uses: ./.github/workflows/ext-gcp-deploy-website-firebase-hosting.yml
+    with:
+      path: ${{ needs.init.outputs.deploy-base-path }}
+      environment: dev
+      node-version: ${{needs.init.outputs.runner-version}}
+    secrets:
+      project-name: ${{ secrets.GCP_PROJECT_NAME }}
+      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      fb-token: ${{ secrets.FB_GENERAL_TOKEN }}
+  finish-deploy:
+    name: Finish deploy
+    needs:
+      - deploy-app
+      - destroy-infra
+    if: always() && (needs.deploy-app.result == 'success' || needs.destroy-infra.result == 'success')
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - run: echo "⏳ Finalizando deploy..."

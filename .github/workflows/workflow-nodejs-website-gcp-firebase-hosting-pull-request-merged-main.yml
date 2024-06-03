@@ -1,0 +1,9 @@
+name: Deploy to GCP - PROD
+on:
+  workflow_call:
+permissions: write-all
+jobs:
+  process:
+    name: Process
+    uses: ./.github/workflows/ext-gcp-deploy-or-destroy-firebase-hosting-website-main.yml
+    secrets: inherit
