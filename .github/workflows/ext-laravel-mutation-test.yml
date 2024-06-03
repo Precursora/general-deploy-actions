@@ -18,9 +18,6 @@ on:
     outputs:
       indexes:
         value: ${{jobs.mutation-tests.outputs.indexes}}
-    secrets:
-      token:
-        required: false
 jobs:
   mutation-tests:
     name: Mutation tests
@@ -33,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT}}\"}}" \
+          COMPOSER_AUTH="{\"github-oauth\":{\"github.com\":\"${{secrets.GH_DEFAULT_ORG_PAT}}\"}}" \
           composer install --no-progress
         working-directory: ${{inputs.path}}
       - name: Run tests
@@ -98,5 +95,3 @@ jobs:
           if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
             exit 1;
           fi
-        env:
-          GH_TOKEN: ${{secrets.token || github.token}}

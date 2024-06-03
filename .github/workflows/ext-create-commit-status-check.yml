@@ -14,9 +14,6 @@ on:
       description:
         type: string
         required: false
-    secrets:
-      token:
-        required: false
 jobs:
   create-commit-status-check:
     name: Create commit status check
@@ -25,5 +22,3 @@ jobs:
     steps:
       - name: Create commit status check
         run: gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${{inputs.state}} -f description='${{inputs.description}}' -f context='${{inputs.context}}'
-        env:
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN || github.token}}

@@ -36,7 +36,7 @@ jobs:
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      token: ${{ secrets.GH_DEFAULT_ORG_PAT }}
   finish-deploy:
     name: Finish deploy
     needs:

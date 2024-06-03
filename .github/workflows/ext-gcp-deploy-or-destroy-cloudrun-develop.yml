@@ -64,7 +64,7 @@ jobs:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       service-name: ${{ secrets.GCP_SERVICE_NAME }}
-      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      token: ${{ secrets.GH_DEFAULT_ORG_PAT }}
   custom-command:
     needs: 
       - settings

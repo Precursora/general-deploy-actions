@@ -31,7 +31,7 @@ jobs:
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      token: ${{ secrets.GH_DEFAULT_ORG_PAT }}
   create-tag:
     needs: deploy
     if: always() && needs.deploy == 'success'

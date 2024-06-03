@@ -21,9 +21,6 @@ on:
     outputs:
       indexes:
         value: ${{jobs.unit-tests.outputs.indexes}}
-    secrets:
-      token:
-        required: false
 jobs:
   unit-tests:
     name: Unit tests
@@ -42,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: npm install
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_DEFAULT_ORG_PAT }}
         working-directory: ${{inputs.path}}
       - name: Run tests
         id: run
@@ -54,7 +51,7 @@ jobs:
 
           echo $report > ${{inputs.report-index-file}}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.token || secrets.GH_PRECURSORA_DEFAULT_PAT }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_DEFAULT_ORG_PAT }}
         working-directory: ${{inputs.path}}
       - name: Export artifacts
         uses: actions/upload-artifact@v4
@@ -106,5 +103,3 @@ jobs:
           if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
             exit 1;
           fi
-        env:
-          GH_TOKEN: ${{secrets.token || github.token}}
