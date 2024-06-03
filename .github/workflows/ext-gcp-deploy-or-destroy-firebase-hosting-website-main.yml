@@ -15,13 +15,7 @@ jobs:
       environment: prod
       destroy: "true"
       path: infra
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
-      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_PROD }}
+    secrets: inherit
   deploy-infra:
     needs: init
     if: needs.init.outputs.destroy == 'false'
@@ -30,13 +24,7 @@ jobs:
     with:
       environment: prod
       path: infra
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
-      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_PROD }}
+    secrets: inherit
   deploy-app:
     needs:
       - init
