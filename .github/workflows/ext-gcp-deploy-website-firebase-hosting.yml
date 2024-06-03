@@ -47,11 +47,11 @@ jobs:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
           create_credentials_file: true
-      - name: GCP Auth
-        run: |
-          gcloud iam workload-identity-pools create-cred-config projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider --credential-source-file=${{steps.auth.outputs.credentials_file_path}} --service-account=devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com --output-file=auth.json
-          export GOOGLE_APPLICATION_CREDENTIALS="$GITHUB_WORKSPACE/auth.json"
-        working-directory: ${{inputs.path}}
+      - name: Install gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_NAME }}
+          install_components: 'firebase'
       - name: Setup Node ${{inputs.node-version}}
         uses: actions/setup-node@v4
         with:
@@ -74,6 +74,10 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: ${{inputs.path}}
+      - name: Configure gcloud to use service account
+        run: gcloud config set account 'devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com'
+      - name: Authenticate with gcloud
+        run: gcloud auth application-default login --brief
       - name: Deploy
         run: cat $GOOGLE_APPLICATION_CREDENTIALS && firebase deploy --only hosting
         working-directory: ${{inputs.path}}
