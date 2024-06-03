@@ -13,7 +13,7 @@ jobs:
     uses: ./.github/workflows/ext-gcp-terraform-destroy.yml
     with:
       environment: prod
-      destroy: "[]"
+      destroy: "true"
       path: infra
     secrets:
       project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
