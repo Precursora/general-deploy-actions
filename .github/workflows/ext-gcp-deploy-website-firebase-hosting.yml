@@ -41,11 +41,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: GCP Auth
-        run: >
-          gcloud iam workload-identity-pools create-cred-config \
-          projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider \
-          --service-account=devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com \
-          --output-file=auth.json
+        run: |
+          gcloud iam workload-identity-pools create-cred-config projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider --service-account=devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com --output-file=auth.json
           export GOOGLE_APPLICATION_CREDENTIALS="$GITHUB_WORKSPACE/auth.json"
         working-directory: ${{inputs.path}}
       - name: Setup Node ${{inputs.node-version}}
