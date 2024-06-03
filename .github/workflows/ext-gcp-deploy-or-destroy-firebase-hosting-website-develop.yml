@@ -56,9 +56,9 @@ jobs:
       environment: dev
       node-version: ${{needs.init.outputs.runner-version}}
     secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_PROD }}
       project-name: ${{ secrets.GCP_PROJECT_NAME }}
       token: ${{ secrets.GH_PRECURSORA_DEFAULT_PAT }}
+      fb-token: ${{ secrets.FB_GENERAL_TOKEN }}
   finish-deploy:
     name: Finish deploy
     needs:

@@ -18,14 +18,13 @@ on:
         type: string
         default: 18.x
     secrets:
-      project-number:
-        required: true
       project-name:
         required: true
       token:
         required: true
+      fb-token:
+        required: true
 env:
-  PROJECT_NUMBER: ${{ secrets.project-number }}
   PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
   ENVIRONMENT: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
 permissions: write-all
@@ -40,12 +39,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: GCP Auth
-        id: auth
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
-          service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
       - name: Setup Node ${{inputs.node-version}}
         uses: actions/setup-node@v4
         with:
@@ -68,15 +61,8 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: ${{inputs.path}}
-      - name: Get Google Identity Token
-        run: |
-          gcloud config set account devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-          export GOOGLE_ID_TOKEN=$(gcloud auth print-identity-token)
-          echo "GOOGLE_ID_TOKEN=$GOOGLE_ID_TOKEN" >> $GITHUB_ENV
-      - name: Configure Firebase CLI
-        run: |
-          firebase login:ci --no-localhost --token "${GOOGLE_ID_TOKEN}"
-          firebase use --add "${{env.PROJECT_NAME}}"
       - name: Deploy
-        run: cat $GOOGLE_APPLICATION_CREDENTIALS && firebase deploy --only hosting
+        run: firebase deploy --only hosting
         working-directory: ${{inputs.path}}
+        env:
+          FIREBASE_TOKEN: ${{secrets.fb-token}}
