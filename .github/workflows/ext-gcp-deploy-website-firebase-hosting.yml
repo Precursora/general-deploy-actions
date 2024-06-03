@@ -70,5 +70,3 @@ jobs:
       - name: Deploy
         run: firebase deploy --only hosting
         working-directory: ${{inputs.path}}
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{steps.auth.outputs.credentials_file_path}}
