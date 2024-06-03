@@ -46,12 +46,6 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-          create_credentials_file: true
-      - name: Install gcloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.PROJECT_NAME }}
-          install_components: 'firebase'
       - name: Setup Node ${{inputs.node-version}}
         uses: actions/setup-node@v4
         with:
