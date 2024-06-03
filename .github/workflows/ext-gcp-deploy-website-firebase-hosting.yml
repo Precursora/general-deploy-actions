@@ -70,4 +70,4 @@ jobs:
         run: ls -la && cat $GOOGLE_APPLICATION_CREDENTIALS && firebase deploy --only hosting
         working-directory: ${{inputs.path}}
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ./auth.json
+          GOOGLE_APPLICATION_CREDENTIALS: ./aurh.json
