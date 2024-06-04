@@ -22,3 +22,5 @@ jobs:
     steps:
       - name: Create commit status check
         run: gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${{inputs.state}} -f description='${{inputs.description}}' -f context='${{inputs.context}}'
+        env:
+          GITHUB_TOKEN: ${{github.token}}
