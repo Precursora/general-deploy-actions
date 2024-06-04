@@ -13,13 +13,7 @@ jobs:
     uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
     with:
       environment: dev
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
-      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_DEV }}
+    secrets: inherit
   destroy:
     needs: init
     name: Destroy
@@ -28,13 +22,7 @@ jobs:
     with:
       environment: dev
       destroy: ${{ needs.init.outputs.destroy }}
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
-      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      aiven-api-token: ${{ secrets.AIVEN_API_TOKEN_DEV }}
+    secrets: inherit
   create-pr:
     needs:
       - destroy
