@@ -39,6 +39,7 @@ jobs:
           #!/bin/bash
           echo "{\"cloudflare_api_token\": \"${CLOUDFLARE_API_TOKEN}\", \"aiven_provider_api_token\": \"${AIVEN_API_TOKEN}\"}"
           EOF
+        working-directory: ${{inputs.path}}
       - name: Setup backend
         run: |
           cat > backend.tf << EOF
