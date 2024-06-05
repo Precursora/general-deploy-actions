@@ -36,10 +36,7 @@ jobs:
       path: ${{ needs.init.outputs.deploy-base-path }}
       environment: prod
       node-version: ${{needs.init.outputs.runner-version}}
-    secrets:
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      token: ${{ secrets.GH_DEFAULT_ORG_PAT }}
-      fb-token: ${{ secrets.FB_GENERAL_TOKEN }}
+    secrets: inherit
   create-tag:
     needs: deploy-app
     if: always() && needs.deploy-app.result == 'success'

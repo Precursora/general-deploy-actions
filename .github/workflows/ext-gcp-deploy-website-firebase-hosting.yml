@@ -11,15 +11,8 @@ on:
       node-version:
         type: string
         default: 18.x
-    secrets:
-      project-name:
-        required: true
-      token:
-        required: true
-      fb-token:
-        required: true
 env:
-  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
+  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}
   ENVIRONMENT: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
 permissions: write-all
 jobs:
@@ -44,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: npm install
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_DEFAULT_ORG_PAT }}
         working-directory: ${{inputs.path}}
       - name: Install Firebase Tools
         run: npm install -g firebase-tools
@@ -57,4 +50,4 @@ jobs:
           firebase deploy --only hosting:app
         working-directory: ${{inputs.path}}
         env:
-          FIREBASE_TOKEN: ${{secrets.fb-token}}
+          FIREBASE_TOKEN: ${{secrets.FB_GENERAL_TOKEN}}

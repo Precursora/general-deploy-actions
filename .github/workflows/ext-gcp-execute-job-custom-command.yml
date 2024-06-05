@@ -26,19 +26,12 @@ on:
       env-vars-file:
         required: true
         type: string
-    secrets:
-      project-number:
-        required: true
-      project-name:
-        required: true
-      service-name:
-        required: true
 permissions: write-all
 env:
-  PROJECT_NUMBER: ${{ secrets.project-number }}
-  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
-  SERVICE_NAME: ${{ secrets.service-name }}-${{ inputs.environment }}
-  IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.service-name }}-${{ inputs.environment }}:${{ github.sha }}
+  PROJECT_NUMBER: ${{ inputs.environment == 'dev' && secrets.GCP_PROJECT_NUMBER_DEV || inputs.environment == 'prod' && secrets.GCP_PROJECT_NUMBER_PROD }}
+  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}
+  SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-${{ inputs.environment }}
+  IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}/${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}/${{ secrets.GCP_SERVICE_NAME }}-${{ inputs.environment }}:${{ github.sha }}
 jobs:
   execute:
     name: Custom command
