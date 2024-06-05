@@ -17,16 +17,9 @@ on:
       node-version:
         type: string
         default: 18.x
-    secrets:
-      project-number:
-        required: true
-      project-name:
-        required: true
-      token:
-        required: true
 env:
-  PROJECT_NUMBER: ${{ secrets.project-number }}
-  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
+  PROJECT_NUMBER: ${{ inputs.environment == 'dev' && secrets.GCP_PROJECT_NUMBER_DEV || inputs.environment == 'prod' && secrets.GCP_PROJECT_NUMBER_PROD }}
+  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}
   ENVIRONMENT: ${{ inputs.environment == 'dev' && 'DEV' || inputs.environment == 'prod' && 'PROD' }}
 permissions: write-all
 jobs:
@@ -53,7 +46,7 @@ jobs:
       - name: Install dependencies
         run: npm install
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.GH_DEFAULT_ORG_PAT }}
         working-directory: ${{inputs.path}}
       - name: Build
         run: npm run build

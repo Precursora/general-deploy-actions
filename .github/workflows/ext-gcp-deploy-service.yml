@@ -50,23 +50,14 @@ on:
       env-vars-file:
         required: true
         type: string
-    secrets:
-      project-number:
-        required: true
-      project-name:
-        required: true
-      service-name:
-        required: true
-      token:
-        required: true
     outputs:
       region:
         value: ${{inputs.region}}
 env:
-  PROJECT_NUMBER: ${{ secrets.project-number }}
-  PROJECT_NAME: ${{ secrets.project-name }}-${{ inputs.environment }}
-  SERVICE_NAME: ${{ secrets.service-name }}-${{ inputs.environment }}
-  IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.project-name }}-${{ inputs.environment }}/${{ secrets.service-name }}-${{ inputs.environment }}:${{ github.sha }}
+  PROJECT_NUMBER: ${{ inputs.environment == 'dev' && secrets.GCP_PROJECT_NUMBER_DEV || inputs.environment == 'prod' && secrets.GCP_PROJECT_NUMBER_PROD }}
+  PROJECT_NAME: ${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}
+  SERVICE_NAME: ${{ secrets.GCP_SERVICE_NAME }}-${{ inputs.environment }}
+  IMAGE_PATH: ${{ inputs.registry }}/${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}/${{ secrets.GCP_PROJECT_NAME }}-${{ inputs.environment }}/${{ secrets.GCP_SERVICE_NAME }}-${{ inputs.environment }}:${{ github.sha }}
 permissions: write-all
 jobs:
   deploy:
@@ -92,7 +83,7 @@ jobs:
             -f app.dockerfile \
             --build-arg APP_ENV=${{ inputs.ENVIRONMENT }} \
             --build-arg GITHUB_ACTOR=${{ github.actor }} \
-            --build-arg GITHUB_TOKEN=${{ secrets.token }}
+            --build-arg GITHUB_TOKEN=${{ secrets.GH_DEFAULT_ORG_PAT }}
       - name: Push
         run: docker push ${{ env.IMAGE_PATH }}
       - name: Deploy
