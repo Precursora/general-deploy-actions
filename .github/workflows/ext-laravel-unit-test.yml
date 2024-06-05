@@ -101,3 +101,5 @@ jobs:
           if [[ $(awk '{print($1 < $2)}' <<< "${{steps.export.outputs.coverage}} ${{inputs.minimum-coverage}}") == 1 ]]; then
             exit 1;
           fi
+        env:
+          GITHUB_TOKEN: ${{github.token}}
