@@ -25,10 +25,7 @@ jobs:
     with:
       environment: dev
       region: ${{ needs.init.outputs.region }}
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+    secrets: inherit
   settings:
     needs: init
     name: Load application settings
@@ -60,11 +57,7 @@ jobs:
       instances: ${{ needs.settings.outputs.instances }}
       env-vars-file: ${{ needs.settings.outputs.env-vars-file }}
       registry: us-docker.pkg.dev
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
-      token: ${{ secrets.GH_DEFAULT_ORG_PAT }}
+    secrets: inherit
   custom-command:
     needs: 
       - settings
@@ -81,10 +74,7 @@ jobs:
       registry: us-docker.pkg.dev
       environment: dev
       env-vars-file: ${{ needs.settings.outputs.env-vars-file }}
-    secrets:
-      project-number: ${{ secrets.GCP_PROJECT_NUMBER_DEV }}
-      project-name: ${{ secrets.GCP_PROJECT_NAME }}
-      service-name: ${{ secrets.GCP_SERVICE_NAME }}
+    secrets: inherit
   finish-deploy:
     name: Finish deploy
     needs:

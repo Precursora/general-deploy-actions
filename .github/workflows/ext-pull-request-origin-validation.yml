@@ -8,9 +8,6 @@ on:
       sha:
         type: string
         required: true
-    secrets:
-      token:
-        required: false
 jobs:
   origin-validation:
     name: Origin validation
@@ -31,4 +28,4 @@ jobs:
 
           gh api /repos/${{github.repository}}/statuses/${{inputs.sha}} -X POST -f state=${state} -f description="${description}" -f context="${context}"
         env:
-          GH_TOKEN: ${{secrets.token || github.token}}
+          GH_TOKEN: ${{github.token}}
