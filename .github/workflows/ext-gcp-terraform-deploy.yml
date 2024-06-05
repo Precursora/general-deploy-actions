@@ -30,7 +30,7 @@ jobs:
         with:
           workload_identity_provider: projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
           service_account: devops-infra@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com
-      - name: Create env-vars script
+      - name: Setup environment variables
         run: |
           cat > get_env_vars.sh << EOF
           #!/bin/bash
