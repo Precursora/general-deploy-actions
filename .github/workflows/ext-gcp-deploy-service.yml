@@ -50,6 +50,9 @@ on:
       env-vars-file:
         required: true
         type: string
+      secrets:
+        required: true
+        type: string
     outputs:
       region:
         value: ${{inputs.region}}
@@ -97,7 +100,8 @@ jobs:
             --platform managed \
             --port ${{ inputs.port }} \
             --timeout ${{ inputs.scaling-timeout }} \
-            --env-vars-file="${{inputs.env-vars-file}}" \
+            --env-vars-file="${{ inputs.env-vars-file }}" \
+            --set-secrets="${{ inputs.secrets }}" \
             --execution-environment ${{ inputs.execution-environment }} \
             --ingress ${{ inputs.ingress }} \
             --cpu ${{ inputs.scaling-cpu }} \
