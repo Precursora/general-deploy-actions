@@ -89,6 +89,6 @@ jobs:
           secretsValue='${{ toJSON(fromJSON(steps.settings.outputs.output).settings.secrets) }}'
 
           if [[ "${secretsValue}" != "" ]]; then
-            secrets=($(echo "'"${secretsValue}"'" | grep -o '"[^\"]*":\s*"[^\"]*"' | awk -F'"' '{print $2"="$4}' || true))
-            echo "secrets="$(IFS=,; echo "${secrets[*]}") >> $GITHUB_OUPUT
+            secrets=($(echo "'"${secretsValue}"'" | grep -o '"[^\"]*":\s*"[^\"]*"' | awk -F'"' '{print $2"="$4}'))
+            echo "secrets="$(IFS=,; echo "${secrets[*]}") >> $GITHUB_OUTPUT
           fi
