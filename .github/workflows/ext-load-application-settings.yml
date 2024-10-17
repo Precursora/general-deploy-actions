@@ -38,6 +38,8 @@ on:
         value: ${{ jobs.load.outputs.command-args }}
       env-vars-file:
         value: ${{ jobs.load.outputs.env-vars-file }}
+      secrets:
+        value: ${{ jobs.load.outputs.secrets }}
 permissions: write-all
 jobs:
   load:
@@ -60,6 +62,7 @@ jobs:
       command-entrypoint: "${{ steps.custom-command-entrypoint-handler.outputs.entrypoint }}"
       command-args: "${{ fromJSON(steps.settings.outputs.output).command.args }}"
       env-vars-file: "${{ fromJSON(steps.settings.outputs.output).settings.env-vars-file }}"
+      secrets: "${{ steps.secrets-handler.outputs.secrets }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,3 +83,12 @@ jobs:
         run: |
           entrypoint=($(echo '${{ toJSON(fromJSON(steps.settings.outputs.output).command.entrypoint) }}' | sed -e "s/,/ /g" -e "s/[]['\"]//g"))
           echo "entrypoint="$(IFS=,; echo "${entrypoint[*]}") >> $GITHUB_OUTPUT
+      - name: Secrets handler
+        id: secrets-handler
+        run: |
+          secretsValue='${{ toJSON(fromJSON(steps.settings.outputs.output).settings.secrets) }}'
+
+          if[[ "${secretsValue}" != "" ]]; then
+            secrets=($(echo "'"${secretsValue}"'" | grep -o '"[^\"]*":\s*"[^\"]*"' | awk -F'"' '{print $2"="$4}' || true))
+            echo "secrets="$(IFS=,; echo "${secrets[*]}") >> $GITHUB_OUPUT
+          fi

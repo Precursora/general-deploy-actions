@@ -26,6 +26,9 @@ on:
       env-vars-file:
         required: true
         type: string
+      secrets:
+        required: true
+        type: string
 permissions: write-all
 env:
   PROJECT_NUMBER: ${{ inputs.environment == 'dev' && secrets.GCP_PROJECT_NUMBER_DEV || inputs.environment == 'prod' && secrets.GCP_PROJECT_NUMBER_PROD }}
@@ -67,7 +70,8 @@ jobs:
           --task-timeout 180 \
           --add-cloudsql-instances=${{ inputs.instances }} \
           --service-account ${{ inputs.service-account }}@${{ env.PROJECT_NAME }}.iam.gserviceaccount.com \
-          --env-vars-file="${{ inputs.env-vars-file }}"
+          --env-vars-file="${{ inputs.env-vars-file }}" \
+          --set-secrets="${{ inputs.secrets }}"
       - name: Execute job
         if: ${{ steps.auth.outcome == 'success' }}
         run: gcloud run jobs execute ${{ env.SERVICE_NAME }} --region ${{ inputs.region }} --wait
