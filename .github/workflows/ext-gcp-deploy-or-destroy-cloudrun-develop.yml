@@ -56,6 +56,7 @@ jobs:
       service-account: ${{ needs.settings.outputs.service-account }}
       instances: ${{ needs.settings.outputs.instances }}
       env-vars-file: ${{ needs.settings.outputs.env-vars-file }}
+      secrets: ${{ needs.settings.outputs.secrets }}
       registry: us-docker.pkg.dev
     secrets: inherit
   custom-command:
@@ -74,6 +75,7 @@ jobs:
       registry: us-docker.pkg.dev
       environment: dev
       env-vars-file: ${{ needs.settings.outputs.env-vars-file }}
+      secrets: ${{ needs.settings.outputs.secrets }}
     secrets: inherit
   finish-deploy:
     name: Finish deploy
