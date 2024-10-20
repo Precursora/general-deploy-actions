@@ -22,6 +22,8 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       AIVEN_API_TOKEN: ${{ inputs.environment == 'dev' && secrets.AIVEN_API_TOKEN_DEV || inputs.environment == 'prod' && secrets.AIVEN_API_TOKEN_PROD }}
+      REDISCLOUD_API_KEY: ${{ secrets.REDISCLOUD_API_KEY }}
+      REDISCLOUD_SECRET_KEY: ${{ secrets.REDISCLOUD_SECRET_KEY }}
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -34,7 +36,7 @@ jobs:
         run: |
           cat > get_env_vars.sh << EOF
           #!/bin/bash
-          echo "{\"cloudflare_api_token\": \"${CLOUDFLARE_API_TOKEN}\", \"aiven_provider_api_token\": \"${AIVEN_API_TOKEN}\"}"
+          echo "{\"cloudflare_api_token\": \"${CLOUDFLARE_API_TOKEN}\", \"aiven_provider_api_token\": \"${AIVEN_API_TOKEN}\", \"rediscloud_api_key\": \"${REDISCLOUD_API_KEY}\", \"rediscloud_secret_key\": \"${REDISCLOUD_SECRET_KEY}\"}"
           EOF
         working-directory: ${{inputs.path}}
       - name: Setup backend
