@@ -4,10 +4,12 @@ on:
 jobs:
   create-pr:
     name: Create PR to DEV
-    uses: ./.github/workflows/ext-create-pull-request.yml
-    with:
-      base: develop
-      head: ${{github.ref_name}}
-      labels: development
-      environment: DEV
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR
+        uses: ./.github/workflows/general/ext-create-pull-request.yml
+        with:
+          base: develop
+          head: ${{github.ref_name}}
+          labels: development${{startsWith(github.ref_name, 'document') && ',document'}}
+          environment: DEV
