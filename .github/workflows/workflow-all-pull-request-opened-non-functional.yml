@@ -1,0 +1,24 @@
+name: Validate PR
+on:
+  workflow_call:
+jobs:
+  origin-validation:
+    if: github.event.pull_request.base.ref == 'main'
+    name: Origin validation
+    uses: ./.github/workflows/ext-pull-request-origin-validation.yml
+    with:
+      sha: ${{github.event.pull_request.head.sha}}
+      expected_origin: develop
+  finish:
+    needs: origin-validation
+    runs-on: ubuntu-latest
+    if: always()
+    name: Finish
+    steps:
+      - name: Create commit status check
+        uses: ./github/workflows/actions/general/ext-create-commit-status-check
+        with:
+          sha: ${{github.event.pull_request.head.sha}}
+          state: ${{ (github.event.pull_request.base.ref != 'main' || (github.event.pull_request.base.ref == 'main' && needs.origin-validation.result == 'success')) && 'success' || 'failure' }}
+          context: Finish Pull Request Validation
+          description: ${{ (github.event.pull_request.base.ref != 'main' || (github.event.pull_request.base.ref == 'main' && needs.origin-validation.result == 'success')) && 'Successful' || 'Failed' }}

@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create PR
-        uses: ./.github/workflows/general/ext-create-pull-request.yml
+        uses: ./.github/workflows/actions/general/ext-create-pull-request.yml
         with:
           base: develop
           head: ${{github.ref_name}}
