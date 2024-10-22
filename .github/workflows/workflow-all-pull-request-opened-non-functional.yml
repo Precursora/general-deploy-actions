@@ -11,11 +11,14 @@ jobs:
       expected_origin: develop
   finish:
     needs: origin-validation
-    name: Finish
+    runs-on: ubuntu-latest
     if: always()
-    uses: ./.github/workflows/actions/general/ext-create-commit-status-check.yml
-    with:
-      sha: ${{github.event.pull_request.head.sha}}
-      state: ${{ (github.event.pull_request.base.ref != 'main' || (github.event.pull_request.base.ref == 'main' && needs.origin-validation.result == 'success')) && 'success' || 'failure' }}
-      context: Finish Pull Request Validation
-      description: ${{ (github.event.pull_request.base.ref != 'main' || (github.event.pull_request.base.ref == 'main' && needs.origin-validation.result == 'success')) && 'Successful' || 'Failed' }}
+    name: Finish
+    steps:
+      - name: Create commit status check
+        uses: ./.github/actions/general/ext-create-commit-status-check
+        with:
+          sha: ${{github.event.pull_request.head.sha}}
+          state: ${{ (github.event.pull_request.base.ref != 'main' || (github.event.pull_request.base.ref == 'main' && needs.origin-validation.result == 'success')) && 'success' || 'failure' }}
+          context: Finish Pull Request Validation
+          description: ${{ (github.event.pull_request.base.ref != 'main' || (github.event.pull_request.base.ref == 'main' && needs.origin-validation.result == 'success')) && 'Successful' || 'Failed' }}
