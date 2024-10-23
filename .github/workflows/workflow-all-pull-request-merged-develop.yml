@@ -11,7 +11,7 @@ jobs:
   create-pr:
     needs: deploy
     name: Create PR to PROD
-    uses: ./.github/workflows/ext-create-pull-request.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-create-pull-request.yml@main
     with:
       base: main
       head: develop

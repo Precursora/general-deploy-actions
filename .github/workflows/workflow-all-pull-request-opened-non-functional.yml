@@ -9,8 +9,16 @@ jobs:
     with:
       sha: ${{github.event.pull_request.head.sha}}
       expected_origin: develop
+  add-non-functional-label:
+    runs-on: ubuntu-latest
+    name: Add non-functional label to PR
+    steps:
+      - name: Add non-funcional label to PR
+        run: gh pr edit ${{github.event.pull_request.number}} --repo ${{github.repository}} --add-label="non-functional"
   finish:
-    needs: origin-validation
+    needs:
+      - origin-validation
+      - add-non-functional-label
     name: Finish
     if: always()
     uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-create-commit-status-check.yml@main
