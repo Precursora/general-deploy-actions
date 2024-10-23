@@ -8,7 +8,7 @@ jobs:
   unit-tests:
     name: Unit tests
     needs: init
-    uses: ./.github/workflows/ext-laravel-unit-test.yml
+    uses: precursora/is-module-general-tests-actions-extensions/.github/workflows/ext-laravel-unit-test.yml@main
     if: needs.init.outputs.unit-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
@@ -20,7 +20,7 @@ jobs:
   mutation-tests:
     name: Mutation tests
     needs: init
-    uses: ./.github/workflows/ext-laravel-mutation-test.yml
+    uses: precursora/is-module-general-tests-actions-extensions/.github/workflows/ext-laravel-mutation-test.yml@main
     if: needs.init.outputs.mutation-tests-disabled != 'true' && needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}

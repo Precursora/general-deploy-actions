@@ -28,7 +28,7 @@ jobs:
   unit-tests:
     name: Unit tests
     needs: init
-    uses: ./.github/workflows/ext-nodejs-unit-test.yml
+    uses: precursora/is-module-general-tests-actions-extensions/.github/workflows/ext-nodejs-unit-test.yml@main
     if: needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}
@@ -40,7 +40,7 @@ jobs:
   mutation-tests:
     name: Mutation tests
     needs: init
-    uses: ./.github/workflows/ext-nodejs-mutation-test.yml
+    uses: precursora/is-module-general-tests-actions-extensions/.github/workflows/ext-nodejs-mutation-test.yml@main
     if: needs.init.outputs.destroy == 'false'
     with:
       sha: ${{github.event.pull_request.head.sha}}

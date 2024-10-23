@@ -11,7 +11,7 @@ jobs:
     needs: process
     if: always() && needs.process.outputs.deployed == 'true'
     name: Execute integration tests
-    uses: ./.github/workflows/ext-spring-maven-integration-test.yml
+    uses: precursora/is-module-general-tests-actions-extensions/.github/workflows/ext-spring-maven-integration-test.yml@main
     with:
       path: ${{needs.process.outputs.integration-tests-base-path}}
       report-file: ${{needs.process.outputs.integration-tests-report-file}}

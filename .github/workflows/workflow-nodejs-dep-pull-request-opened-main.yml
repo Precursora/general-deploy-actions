@@ -15,7 +15,7 @@ jobs:
   unit-tests:
     needs: origin-validation
     name: Unit tests
-    uses: ./.github/workflows/ext-nodejs-unit-test.yml
+    uses: precursora/is-module-general-tests-actions-extensions/.github/workflows/ext-nodejs-unit-test.yml@main
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 60
@@ -24,7 +24,7 @@ jobs:
   mutation-tests:
     needs: origin-validation
     name: Mutation tests
-    uses: ./.github/workflows/ext-nodejs-mutation-test.yml
+    uses: precursora/is-module-general-tests-actions-extensions/.github/workflows/ext-nodejs-mutation-test.yml@main
     with:
       sha: ${{github.event.pull_request.head.sha}}
       minimum-coverage: 40
