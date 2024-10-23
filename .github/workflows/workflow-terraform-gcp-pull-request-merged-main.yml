@@ -10,7 +10,7 @@ jobs:
     needs: init
     if: needs.init.outputs.destroy == 'false'
     name: Deploy
-    uses: ./.github/workflows/ext-gcp-terraform-deploy.yml
+    uses: precursora/is-module-gcp-deploy-actions-extensions/.github/workflows/ext-gcp-terraform-deploy.yml@main
     with:
       environment: prod
     secrets: inherit
@@ -18,7 +18,7 @@ jobs:
     needs: init
     name: Destroy
     if: needs.init.outputs.destroy != 'false'
-    uses: ./.github/workflows/ext-gcp-terraform-destroy.yml
+    uses: precursora/is-module-gcp-deploy-actions-extensions/.github/workflows/ext-gcp-terraform-destroy.yml@main
     with:
       environment: prod
       destroy: ${{ needs.init.outputs.destroy }}

@@ -5,5 +5,5 @@ permissions: write-all
 jobs:
   process:
     name: Process
-    uses: ./.github/workflows/ext-gcp-deploy-or-destroy-firebase-hosting-website-main.yml
+    uses: precursora/is-module-gcp-deploy-actions-extensions/.github/workflows/ext-gcp-deploy-or-destroy-firebase-hosting-website-main.yml@main
     secrets: inherit

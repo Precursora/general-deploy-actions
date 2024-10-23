@@ -9,7 +9,7 @@ jobs:
     needs: init
     name: Validation
     if: needs.init.outputs.destroy == 'false'
-    uses: ./.github/workflows/ext-gcp-terraform-validation.yml
+    uses: precursora/is-module-gcp-deploy-actions-extensions/.github/workflows/ext-gcp-terraform-validation.yml@main
   finish:
     needs:
       - init
