@@ -61,7 +61,7 @@ jobs:
       - generate-coverage-summary
     name: Finish
     if: always()
-    uses: ./.github/workflows/ext-create-commit-status-check.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-create-commit-status-check.yml@main
     with:
       sha: ${{github.event.pull_request.head.sha}}
       state: ${{ (needs.init.outputs.destroy != 'false' || ((needs.init.outputs.unit-tests-disabled == 'true' || needs.unit-tests.result == 'success') && (needs.init.outputs.mutation-tests-disabled == 'true' || needs.mutation-tests.result == 'success') && (inputs.without-infra || needs.validation-infra.result == 'success'))) && 'success' || 'failure' }}
