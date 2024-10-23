@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Add non-funcional label to PR
         run: gh pr edit ${{github.event.pull_request.number}} --repo ${{github.repository}} --add-label="non-functional"
+        env:
+          GH_TOKEN: ${{github.token}}
   finish:
     needs:
       - origin-validation
