@@ -4,7 +4,7 @@ on:
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-destruction-properties.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-initialization-destruction-properties.yml@main
   validation:
     needs: init
     name: Validation

@@ -5,7 +5,7 @@ permissions: write-all
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-destruction-properties.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-initialization-destruction-properties.yml@main
   deploy:
     needs: init
     if: needs.init.outputs.destroy == 'false'
@@ -29,7 +29,7 @@ jobs:
       - deploy
     if: always() && needs.deploy.result == 'success'
     name: Create tag
-    uses: ./.github/workflows/ext-create-tag.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-create-tag.yml@main
     secrets: inherit
   finish:
     needs:

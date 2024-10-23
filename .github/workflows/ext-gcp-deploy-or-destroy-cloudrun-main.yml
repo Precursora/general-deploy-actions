@@ -5,7 +5,7 @@ permissions: write-all
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-initialization-pipeline-properties.yml@main
   destroy:
     needs: init
     name: Destroy resources
@@ -19,7 +19,7 @@ jobs:
     needs: init
     name: Load application settings
     if: needs.init.outputs.destroy == 'false'
-    uses: ./.github/workflows/ext-load-application-settings.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-load-application-settings.yml@main
     with:
       environment: prod
   deploy:
@@ -70,7 +70,7 @@ jobs:
     needs: custom-command
     if: always() && needs.custom-command.result == 'success'
     name: Create tag
-    uses: ./.github/workflows/ext-create-tag.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-create-tag.yml@main
     secrets: inherit
   finish-deploy:
     name: Finish deploy

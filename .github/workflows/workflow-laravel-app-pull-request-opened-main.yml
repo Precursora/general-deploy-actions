@@ -4,14 +4,14 @@ on:
 jobs:
   origin-validation:
     name: Origin validation
-    uses: ./.github/workflows/ext-pull-request-origin-validation.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-pull-request-origin-validation.yml@main
     with:
       sha: ${{github.event.pull_request.head.sha}}
       expected_origin: develop
   init:
     needs: origin-validation
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-initialization-pipeline-properties.yml@main
   unit-tests:
     name: Unit tests
     needs: init
@@ -42,7 +42,7 @@ jobs:
       - mutation-tests
     name: Coverage
     if: always() && needs.origin-validation.result == 'success'
-    uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-tests-generate-coverage-summary.yml@main
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}

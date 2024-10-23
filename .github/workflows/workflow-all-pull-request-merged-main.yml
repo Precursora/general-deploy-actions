@@ -4,5 +4,5 @@ on:
 jobs:
   create-tag:
     name: Create tag
-    uses: ./.github/workflows/ext-create-tag.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-create-tag.yml@main
     secrets: inherit

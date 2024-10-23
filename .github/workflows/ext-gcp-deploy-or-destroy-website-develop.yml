@@ -10,7 +10,7 @@ permissions: write-all
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-pipeline-website-properties.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-initialization-pipeline-website-properties.yml@main
   destroy:
     needs: init
     name: Destroy resources

@@ -5,7 +5,7 @@ jobs:
   origin-validation:
     if: github.event.pull_request.base.ref == 'main'
     name: Origin validation
-    uses: ./.github/workflows/ext-pull-request-origin-validation.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-pull-request-origin-validation.yml@main
     with:
       sha: ${{github.event.pull_request.head.sha}}
       expected_origin: develop

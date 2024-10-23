@@ -4,7 +4,7 @@ on:
 jobs:
   init:
     name: Initialization
-    uses: ./.github/workflows/ext-initialization-pipeline-properties.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-initialization-pipeline-properties.yml@main
   unit-tests:
     name: Unit tests
     needs: init
@@ -36,7 +36,7 @@ jobs:
       - mutation-tests
     name: Coverage
     if: always()
-    uses: ./.github/workflows/ext-tests-generate-coverage-summary.yml
+    uses: precursora/is-module-general-deploy-actions-extensions/.github/workflows/ext-tests-generate-coverage-summary.yml@main
     with:
       unit-tests-report: ${{needs.unit-tests.outputs.indexes}}
       mutation-tests-report: ${{needs.mutation-tests.outputs.indexes}}
