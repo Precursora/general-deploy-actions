@@ -1,9 +1,0 @@
-name: Deploy to GCP - PROD
-on:
-  workflow_call:
-permissions: write-all
-jobs:
-  process:
-    name: Process
-    uses: precursora/is-module-gcp-deploy-actions-extensions/.github/workflows/ext-gcp-deploy-or-destroy-cloudrun-main.yml@main
-    secrets: inherit
